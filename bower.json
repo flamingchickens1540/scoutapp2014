@@ -1,0 +1,24 @@
+{
+  "name": "BunnyBotsScoringSystem",
+  "version": "0.0.1",
+  "main": [
+    "app.js"
+  ],
+  "ignore": [
+    "**/.*"
+  ],
+  "dependencies": {
+    "bootstrap": ">= 3.0.0",
+    "angular": "1.2.3",
+    "socket.io-client": "~0.9.16",
+    "angular-route": "~1.2.1",
+    "angular-socket-io": "~0.2.0",
+    "angular-touch": "~1.2.4"
+  },
+  "readmeFilename": "README.md",
+  "description": "See index.html",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/khanh111/bunnybots.git"
+  }
+}

@@ -1,0 +1,21 @@
+!!!
+html(ng-app="scout2014")
+  head
+    meta(charset='utf-8')
+    meta(name="apple-mobile-web-app-capable", content='yes')
+    base(href='/')
+    title Bunnybots
+    link(rel='stylesheet', type='text/css', href='/libs/bootstrap/dist/css/bootstrap.min.css')
+    link(rel='stylesheet', type='text/css', href='/css/index.css')
+  body
+    .container#mainWrapper(ng-view, ng-controller='AppCtrl')
+
+
+
+    script(src='libs/socket.io-client/dist/socket.io.min.js')
+    script(src='libs/angular/angular.min.js')
+    script(src='libs/angular-socket-io/socket.js')
+    script(src='libs/angular-route/angular-route.min.js')
+    script(src='libs/angular-touch/angular-touch.min.js')
+    script(src='js/main.js')
+
