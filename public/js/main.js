@@ -3,7 +3,8 @@
 var app = angular.module('scout2014', [
   'ngRoute',
   'ngTouch',
-  'btford.socket-io'
+  'btford.socket-io',
+  'ui.bootstrap'
  ]);
 
 
@@ -56,7 +57,14 @@ app.controller('PitCtrl', function($scope) {
 });
 
 app.controller('ScoutCtrl', function($scope) {
-  
+  $scope.rate = 0;
+  $scope.max = 5;
+  $scope.isReadOnly = false;
+
+  $scope.hoveringOver = function(value) {
+    $scope.overStar = value;
+    $scope.percent = 100 * (value / $scope.max);
+  }
 });
 
 app.controller('ModeratorCtrl', function($scope) {

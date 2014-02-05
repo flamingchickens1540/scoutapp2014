@@ -1,11 +1,56 @@
+    .panel.panel-default  
+      .panel-heading
+        h2.panel-heading General Information
+      .panel-body  
+        .row
+          .col-sm-12
+            h2.text-center
+              | Team/Event Info:
+              br
+              .input-group
+                span.input-group-addon Team#
+                input.form-control(type='number')
+              br
+              select.form-control
+                option(value='1') Event 1
+                option(value='2') Event 2
+                option(value='3') Event 3
+                option(value='4') Event 4
+                option(value='5') Event 5
 
-p.lead Add a Team to the Event
+        .row
+          .col-sm-12
+            h2.text-center
+              | Robot Height:
+              br
+              .input-group
+                input.form-control(type='number')
+                span.input-group-addon inches
+        .row
+          h2.text-center
+            | Drivetrain:
+            br
+            select.form-control
+              option(value='tank') Tank Drive
+              option(value='swerve') Swerve Drive
+              option(value='slide') Slide
+              option(value='mecanum') Mecanum
+              option(value='holonomic') Holonomic
 
-h2 Number:
-input.input-lg(ng-model="team._id")
+        .row
+          h2.text-center Shifting?
+          br
+        .row
+          .text-center
+            .btn-group
+              button.btn.btn-default(type='button') Yes
+              button.btn.btn-default(type='button') No
 
-h3 Name:
-input.input-lg(ng-model="team.name")
-
-br
-btn.btn.btn-lg.btn-success(ng-click="createTeam()", style="margin-top:20px;") Submit
+        .row
+          .col-sm-12
+            h2.text-center
+              | Shooting Range:
+              br
+              .input-group
+                input.form-control(type='number')
+                span.input-group-addon feet
