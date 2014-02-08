@@ -3,7 +3,8 @@
 var app = angular.module('scout2014', [
   'ngRoute',
   'ngTouch',
-  'btford.socket-io'
+  'ui.bootstrap',
+  'btford.socket-io',
  ]);
 
 
