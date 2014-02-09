@@ -1,0 +1,20 @@
+p.text-center {{title}}
+
+.row
+	.col-sm-12
+		.btn-group.btn-group-justified	
+			.btn(ng-repeat="(title, btn) in itemsToTrack track by $index", class="btn-{{btn.type}}",ng-click=" changeValue( '{{title}}' ) ") {{title | capitalize}} - ({{btn.value}})
+
+.row
+	.col-sm-12
+		.btn-group.btn-group-justified	
+			.btn(ng-repeat="(title, btn) in itemsToTrack track by $index", class="btn-{{btn.type}}",ng-click=" undoValue( '{{title}}' ) ") Undo {{title | capitalize}}
+
+//-
+	p.lead.text-center {{title}}
+
+	.row
+		.col-sm-12
+			.btn-group.btn-group-justified	
+				.btn.btn-lg(ng-repeat-start="(title, btn) in itemsToTrack track by $index", class="btn-{{btn.type}}",ng-click=" changeValue( '{{title}}' ) ") {{title | capitalize}} - ({{btn.value}})
+				.btn.btn-lg(ng-repeat-end, class="btn-{{btn.type}}",ng-click=" undoValue( '{{title}}' ) ") Undo {{title | capitalize}}

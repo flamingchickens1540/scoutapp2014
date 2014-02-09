@@ -48,6 +48,11 @@ app.get('/partials/:name', function (req, res) {
   res.render('partials/' + name);
 });
 
+app.get('/components/:name', function (req, res) {
+  var name = req.params.name;
+  res.render('components/' + name);
+});
+
 // redirect all others to the index
 app.get('*', function(req, res){
   res.render('index');

@@ -1,0 +1,7 @@
+.row
+	.col-sm-3
+		p.lead {{title}}
+	.col-sm-9
+		select.form-control
+			option(selected) {{default}}
+			option(ng-repeat="option in options track by $index", value="{{option}}") {{option}}
