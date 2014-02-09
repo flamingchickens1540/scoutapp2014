@@ -339,24 +339,6 @@ app.directive('compSpinner', function() {
   };
 });
 
-// doesn't work
-app.directive('compSelect', function() {
-  return {
-    restrict:'E',
-    required: ['ng-model', 'options'],
-    scope: {
-      options: '=',
-      title: '@',
-      model: '=',
-      required: '@'
-    },
-    controller: function($scope) {
-
-    },
-    templateUrl: 'components/select'
-  }
-});
-
 app.filter('capitalize', function() {
     return function(input, param) {
 
