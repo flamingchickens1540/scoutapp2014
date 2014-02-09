@@ -53,6 +53,11 @@ app.get('/components/:name', function (req, res) {
   res.render('components/' + name);
 });
 
+app.get('/templates/:name', function (req, res) {
+  var name = req.params.name;
+  res.render('templates/' + name);
+});
+
 // redirect all others to the index
 app.get('*', function(req, res){
   res.render('index');

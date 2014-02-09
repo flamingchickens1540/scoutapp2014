@@ -1,0 +1,24 @@
+// match info
+.panel.panel-default
+	.panel-heading Match Info
+	.panel-body
+		p.lead.text-center Red1
+
+		.row
+			.col-sm-3
+				p.lead Choose Event
+			.col-sm-9
+				select.form-control(ng-options="event.name as event.value group by event.region for event in events" ng-model="event" required)
+		.row
+			.col-sm-3
+				p.lead Scout Name
+			.col-sm-9
+				select.form-control(ng-options="scout for scout in scouts" ng-model="scout" required)
+
+		.row
+			.col-sm-12
+				.btn-group.btn-group-justified
+					.btn.btn-lg.btn-success(ng-click="continueToMatch()") I See My Robot!
+
+
+			
