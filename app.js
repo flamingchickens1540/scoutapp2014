@@ -48,11 +48,6 @@ app.get('/partials/:name', function (req, res) {
   res.render('partials/' + name);
 });
 
-// redirect all others to the index
-app.get('*', function(req, res){
-  res.render('index');
-});
-
 /* SOCKET.IO EVENTS */
 io.sockets.on('connection', function(socket) {
   console.log('connected to socket '+ socket.id);

@@ -13,7 +13,8 @@
     "socket.io-client": "~0.9.16",
     "angular-route": "~1.2.1",
     "angular-socket-io": "~0.2.0",
-    "angular-touch": "~1.2.4"
+    "angular-touch": "~1.2.4",
+    "angular-bootstrap": "~0.10.0"
   },
   "readmeFilename": "README.md",
   "description": "See index.html",
