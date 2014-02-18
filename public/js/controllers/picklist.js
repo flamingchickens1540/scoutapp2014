@@ -74,10 +74,10 @@ app.controller('PicklistCtrl', function($scope) {
 		  info: "This is where info for 4127 will go.",
 		  second_picks: [1359, 3131, 4051]
 		}
-  },
+  };
 
   //Need input for this part, for now, it's set as an empty object that is later filled with every team.
-  $scope.firstPicks = {},
+  $scope.firstPicks = {};
 
   //Need input for this part, until then, it's just a duplication of the allTeams object.
   $scope.secondPicks = $scope.allTeams;
@@ -91,14 +91,14 @@ app.controller('PicklistCtrl', function($scope) {
 
 
 	  angular.forEach($scope.allTeams, function(obj, key) {
-			if (!obj.selected){
+			if (!obj.selected) {
 
 			  $scope.firstPicks[key] = {
-				name: obj.name,
-				selected: obj.selected,
-				styleClass: obj.styleClass,
-				info: obj.info,
-				second_picks: obj.second_picks
+					name: obj.name,
+					selected: obj.selected,
+					styleClass: obj.styleClass,
+					info: obj.info,
+					second_picks: obj.second_picks
 			  };
 			}
 	  });
@@ -111,11 +111,11 @@ app.controller('PicklistCtrl', function($scope) {
 			$scope.currentTeamInfo = teamId;
 	  };
 
-	// run the logic for the first, second lists
+		// run the logic for the first, second lists
   };
 
   $scope.getClass = function(inputTeamId) {
   	// return the class
 		return $scope.allTeams[inputTeamId].styleClass;
-  }
+  };
 });
