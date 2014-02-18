@@ -8,7 +8,7 @@ html(ng-app="scout2014")
     link(rel='stylesheet', type='text/css', href='/libs/bootstrap/dist/css/bootstrap.min.css')
     link(rel='stylesheet', type='text/css', href='/css/index.css')
   body
-    .container#mainWrapper(ng-view, ng-controller='AppCtrl')
+    .container(ng-view, ng-controller='AppCtrl')
 
 
 
@@ -19,4 +19,3 @@ html(ng-app="scout2014")
     script(src='libs/angular-touch/angular-touch.min.js')
     script(src='libs/angular-bootstrap/ui-bootstrap-tpls.min.js')
     script(src='js/main.js')
-
