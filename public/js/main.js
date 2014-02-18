@@ -265,27 +265,12 @@ app.controller('ScoutCtrl', function($scope, $modal, $http) {
     }
   };
 
-  $scope.scoring.playStyles = [
-    {
-      name: 'dozer',
-      action: false,
-    },
-    {
-      name: 'goalie',
-      action: false,
-    },
-    {
-      name: 'truss shooter',
-      action: false,
-    },
-    {
-      name: 'defense',
-      action:  false
-    },
-    {
-      name: 'shooter',
-      action:  false
-    }
+  $scope.scoring['playStyles'] = [
+    { name: 'dozer', action: false },
+    { name: 'goalie', action: false },
+    { name: 'truss shooter', action: false },
+    { name: 'defense', action:  false },
+    { name: 'shooter', action:  false }
   ];
 
   /***************** TEAMWORK *****************/
@@ -304,22 +289,10 @@ app.controller('ScoutCtrl', function($scope, $modal, $http) {
   };
 
   $scope.teamwork['zones'] = [
-    {
-      name: 'one',
-      action: false,
-    },
-    {
-      name: 'two',
-      action: false,
-    },
-    {
-      name: 'three',
-      action: false,
-    },
-    {
-      name: 'goal',
-      action:  false
-    }
+    { name: 'one', action: false },
+    { name: 'two', action: false },
+    { name: 'three', action: false },
+    { name: 'goal', action: false }
   ];
 
 
@@ -346,26 +319,11 @@ app.controller('ScoutCtrl', function($scope, $modal, $http) {
   }; 
 
   $scope.submit['ratings'] = [
-    {
-      title: 'driving',
-      stars: 0
-    },
-    {
-      title: 'shooting',
-      stars: 0
-    },
-    {
-      title: 'passing',
-      stars: 0
-    },
-    {
-      title: 'defense',
-      stars: 0
-    },
-    {
-      title: 'catching',
-      stars: 0
-    }
+    { title: 'driving', stars: 0 },
+    { title: 'shooting', stars: 0 },
+    { title: 'passing', stars: 0 },
+    { title: 'defense', stars: 0 },
+    { title: 'catching', stars: 0 }
   ];
 
   // get from server
