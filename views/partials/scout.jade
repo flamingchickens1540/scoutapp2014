@@ -1,4 +1,4 @@
-link(rel='stylesheet', type='text/css', href='/css/index.css')
+link(rel='stylesheet' type='text/css' href='/css/index.css')
 
 // extra navigation
 header.navbar.navbar-inverse.navbar-fixed-top
@@ -18,7 +18,7 @@ header.navbar.navbar-inverse.navbar-fixed-top
 					a(ng-click="displayView( 'submit' )") Match Submit
 
 // match info
-.panel.panel-default(collapse="collapse.info")
+.panel.panel-default(collapse="collapsed.info")
 	.panel-heading Match Info
 	.panel-body
 		p.lead.text-center Red1
@@ -27,19 +27,19 @@ header.navbar.navbar-inverse.navbar-fixed-top
 			.col-sm-3
 				p.lead Choose Event
 			.col-sm-9
-				select.form-control(ng-options="event.name as event.value group by event.region for event in events" ng-model="event" required)
+				select.form-control(ng-options="event.name as event.value group by event.region for event in events" ng-model="info.event")
 		.row
 			.col-sm-3
 				p.lead Scout Name
 			.col-sm-9
-				select.form-control(ng-options="scout for scout in scouts" ng-model="scout" required)
+				select.form-control(ng-options="scout for scout in scouts" ng-model="info.scout")
 
 		.row
 			.col-sm-10.col-sm-offset-1
 				.btn.btn-block.btn-info(ng-click="continueToMatch(); displayView( 'auto' )") I See My Robot!
 
 // autonomous info
-.panel.panel-default(collapse="collapse.auto")
+.panel.panel-default(collapse="collapsed.auto")
 	.panel-heading Autonomous
 	.panel-body
 
@@ -48,18 +48,30 @@ header.navbar.navbar-inverse.navbar-fixed-top
 		.row
 			.col-sm-12
 				.btn-group.btn-group-justified
-					.btn.btn-default.btn-lg(ng-model="startPosition" btn-radio="'field'") Field
-					.btn.btn-default.btn-lg(ng-model="startPosition" btn-radio="'goalie'") Goalie
+					.btn.btn-default.btn-lg(ng-model="auto.startPosition" btn-radio="'field'") Field
+					.btn.btn-default.btn-lg(ng-model="auto.startPosition" btn-radio="'goalie'") Goalie
 
 			.col-sm-12
 				// if goalie, do shots blocked, if shooter, shots made
-				div(ng-if="startPosition === 'field'")
+				div(ng-if="auto.startPosition === 'field'")
 					br
 					.row
 						.col-sm-8.col-sm-offset-2
-							.btn.btn-success.btn-block(ng-model="drivesForward" btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false") Drives Forward
-					comp-spinner(title="Autonomous Shots", items-to-track="fieldItemsToTrackInAutonomous")
-				comp-spinner(ng-if="startPosition === 'goalie'",title="Goalie Autonomous", items-to-track="goalieItemsToTrackInAutonomous")
+							.btn.btn-success.btn-block(ng-model="auto.drivesForward" btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false") Drives Forward - ({{auto.drivesForward}})
+					.row
+						.col-sm-6
+							comp-spinner(title="Goal" type="success" ng-model="auto.fieldValues.goal")
+						.col-sm-6
+							comp-spinner(title="Hot" type="warning" ng-model="auto.fieldValues.hotgoal")
+						.col-sm-6
+							comp-spinner(title="Miss" type="danger" ng-model="auto.fieldValues.miss")
+				
+				div(ng-if="auto.startPosition === 'goalie'")
+					.row
+						.col-sm-6
+							comp-spinner(title="Block" type="success" ng-model="auto.goalieValues.block")
+						.col-sm-6
+							comp-spinner(title="Miss" type="danger" ng-model="auto.goalieValues.miss")
 
 		br
 
@@ -68,31 +80,31 @@ header.navbar.navbar-inverse.navbar-fixed-top
 				.btn.btn-block.btn-info(ng-click="displayView( 'teleop' )") Finish Autonomous
 
 // For scoring
-.panel.panel-default(collapse="collapse.scoring")
+.panel.panel-default(collapse="collapsed.scoring")
 	.panel-heading Scoring
 	.panel-body
 		.row
 			.col-offset-2.col-sm-10
-				p.lead.pull-left Play Styles (select mutiple)
+				p.lead.pull-left Play Styles (select multiple)
 
 			.col-sm-12
 				.btn-group.btn-group-justified
-					.btn.btn-primary.btn-lg(ng-repeat="playStyle in playStyles track by $index", btn-checkbox, ng-model="playStyles[$index].action") {{playStyle.name | capitalize}}
+					.btn.btn-primary.btn-lg(ng-repeat="playStyle in scoring.playStyles track by $index", btn-checkbox ng-model="scoring.playStyles[$index].action") {{playStyle.name | capitalize}}
 
 		br
 
 		.row
+			.col-offset-2.col-sm-10
+				p.lead.pull-left Goals
 			.col-sm-6
-				comp-spinner(title="High Goal", items-to-track="itemsToTrack")
+				comp-spinner(title="High" type="success" ng-model="scoring.goals.high")
 			.col-sm-6
-				comp-spinner(title="Low Goal", items-to-track="itemsToTrack")
+				comp-spinner(title="Low" type="warning" ng-model="scoring.goals.low")
 
 // Teamwork - passing/receiving
-.panel.panel-default(collapse="collapse.teamwork")
+.panel.panel-default(collapse="collapsed.teamwork")
 	.panel-heading Teamwork
 	.panel-body
-
-		p.lead.text-center Receiving
 
 		.row
 			.col-offset-2.col-sm-4
@@ -100,7 +112,7 @@ header.navbar.navbar-inverse.navbar-fixed-top
 
 			.col-sm-12
 				.btn-group.btn-group-justified
-					.btn.btn-primary.btn-lg(ng-repeat="zone in zones track by $index", btn-checkbox, ng-model="zones[$index].action") Zone - {{zone.name}}
+					.btn.btn-primary.btn-lg(ng-repeat="zone in teamwork.zones track by $index" btn-checkbox ng-model="teamwork.zones[$index].action") Zone - {{zone.name}}
 					
 		//	^ (above) compiles to v (below)
 		//
@@ -112,91 +124,77 @@ header.navbar.navbar-inverse.navbar-fixed-top
 						.btn.btn-primary(btn-checkbox, ng-model="zones[2].action", ng-click="print()") Zone 3 
 						.btn.btn-primary(btn-checkbox, ng-model="zones[3].action", ng-click="print()") Goalie Zone 
 
+		p.lead.text-center Receiving
 		.row 
 			.col-sm-6
-				comp-spinner(title="Rolling Receive", items-to-track="itemsToTrack")
-				comp-spinner(title="Truss Catch", items-to-track="itemsToTrack")
+				comp-spinner(title="Rolling" ng-model="teamwork.receiving.roll" type="warning")
+				comp-spinner(title="Truss" ng-model="teamwork.receiving.truss" type="success")
 
 			.col-sm-6
-				comp-spinner(title="Aerial Catch", items-to-track="itemsToTrack")
+				comp-spinner(title="Aerial" ng-model="teamwork.receiving.aerial" type="danger")
 
-				//
-					p.lead.text-center Miss Percentages
-					br
-					.row
-						.col-sm-12
-							progress
-								bar(value='55', type='success') 55%
+		br
 
 		p.lead.text-center Passing
-
 		.row
 			.col-sm-6
-				comp-spinner(title="Rolling Pass", items-to-track="itemsToTrack")
-				comp-spinner(title="Truss Toss", items-to-track="itemsToTrack")
+				comp-spinner(title="Rolling", ng-model="teamwork.passing.roll" type="warning")
+				comp-spinner(title="Truss" ng-model="teamwork.passing.truss" type="success")
 
 			.col-sm-6
-				comp-spinner(title="Aerial Toss", items-to-track="itemsToTrack")
-				
-				//
-					p.lead.text-center Pass Percentages
-					br
-					.row
-						.col-sm-12
-							progress
-								bar(value='55', type='success') 55%
+				comp-spinner(title="Aerial" ng-model="teamwork.passing.aerial" type="danger")
 
 		.row
 			.col-sm-10.col-sm-offset-1
 				.btn.btn-block.btn-info(ng-click="displayView( 'submit' )") Finish Match
 
 // issues
-.panel.panel-default(collapse="collapse.issues")
+.panel.panel-default(collapse="collapsed.issues")
 	.panel-heading Issues
 	.panel-body
 		.row
 			.col-sm-12
 		.input-group
-			.input-group-btn(ng-init="deadBroken=null")
-				.btn.btn-danger(ng-model="deadBroken" btn-radio="'dead'") Dead or No-show
-				.btn.btn-warning(ng-model="deadBroken" btn-radio="'broken'") Broken
-			input.form-control(type="text" placeholder="Dead / No-show / Broken")
 			.input-group-btn
-				.btn.btn-default(ng-model="deadBroken" btn-radio="null")
+				.btn.btn-danger(ng-model="issues.deadBroken" btn-radio="'dead'") Dead or No-show
+				.btn.btn-warning(ng-model="issues.deadBroken" btn-radio="'broken'") Broken
+			input.form-control(type="text" ng-model="issues.deadBrokenNotes" placeholder="Dead / No-show / Broken")
+			.input-group-btn
+				.btn.btn-default(ng-model="issues.deadBroken" btn-radio="null")
 					span.glyphicon.glyphicon-remove
 
 		br
 
 		.input-group
-			.input-group-btn(ng-init="ejectable=null")
-				.btn.btn-success(ng-model="ejectable" btn-radio="'ejectable'") Passive Eject
-				.btn.btn-danger(ng-model="ejectable" btn-radio="'stuck'") Stuck
-			input.form-control(type="text" placeholder="If robot breaks while holding ball...")
 			.input-group-btn
-				.btn.btn-default(ng-model="ejectable" btn-radio="null")
+				.btn.btn-success(ng-model="issues.ejectable" btn-radio="'ejectable'") Passive Eject
+				.btn.btn-danger(ng-model="issues.ejectable" btn-radio="'stuck'") Stuck
+			input.form-control(type="text" ng-model="issues.ejectionNotes" placeholder="If robot breaks while holding ball, what happens?")
+			.input-group-btn
+				.btn.btn-default(ng-model="issues.ejectable" btn-radio="null")
 					span.glyphicon.glyphicon-remove
 
 // submit match
-.panel.panel-default(collapse="collapse.submit")
+.panel.panel-default(collapse="collapsed.submit")
 	.panel-heading Post-Match
 	.panel-body
 		h3 Ratings
 
 		.row
 			// repeats this when not even
-			.col-sm-6
-				.row(ng-repeat="rating in ratings track by $index", ng-if="$even")
+			.col-sm-6(ng-repeat-start="rating in submit.ratings track by $index")
+				.row(ng-if="$even")
 					.col-sm-5
 						p.pull-left {{rating.title | capitalize}}
 					.col-sm-offset-2.col-sm-5
-						rating.stars.pull-right(value="ratings[$index].stars" max="numStars")
+						rating.stars.pull-right(value="submit.ratings[$index].stars" max="submit.numStars")
 
-			.col-sm-6
-				.row(ng-repeat="rating in ratings track by $index", ng-if="$odd")
+			.col-sm-6(ng-repeat-end )
+				.row(ng-if="$odd")
 					.col-sm-5
 						p.pull-left {{rating.title | capitalize}}
 					.col-sm-offset-2.col-sm-5
-						rating.stars.pull-right(value="ratings[$index].stars",max="numStars")
+						rating.stars.pull-right(value="submit.ratings[$index].stars" max="submit.numStars")
 
 		.row
 			.form-group
@@ -206,7 +204,7 @@ header.navbar.navbar-inverse.navbar-fixed-top
 					textarea.form-control(rows=15 disabled) {{currentNotes}}
 				.col-sm-12
 					// if a robot is dead, there is no need for match notes
-					textarea.form-control(autofocus placeholder="Notes..." rows=15 ng-model="notes" ng-disabled="deadBroken === 'dead'")
+					textarea.form-control(placeholder="Notes..." ng-model="submit.notes" rows=15 ng-disabled="deadBroken === 'dead'")
 
 		.row
 			.col-sm-10.col-sm-offset-1

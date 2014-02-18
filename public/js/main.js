@@ -58,8 +58,10 @@ app.controller('PitCtrl', function($scope) {
 });
 
 app.controller('ScoutCtrl', function($scope, $modal, $http) {
-  /* Collapse functions */
-  $scope.collapse = {
+  /* NON-DATA INFORMATION */
+
+  /* COLLAPSE STATES */
+  $scope.collapsed = {
     info: false,
     auto: true,
     scoring: true,
@@ -69,7 +71,7 @@ app.controller('ScoutCtrl', function($scope, $modal, $http) {
   };
 
   $scope.displayView = function displayView(panel) {
-    $scope.collapse = {
+    $scope.collapsed = {
       info: true,
       auto: true,
       scoring: true,
@@ -80,23 +82,22 @@ app.controller('ScoutCtrl', function($scope, $modal, $http) {
 
     switch(panel) {
       case 'info':
-        $scope.collapse['info'] = false;
-        $scope.collapse['issues'] = false;
+        $scope.collapsed['info'] = false;
         break;
 
       case 'auto':
-        $scope.collapse['auto'] = false;
-        $scope.collapse['issues'] = false;
+        $scope.collapsed['auto'] = false;
+        $scope.collapsed['issues'] = false;
         break;
 
       case 'teleop':
-        $scope.collapse['scoring'] = false;
-        $scope.collapse['teamwork'] = false;
-        $scope.collapse['issues'] = false;
+        $scope.collapsed['scoring'] = false;
+        $scope.collapsed['teamwork'] = false;
+        $scope.collapsed['issues'] = false;
         break;
 
       case 'submit':
-        $scope.collapse['submit'] = false;
+        $scope.collapsed['submit'] = false;
         break;
 
       default:
@@ -105,125 +106,54 @@ app.controller('ScoutCtrl', function($scope, $modal, $http) {
     }
   };
 
-  // TEST SpinnerComponent
-  $scope.itemsToTrack = {
-    'goal': {
-      type: 'success',
-      value: 0
-    },
-    'miss': {
-      type: 'danger',
-      value: 0
-    },
-  };
-
-
-  /***************** AUTONOMOUS *****************/
-  $scope.startPosition = null;
-  $scope.drivesForward = false;
-
-  $scope.fieldItemsToTrackInAutonomous = {
-    'goal': {
-      type: 'success',
-      value: 0
-    },
-    'miss': {
-      type: 'danger',
-      value: 0
-    },
-    'hotgoal': {
-      type: 'warning',
-      value: 0
-    },
-  };
-
-  $scope.goalieItemsToTrackInAutonomous = {
-    'blocked': {
-      type: 'success',
-      value: 0
-    },
-    'miss': {
-      type: 'danger',
-      value: 0
-    }
-  };
-
-
-
-  // MATCH INFO
-  $scope.openMatchInfoModal = function() {
-    var matchInfoModal = $modal.open({
-      templateUrl: 'templates/match_info',
-      backdrop: 'static',
-      // modal scope is a sub-prototype of this scope
-      scope: $scope,
-      controller: function($scope, $modalInstance) {
-        $scope.continueToMatch = function continueToMatch() {
-          // verify all data is submitted
-
-          $modalInstance.close();
-        };
-      }
-    });
-  };
-
-  //$scope.openMatchInfoModal();
-
-  $scope.events = [
-    { name: 'orpo', value: 'test', region: 'Regionals' },
-    { name: 'pnw - district 1', value: 'test2', region: 'PNW' }
-  ];
-
+  /* LISTS */
   $scope.scouts = [
     'Ben Balden',
     'Anna Dodson',
     'Ian Hoyt'
   ];
 
-  $scope.scout = 'Who are you?'
-
-  //MATCH SUBMISSION
-  $scope.openMatchSubmitModal = function() {
-
-    //check that everything else is completed
-
-    var matchSubmitModal = $modal.open({
-      templateUrl: 'templates/match_submit',
-      // modal scope is a sub-prototype of this scope
-      scope: $scope
-    });
-  };
-  
-  /* Vote Directive */
-  $scope.auto = {
-    min: 0,
-    max: 3,
-    value: 1
-  };
-
-
-  /*  Zones  */
-  $scope.zones = [
-    {
-      name: 'one',
-      action: false,
-    },
-    {
-      name: 'two',
-      action: false,
-    },
-    {
-      name: 'three',
-      action: false,
-    },
-    {
-      name: 'goal',
-      action:  false
-    }
+  $scope.events = [
+    { name: 'orpo', value: 'test', region: 'Regionals' },
+    { name: 'pnw - district 1', value: 'test2', region: 'PNW' }
   ];
 
-  /*  Play Styles  */
-  $scope.playStyles = [
+
+  /***************** INFO *****************/
+  $scope.info = {
+    scout: null,
+    event: null,
+    team: null,
+    match: null
+  };
+
+
+  /***************** AUTONOMOUS *****************/
+  $scope.auto = {
+    startPosition: null,
+    drivesForward: false,
+    fieldValues: {
+      goal: 0,
+      miss: 0,
+      hotgoal: 0
+    },
+    goalieValues: {
+      block: 0,
+      miss: 0
+    }
+  };
+
+
+  /***************** SCORING *****************/
+  $scope.scoring = {
+    playStyles: [],
+    goals: {
+      high: 0,
+      low: 0
+    }
+  };
+
+  $scope.scoring.playStyles = [
     {
       name: 'dozer',
       action: false,
@@ -246,8 +176,64 @@ app.controller('ScoutCtrl', function($scope, $modal, $http) {
     }
   ];
 
+  /***************** TEAMWORK *****************/
+  $scope.teamwork = {
+    zones: [],
+    receiving: {
+      roll: 0,
+      truss: 0,
+      aerial: 0
+    },
+    passing: {
+      roll: 0,
+      truss: 0,
+      aerial: 0
+    }
+  };
+
+  $scope.teamwork['zones'] = [
+    {
+      name: 'one',
+      action: false,
+    },
+    {
+      name: 'two',
+      action: false,
+    },
+    {
+      name: 'three',
+      action: false,
+    },
+    {
+      name: 'goal',
+      action:  false
+    }
+  ];
+
+
+  /***************** ISSUES *****************/
+  $scope.issues = {
+    // DEAD OR BROKEN?
+    deadBroken: null,
+    deadBrokenNotes: '',
+
+    // PASSIVE EJECTION ON ROBOT?
+    ejectable: null,
+    ejectionNotes: ''
+  };
+
+
+  /***************** SUBMISSION *****************/
+
   /* RATINGS */
-  $scope.ratings = [
+  $scope.submit = {
+    ratings: [],
+    numStars: 5,
+
+    notes: ''
+  }; 
+
+  $scope.submit['ratings'] = [
     {
       title: 'driving',
       stars: 0
@@ -270,29 +256,13 @@ app.controller('ScoutCtrl', function($scope, $modal, $http) {
     }
   ];
 
-  $scope.rate = 0;
-  $scope.numStars = 5;
-  $scope.isReadonly = false;
-
-  $scope.hoveringOver = function(value) {
-    $scope.overStar = value;
-    $scope.percent = 100 * (value / $scope.max);
-  };
-
-
-  // Play Style Select
-  $scope.playStyleOptions = [
-    'Play Style 1',
-    'Play Style 2',
-    'Play Style 3'
-  ];
-
   // get from server
   $scope.currentNotes = 'test';
 
   $scope.submitMatch = function submitMatch() {
     // verify all data is inputted
     // http put request to server?
+    console.log($scope);
   };
 });
 
@@ -318,22 +288,23 @@ app.controller('PicklistCtrl', function($scope) {
 app.directive('compSpinner', function() {
   return {
     restrict:'E',
-    required: ['itemsToTrack'],
+    required: ['ngModel'],
     scope: {
-      itemsToTrack: '=',
+      type: '@',
+      value: '=ngModel',
       title: '@'
     },
     controller: function($scope) {
-      $scope.changeValue = function changeValue(title) {
-        $scope.itemsToTrack[title].value++;
+
+      /* REIMPLEMENT AUTO-TYPING SYSTEM */
+      $scope.btnClass = 'btn-'+$scope.type;
+
+      $scope.changeValue = function changeValue(value) {
+        var testValue = $scope.value + value;
+
+        $scope.value = (testValue > 0)? testValue: 0;
       };
 
-      $scope.undoValue = function undoValue(title) {
-        var value = $scope.itemsToTrack[title].value - 1;
-
-        // calue can't be negative
-        $scope.itemsToTrack[title].value = (value >= 0)? value : 0;
-      };
     },
     templateUrl: 'components/spinner'
   };
