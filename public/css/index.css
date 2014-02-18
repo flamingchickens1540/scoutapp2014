@@ -8,3 +8,7 @@
 .scoreVerify {
   font-size: 3em;
 }
+.selected {
+  background-color: #d9534f;
+  text-decoration: line-through;
+}
