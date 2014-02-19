@@ -4,7 +4,7 @@ var app = angular.module('ctrl.scout', [
   'btford.socket-io'
 ]);
 
-app.controller('ScoutCtrl', function($scope, $http) {
+app.controller('ScoutCtrl', function($scope, $http, $log) {
   /* NON-DATA INFORMATION */
 
   /* COLLAPSE STATES */
@@ -71,7 +71,7 @@ app.controller('ScoutCtrl', function($scope, $http) {
     scout: null,
     event: null,
     team: null,
-    match: null
+    matchNum: null
   };
 
 
@@ -168,5 +168,74 @@ app.controller('ScoutCtrl', function($scope, $http) {
     // verify all data is inputted
     // http put request to server?
     console.log($scope);
+
+    $scope.info.team = 1540;
+    $scope.info.matchNum = 3;
+
+    var test = verify();
+
+    if(test.verified) {
+      //send to server
+    }
+    else {
+      // alert user
+      var errors = test.errors.join('\n');
+
+      alert(errors);
+    }
+
   };
+
+  // Verifying function
+  var verify = function() {
+    /*
+      Info:
+        scout
+        match
+        team
+        event
+
+      Autonomous:
+        startPosition
+
+      Issues:
+        if deadBroken is string, deadBrokenNotes
+        if ejectable is string, ejectionNotes
+
+      Submit:
+        if deadBroken is not dead, ratings
+
+    */
+    var verified = true;
+    var errLog = [];
+
+    /* INFO VERIFY */
+    if(
+      !$scope.info.scout ||
+      !$scope.info.event ||
+      !$scope.info.team || 
+      !$scope.info.matchNum
+    ) {
+      verified = false;
+      errLog.push('Match information is not complete.');
+    }
+
+    if(!$scope.auto.startPosition) {
+      verified = false;
+      errLog.push('Please input a start position under autonomous.');
+    }
+
+    if( (typeof $scope.issues['deadBroken'] === 'string') && $scope.issues['deadBrokenNotes'] === '') {
+      verified = false;
+      errLog.push('Please input information as to why this robot is dead/broken.');
+    }
+
+    if( (typeof $scope.issues['ejectable'] === 'string') && $scope.issues['ejectableNotes'] === '') {
+      verified = false;
+      errLog.push('Please input information as to how this robot passively ejects the ball.');
+    }
+
+    return { verified: verified, errors: errLog };
+  };
+
 });

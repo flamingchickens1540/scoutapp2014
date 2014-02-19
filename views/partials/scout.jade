@@ -178,9 +178,9 @@ header.navbar.navbar-inverse.navbar-fixed-top
 .panel.panel-default(collapse="collapsed.submit")
 	.panel-heading Post-Match
 	.panel-body
-		h3 Ratings
+		h3(ng-if=" !(issues.deadBroken === 'dead') ") Ratings
 
-		.row
+		.row(ng-if=" !(issues.deadBroken === 'dead') ")
 			// repeats this when not even
 			.col-sm-6(ng-repeat-start="rating in submit.ratings track by $index")
 				.row(ng-if="$even")
@@ -204,7 +204,7 @@ header.navbar.navbar-inverse.navbar-fixed-top
 					textarea.form-control(rows=15 disabled) {{currentNotes}}
 				.col-sm-12
 					// if a robot is dead, there is no need for match notes
-					textarea.form-control(placeholder="Notes..." ng-model="submit.notes" rows=15 ng-disabled="deadBroken === 'dead'")
+					textarea.form-control(placeholder="Notes..." ng-model="submit.notes" rows=15 ng-disabled="issues.deadBroken === 'dead'")
 
 		.row
 			.col-sm-10.col-sm-offset-1
