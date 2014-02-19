@@ -1,46 +1,37 @@
-link(rel='stylesheet', type='text/css', href='/css/style.css')
-.panel.panel-default
-  .panel-heading
-    h1.text-center BunnyBots Main Control Page 
-  .panel-body
-      .row
-        .col-sm-5#leftcolred
-          .row
-            .col-sm-3
-              p.pull-right.teams red1
-            .col-sm-8.col-offset-sm-1
-              input.input-lg.pull-right(ng-model="redTeams[0]")
-          .row
-            .col-sm-3
-              p.pull-right.teams red2
-            .col-sm-8.col-offset-sm-1
-              input.input-lg.pull-right(ng-model="redTeams[1]")
-          .row
-            .col-sm-3
-              p.pull-right.teams red3
-            .col-sm-8.col-offset-sm-1
-              input.input-lg.pull-right(ng-model="redTeams[2]")
+link(rel='stylesheet' type='text/css' href='/css/index.css')
 
-        .col-sm-2
-          p.text-center.score v.
+select.form-control(ng-options="event.name as event.value for event in events" ng-model="thisEvent")
 
-        .col-sm-5#rightcolblue
-          .row
-            .col-sm-8
-              input.input-lg.pull-left(ng-model="blueTeams[0]")
-            .col-sm-3.col-offset-sm-1
-              p.pull-left.teams blue1
-          .row
-            .col-sm-8
-              input.input-lg.pull-left(ng-model="blueTeams[1]")
-            .col-sm-3.col-offset-sm-1
-              p.pull-left.teams blue2
-          .row
-            .col-sm-8
-              input.input-lg.pull-left(ng-model="blueTeams[2]")
-            .col-sm-3.col-offset-sm-1
-              p.pull-left.teams blue3
+// select bar
+ul
+	li(ng-repeat="match in matches | orderBy:moderated:reverse | orderBy:matchNum")
+		// three red teams
+		.row
+			.col-md-10
+				.well
+					.row
+						.col-md-5
+							.row
+								.col-md-4
+									.btn.btn-default.btn-block(ng-click="openEditor( {{team1}} )") {{match.redAlliance.team1}}
+								.col-md-4
+									.btn.btn-default.btn-block(ng-click="openEditor( {{team2}} )") {{match.redAlliance.team2}}
+								.col-md-4
+									.btn.btn-default.btn-block(ng-click="openEditor( {{team3}} )") {{match.redAlliance.team3}}
+						.col-md-2
+								p.lead.text-center {{match.id}}
+						.col-md-5
+							.row
+								.col-md-4
+									.btn.btn-default.btn-block(ng-click="openEditor( {{team1}} )") {{match.blueAlliance.team1}}
+								.col-md-4
+									.btn.btn-default.btn-block(ng-click="openEditor( {{team2}} )") {{match.blueAlliance.team2}}
+								.col-md-4
+									.btn.btn-default.btn-block(ng-click="openEditor( {{team3}} )") {{match.blueAlliance.team3}}
 
-  .panel-footer
-    a.btn.btn-primary(ng-click="createMatch()") Submit
-    a.btn.btn-warning(ng-click="serverMatchReset()") Reset Current Match on Server
+			.col-md-2
+				.btn.btn-default(ng-click="moderated=true") Finish Moderation
+
+.col-md-3
+	.row
+		a.btn(ng-click="generatePDF()") PDF
