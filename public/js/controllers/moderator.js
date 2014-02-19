@@ -4,7 +4,7 @@ var app = angular.module('ctrl.moderator', [
   'btford.socket-io'
 ]);
 
-app.controller('ModeratorCtrl', function($scope) {
+app.controller('ModeratorCtrl', function($scope, $modal) {
 
   $scope.events=[
     { name:'PNW District Champs', value:'orpo' }
@@ -28,12 +28,25 @@ blueAlliance: {team1:Number,team2:Number,team3:Number},
     {id: 13,moderated: false, redAlliance: {team1:140,team2:66,team3:432}, blueAlliance: {team1:124,team2:8,team3:876}},
      
   ];
-  
-  
-  // array that holds every match at event
-  // select bar (choose event) w/ ng-options
-  // button that ng-click req from server
-  
+
+  $scope.open = function () {
+
+    var modalInstance = $modal.open({
+      templateUrl: 'components/moderatorModal.jade',
+      controller: function ($scope, $modalInstance) {
+
+        $scope.ok = function () {
+          $modalInstance.close();
+        };
+
+        $scope.cancel = function () {
+          $modalInstance.dismiss('cancel');
+        };
+      }
+    });
+  };
+
 
   
 });
+
