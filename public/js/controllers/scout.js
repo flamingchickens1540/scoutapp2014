@@ -166,8 +166,6 @@ app.controller('ScoutCtrl', function($scope, $http, $log) {
 
   $scope.submitMatch = function submitMatch() {
     // verify all data is inputted
-    // http put request to server?
-    console.log($scope);
 
     $scope.info.team = 1540;
     $scope.info.matchNum = 3;
@@ -176,6 +174,32 @@ app.controller('ScoutCtrl', function($scope, $http, $log) {
 
     if(test.verified) {
       //send to server
+      $log.log('INFO', $scope.info);
+      $log.log('AUTONOMOUS', $scope.auto);
+      $log.log('SCORING', $scope.scoring);
+      $log.log('TEAMWORK', $scope.teamwork);
+      $log.log('ISSUES', $scope.issues);
+      $log.log('SUBMIT', $scope.submit);
+
+      var submitData = $http.post('/submit/matchData', {
+        info: $scope.info,
+        auto: $scope.auto,
+        scoring: $scope.scoring,
+        teamwork: $scope.teamwork,
+        issues: $scope.issues,
+        submit: $scope.submit
+      });
+
+      $log.log(submitData);
+
+      submitData.success( function(data, status, headers, config) {
+        $log.log('success!');
+      });
+
+      submitData.error( function(data, status, headers, config) {
+        $log.log('Error!', data, status, headers);
+      });
+
     }
     else {
       // alert user

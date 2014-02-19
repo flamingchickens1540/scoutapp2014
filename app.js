@@ -12,6 +12,8 @@ var app = express();
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
 
+var dataRouter = require('./modules/data.js');
+
 /**
  * Configuration
  */
@@ -40,8 +42,27 @@ if (app.get('env') === 'development') {
 
 // serve index and view partials
 app.get('/', function(req, res) {
-  res.render('index', {title:'Bunnybots'});
+  res.render('index', { title:'1540 Scouting 2014' });
 });
+
+// All submissions for the database
+app.post('/submit/:dest', function(req, res) {
+  var submitTo = req.params.dest;
+  var data = req.body;
+
+  dataRouter.collect(submitTo, data, function(err, msg) {
+    if(!err) {
+      res.send(msg);
+    }
+    else {
+      res.send(err);
+    }
+  });
+});
+
+
+
+
 
 app.get('/partials/:name', function (req, res) {
   var name = req.params.name;
