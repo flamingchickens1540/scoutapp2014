@@ -3,7 +3,6 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var ObjectId = Schema.Types.ObjectId;
-var Mixed = Schema.Types.Mixed;
 
 /**
 * Match Schema
@@ -14,18 +13,26 @@ var MatchSchema = new Schema({
 		type: ObjectId,
 		ref:'Event'
 	},
+
 	number: Number,
 
-	startTime: Date,
+	// startTime: TBA?
 
 	redAlliance: {
 		teams: [{
 			type: ObjectId,
 			ref: 'Team'
 		}],
+
+		teamData: [{
+			type: ObjectId,
+			ref:'TeamMatch'
+		}],
+
+		/* BLUE ALLIANCE DATA
 		score: Number,
 		fouls: Number, //points or number?
-		stats: Mixed
+		*/
 	},
 
 	blueAlliance: {
@@ -33,15 +40,22 @@ var MatchSchema = new Schema({
 			type: ObjectId,
 			ref: 'Team'
 		}],
+
+		teamData: [{
+			type: ObjectId,
+			ref:'TeamMatch'
+		}]
+
+		/* BLUE ALLIANCE DATA
 		score: Number,
 		fouls: Number, //points or number?
-		stats: Mixed
+		*/
 	},
 	
-	matches: [{
-		type: ObjectId,
-		ref:'Match'
-	}]
+	moderated: { type: Boolean, default: false },
+	complete: { type: Boolean, default: false }
 });
+
+
 
 mongoose.model('Match', MatchSchema);

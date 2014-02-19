@@ -5,20 +5,22 @@ var Schema = mongoose.Schema;
 var ObjectId = Schema.Types.ObjectId;
 var Mixed = Schema.Types.Mixed;
 
-/**
-* Robot Schema
-*/
 
-var RobotSchema = new Schema({
-	//ex. ORPO
-	_id: Number,
+var TeamMatchSchema = new Schema({
 	team: {
 		type: ObjectId,
 		ref: 'Team'
 	},
-	name: String,
 
-	stats: Mixed
+	match: {
+		type: ObjectId,
+		ref:'Match'
+	},
+
+	scout: String,
+	
+	data: Mixed
+	
 });
 
-mongoose.model('Robot', RobotSchema);
+mongoose.model('TeamMatch', TeamMatchSchema);
