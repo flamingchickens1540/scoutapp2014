@@ -53,9 +53,7 @@ app.config(function ($routeProvider, $locationProvider) {
   $locationProvider.html5Mode(true);
 });
 
-app.controller('AppCtrl', function() {
-
-});
+app.controller('AppCtrl', function() {});
 
 
 
@@ -104,7 +102,7 @@ app.filter('capitalize', function() {
 });
 
 /*
-app.directive('upVote', function(){
+app.directive('upVote', function() {
   return    {
     restrict:'E',
     scope:{
