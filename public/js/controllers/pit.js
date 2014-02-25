@@ -5,12 +5,13 @@ var app = angular.module('ctrl.pit', [
 ]);
 
 app.controller('PitCtrl', function($scope) {
-  // General Info
+// General Info
   // Team Name
-  $scope.teamName = 0;
+  $scope.generalInfo = new Object();
+  $scope.generalInfo.teamName = 0;
 
   // List of events and what event we are at
-  $scope.events = [
+  $scope.generalInfo.events = [
   	{ name: 'Oregon City District' },
   	{ name: 'Wilsonville District' },
   	{ name: 'OSU District' },
@@ -18,10 +19,10 @@ app.controller('PitCtrl', function($scope) {
   	{ name: 'World Championships' }
   ];
 
-  $scope.e = $scope.events[0]; // Maybe change this before each event to fascilitate lives
+  $scope.generalInfo.e = $scope.generalInfo.events[0]; // Maybe change this before each event to fascilitate lives
 
   // List of wheels and what kind of wheels are present. Also notes on wheels
-  $scope.wheels = [
+  $scope.generalInfo.wheels = [
   	{ name: 'None' },
   	{ name: 'High Traction' },
   	{ name: 'Traction' },
@@ -31,56 +32,57 @@ app.controller('PitCtrl', function($scope) {
   	{ name: 'Caster' }
   ];
 
-  $scope.wheelL1 = $scope.wheels[0];
-  $scope.wheelL2 = $scope.wheels[0];
-  $scope.wheelL3 = $scope.wheels[0];
-  $scope.wheelR1 = $scope.wheels[0];
-  $scope.wheelR2 = $scope.wheels[0];
-  $scope.wheelR3 = $scope.wheels[0];
+  $scope.generalInfo.wheelL1 = $scope.generalInfo.wheels[0];
+  $scope.generalInfo.wheelL2 = $scope.generalInfo.wheels[0];
+  $scope.generalInfo.wheelL3 = $scope.generalInfo.wheels[0];
+  $scope.generalInfo.wheelR1 = $scope.generalInfo.wheels[0];
+  $scope.generalInfo.wheelR2 = $scope.generalInfo.wheels[0];
+  $scope.generalInfo.wheelR3 = $scope.generalInfo.wheels[0];
 
-  $scope.wheelNotes = '';
+  $scope.generalInfo.wheelNotes = '';
 
   // Robot height
-  $scope.robotHeight = '';
+  $scope.generalInfo.robotHeight = '';
 
   // Can they shift?
-  $scope.shifting = true;
+  $scope.generalInfo.shifting = true;
 
-  //Robot Information
+//Robot Information
   // How far can they shoot/Shooting range
-  $scope.zones = [
+  $scope.robotInfo = new Object();
+  $scope.robotInfo.zones = [
   	{ name: 'Goal Line' },
   	{ name: 'Zone 1' },
   	{ name: 'Zone 2' }
   ];
 
-  $scope.minShoot = $scope.zones[0];
-  $scope.maxShoot = $scope.zones[0];
+  $scope.robotInfo.minShoot = $scope.robotInfo.zones[0];
+  $scope.robotInfo.maxShoot = $scope.robotInfo.zones[0];
 
   // List of Shooter types
-  $scope.shooterTypes = [
+  $scope.robotInfo.shooterTypes = [
 	 // TO BE SUPPLIED BY PETER
 	 { name: 'Something' }
   ];
 
-  $scope.shooterType = $scope.shooterTypes[0];
+  $scope.robotInfo.shooterType = $scope.robotInfo.shooterTypes[0];
 
   // List of Collector types
-  $scope.collectorTypes = [
+  $scope.robotInfo.collectorTypes = [
   	// TO BE SUPPLIED BY PETER
   	{ name: 'Something' }
   ];
 
-  $scope.collectorType = $scope.collectorTypes[0];
+  $scope.robotInfo.collectorType = $scope.robotInfo.collectorTypes[0];
 
   // Can they catch balls?
-  $scope.catchable = true;
+  $scope.robotInfo.catchable = true;
 
   // Their plan for if disabled with ball
-  $scope.disabledPlan = '';
+  $scope.robotInfo.disabledPlan = '';
 
   // Play style
-  $scope.playstyles = [
+  $scope.robotInfo.playstyles = [
   	{ name: 'Forward' },
   	{ name: 'Middle' },
   	{ name: 'Starter' },
@@ -88,30 +90,31 @@ app.controller('PitCtrl', function($scope) {
   ];
 
   // How long it takes to reload/load
-  $scope.reloadTimes = [
+  $scope.robotInfo.reloadTimes = [
   	// TO BE SUPPLIED BY ???
   	{ name: 'Something' }
   ];
 
-  $scope.reloadTime = $scope.reloadTimes[0];
+  $scope.robotInfo.reloadTime = $scope.robotInfo.reloadTimes[0];
 
-  //Autonomous information
+//Autonomous information
   // Strait forward autonomous?
-  $scope.dfAuto = false;
+  $scope.autoInfo = new Object();
+  $scope.autoInfo.dfAuto = false;
 
   // How many balls can they score in Auto?
-  $scope.autoBalls = 0;
+  $scope.autoInfo.autoBalls = 0;
 
   // Do they recognize a hot goal?
-  $scope.hotRecog = true;
+  $scope.autoInfo.hotRecog = true;
 
   // List of starting spots and where they start
-  $scope.startSpots = [
+  $scope.autoInfo.startSpots = [
   	// TO BE SUPPLIED BY DALE/PETER
   	{ name: 'Something' }
   ];
 
-  $scope.startPosition = $scope.startSpots[0];
+  $scope.autoInfo.startPosition = $scope.autoInfo.startSpots[0];
 
   //Notes
   //General Notes
