@@ -7,11 +7,12 @@ var express = require('express'),
   http = require('http'),
   path = require('path');
 
-var db = require('./modules/db.js');
 var app = express();
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
 
+
+var db = require('./modules/db.js');
 var dataRouter = require('./modules/data.js');
 
 /**

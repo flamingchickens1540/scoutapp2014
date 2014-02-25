@@ -27,37 +27,20 @@ var mongoose = require('mongoose');
 var _ = require('underscore');
 var ObjectId = mongoose.Schema.Types.ObjectId;
 
-//Schemas
-var teamSchema = new mongoose.Schema({
-  _id: String,
-  name: String,
-	qualScore: Number,
-  matches: [Number],
-  wins: Number,
-  ties: Number,
-  losses: Number
-});
-
-var matchSchema = new mongoose.Schema({
-	_id: Number,
-  complete: Boolean,
-
-  redAlliance: [String], //only three teams
-	redScore: Number,
-	redFouls: Number,
-
-  blueAlliance: [String], //only three teams
-	blueScore: Number,
-	blueFouls: Number
-});
+require('./../db_modules/models/event.js');
+require('./../db_modules/models/team.js');
+require('./../db_modules/models/match.js');
+require('./../db_modules/models/team_match.js');
 
 //Models
-var Team = mongoose.model('Team', teamSchema);
-var Match = mongoose.model('Match', matchSchema);
+var Team = mongoose.model('Team');
+var Match = mongoose.model('Match');
+var TeamMatch = mongoose.model('TeamMatch');
+var Event = mongoose.model('Event');
 
 //callback takes err as argument
 var dbConnect = function dbConnect(dbName, callback) {
-  mongoose.connect('localhost', (dbName || 'bunnybots2013test'));
+  mongoose.connect('localhost', (dbName || 'scoutapp2014test') );
     
   if(callback && _.isFunction(callback)) {
     callback(null);
@@ -75,7 +58,7 @@ var dbCreateTeam = function dbCreateTeam(id, name, callback) {
   console.log('db#createTeam',id, name);
 
   //check id type
-  if(typeof id !== 'string') {
+  if(typeof id !== 'number') {
     console.error('wrong arguments => id: '+ id +', name: '+ name +', callback: '+ callback +'.');
   }
   //check id exists
@@ -90,8 +73,8 @@ var dbCreateTeam = function dbCreateTeam(id, name, callback) {
 
   var team = new Team;
   //defaults
-  team._id = id;
-  team.name = name || 'Team '+ id;
+  team.id = id;
+  team.name = name || 'FRC '+ id;
   team.matches = [];
   team.qualScore = 0;
   team.wins = 0;
@@ -106,7 +89,7 @@ var dbGetTeam = function dbGetTeam(id, callback) {
   console.log('db#getTeam', id);
 
   //check id type
-  if(typeof id !== 'string') {
+  if(typeof id !== 'number') {
     console.error('wrong arguments => id: '+ id +', callback: '+ callback +'.');
   }
   //check id exists
@@ -119,7 +102,7 @@ var dbGetTeam = function dbGetTeam(id, callback) {
     callback = function(e,t){console.log(e,t);};
   }
 
-  Team.findOne({_id: id}).exec(callback);
+  Team.findOne({id: id}).populate('matches events').exec(callback);
 };
 
 //for multiple teams
@@ -131,7 +114,7 @@ var dbGetTeams = function dbGetTeams(teamIds, callback) {
   //default is arrays (multiple teams)
   if(_.isArray(teamIds)) {
     var queryRegExp = new RegExp(teamIds.join('|'));
-    query = query.find({_id:queryRegExp}); //queries for all teams in db 
+    query = query.find({id:queryRegExp}); //queries for all teams in db 
   }
   //all teams
   else if(_.isFunction(teamIds)){
@@ -155,11 +138,11 @@ var dbGetTeams = function dbGetTeams(teamIds, callback) {
 //not rewritten
 //what if it isnt there?
 var dbRemoveTeam = function dbRemoveTeam(id, callback) {
-  if(typeof id !== 'string') {
+  if(typeof id !== 'number') {
     console.log('DB REMOVE: id does not work');
   }
 
-  Team.findOneAndRemove({_id: id}, function(err) {
+  Team.findOneAndRemove({id: id}, function(err) {
     if(!err) {
       console.log('Team '+ id +' removed!')
     }
@@ -215,7 +198,7 @@ var dbNewMatch = function dbNewMatch(id, matchCompetitors, callback) {
   
   var match = new Match;
 
-  match._id = id;
+  match.id = id;
   match.redAlliance = redTeams;
   match.blueAlliance = blueTeams;
   match.blueScore = 0;
@@ -228,10 +211,10 @@ var dbNewMatch = function dbNewMatch(id, matchCompetitors, callback) {
     if(!err) {
       var p = new mongoose.Promise;
       p.then(function() {
-        console.log('created new match '+ m._id +' with red:'+ m.redAlliance +'and blue:'+ m.blueAlliance);
+        console.log('created new match '+ m.id +' with red:'+ m.redAlliance +'and blue:'+ m.blueAlliance);
         _.each(allTeams, function(teamId) {
           console.log(teamId);
-          dbUpdateTeam(teamId, {$push:{matches:m._id}});
+          dbUpdateTeam(teamId, {$push:{matches:m.id}});
         });
       })
 
@@ -375,6 +358,8 @@ var dbRemoveMatch = function dbRemoveMatch(id, callback) {
 //debugging
 exports.Team = Team;
 exports.Match = Match;
+exports.TeamMatch = TeamMatch;
+exports.Event = Event;
 
 //EXPORTS
 exports.connect = dbConnect;

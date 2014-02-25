@@ -7,10 +7,6 @@ var Mixed = Schema.Types.Mixed;
 
 
 var TeamMatchSchema = new Schema({
-	team: {
-		type: ObjectId,
-		ref: 'Team'
-	},
 
 	match: {
 		type: ObjectId,
@@ -20,7 +16,7 @@ var TeamMatchSchema = new Schema({
 	scout: String,
 	
 	data: Mixed
-	
+
 });
 
 mongoose.model('TeamMatch', TeamMatchSchema);

@@ -11,7 +11,7 @@ var ObjectId = Schema.Types.ObjectId;
 
 var EventSchema = new Schema({
 	//ex. ORPO
-	_id: String,
+	id: String,
 
 	name: String,
 	region: String,

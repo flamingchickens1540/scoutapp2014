@@ -61,7 +61,7 @@ app.controller('ScoutCtrl', function($scope, $http, $log) {
   ];
 
   $scope.events = [
-    { name: 'orpo', value: 'test', region: 'Regionals' },
+    { name: 'Autodesk Oregon Regional', value: 'orpo', region: 'Regionals' },
     { name: 'pnw - district 1', value: 'test2', region: 'PNW' }
   ];
 

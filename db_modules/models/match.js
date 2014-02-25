@@ -9,10 +9,7 @@ var ObjectId = Schema.Types.ObjectId;
 */
 
 var MatchSchema = new Schema({
-	event: {
-		type: ObjectId,
-		ref:'Event'
-	},
+	event: String,
 
 	number: Number,
 
