@@ -175,6 +175,8 @@
 			.col-lg-12
 				.input-group
 					input.form-control(type='text', ng-model='generalNotes')
-					span.input-group-addon  
+					span.input-group-addon
 	.panel-footer
-		.btn-lg.btn.btn-success Save All
+		.btn-lg.btn.btn-success(ng-click="saveData()") Save All
+		.btn-lg.btn.btn-info(ng-click="submitData()") Send to Server
+

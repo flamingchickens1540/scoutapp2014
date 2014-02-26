@@ -4,11 +4,22 @@ var app = angular.module('ctrl.pit', [
   'ui.bootstrap'
 ]);
 
-app.controller('PitCtrl', function($scope, $http) {
+app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log) {
+  var fs = fileSystem;
+
+  // request 100MB
+  fs.requestQuota(100)
+
+  .then(function(granted) {
+    console.log('GRANTED '+ granted +'MB of persistent data');
+  },
+  function(err) {
+    console.log(err);
+  }); 
 // ============================== GENERAL INFO ==============================
   // Team Name
-  $scope.generalInfo = new Object();
-  $scope.generalInfo.teamName = 0;
+  $scope.generalInfo = {};
+  $scope.generalInfo.teamNumber = 0;
 
   // List of events and what event we are at
   $scope.generalInfo.events = [
@@ -99,7 +110,7 @@ app.controller('PitCtrl', function($scope, $http) {
 
 // ============================== AUTONOMOUS INFO ==============================
   // Strait forward autonomous?
-  $scope.autoInfo = new Object();
+  $scope.autoInfo = {};
   $scope.autoInfo.dfAuto = false;
 
   // How many balls can they score in Auto?
@@ -121,10 +132,91 @@ app.controller('PitCtrl', function($scope, $http) {
   $scope.generalNotes = '';
 
 // ============================== SUBMIT ==============================
-  var submitData = $http.post('/submit/matchData', {
+
+  $scope.saveData = function() {
+
+      var pitData = {
         general: $scope.generalInfo,
         robot: $scope.robotInfo,
         auto: $scope.autoInfo,
         notes: $scope.generalNotes,
-      });
+      };
+
+      console.log('PITDATA', pitData);
+
+      fs.writeText(pitData.general.teamNumber+".json", JSON.stringify(pitData))
+
+      .then(function(granted) {
+        console.log('Saved '+ pitData.general.teamNumber +".json", JSON.stringify(pitData));
+
+        fs.readFile('0.json').then(function(file) {console.log(JSON.parse(file))});
+
+        fs.getFolderContents('/').then(function(dir) {console.log(dir)});
+      },
+      function(err) {
+        console.log(err);
+      }); 
+    //}
+  };
+
+  $scope.submitData = function() {
+    var teamData = [];
+    var allPromises = [];
+
+    // get all data from fs
+    var promise = fs.getFolderContents('/')
+
+    .then(
+      function(dir) {
+        angular.forEach(dir, function(fileEntry, num) {
+
+          if( fileEntry.isFile ) {
+            allPromises.push( fs.readFile( fileEntry.name ) );
+            $log.log('Promise '+ num +' added!');
+
+          }
+        });
+      },
+
+      function(err) {
+        alert(err.message)
+      }
+    )
+
+    .then(
+
+      function() {
+        $q.all(allPromises)
+
+        .then(
+
+          function(files) {
+            angular.forEach(files, function(file, num) {
+              file = JSON.parse(file);
+              teamData.push( file );
+
+              $log.log('File '+ num +' added!', file);
+            });
+            $log.log('Team_data added!', teamData);
+
+          },
+
+          function(err) {
+            alert(err.message)
+          }
+
+        )
+
+        .then(
+
+          function sendToServer() {
+            $log.log('Team_data, what is it?', teamData);
+            $http.post( '/submit/pitData', teamData );
+          }
+
+        );
+      }
+    )
+  };
+
 });

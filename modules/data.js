@@ -129,6 +129,10 @@ dataPathways['matchData'] = function(data, callback) {
 
 };
 
+dataPathways['pitData'] = function(data, callback) {
+	console.log('PITDATA', data);
+};
+
 exports.collect = function(submitTo, data, callback) {
 	var submitFunction = dataPathways[submitTo];
 
