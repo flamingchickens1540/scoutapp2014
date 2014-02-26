@@ -1,7 +1,7 @@
 var app = angular.module('ctrl.pit', [  
   'ngTouch',
-  'ui.bootstrap',
-  'btford.socket-io'
+  'fileSystem',
+  'ui.bootstrap'
 ]);
 
 app.controller('PitCtrl', function($scope) {
