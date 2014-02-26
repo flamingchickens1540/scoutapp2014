@@ -14,7 +14,7 @@ var Event = mongoose.model('Event');
 var ObjectId = mongoose.Types.ObjectId;
 var Promise = mongoose.Promise;
 
-
+// for match data
 dataPathways['matchData'] = function(data, callback) {
 	var info = {
     scout: data.info.scout,
@@ -27,8 +27,6 @@ dataPathways['matchData'] = function(data, callback) {
 	var teamwork = data.teamwork;
 	var issues = data.issues;
 	var submit = data.submit;
-
-	console.log('INFO: ', info);
 
 
 	var findMatch = Match.findOne( { event:'orpo' } ).exec()
@@ -141,5 +139,3 @@ exports.collect = function(submitTo, data, callback) {
 		callback( new Error('not an available data pathway') );
 	}
 };
-
-

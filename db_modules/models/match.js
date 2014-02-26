@@ -13,46 +13,28 @@ var MatchSchema = new Schema({
 
 	number: Number,
 
-	// startTime: TBA?
+	//timeStamp: { type:Date },
 
 	redAlliance: {
-		teams: [{
-			type: ObjectId,
-			ref: 'Team'
-		}],
+		teams: [{ type:Number, default:[] }],
 
 		teamData: [{
 			type: ObjectId,
 			ref:'TeamMatch'
 		}],
-
-		/* BLUE ALLIANCE DATA
-		score: Number,
-		fouls: Number, //points or number?
-		*/
 	},
 
 	blueAlliance: {
-		teams: [{
-			type: ObjectId,
-			ref: 'Team'
-		}],
+		teams: [{ type:Number, default:[] }],
 
 		teamData: [{
 			type: ObjectId,
 			ref:'TeamMatch'
 		}]
-
-		/* BLUE ALLIANCE DATA
-		score: Number,
-		fouls: Number, //points or number?
-		*/
 	},
 	
 	moderated: { type: Boolean, default: false },
 	complete: { type: Boolean, default: false }
 });
-
-
 
 mongoose.model('Match', MatchSchema);
