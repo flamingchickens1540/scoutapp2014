@@ -37,7 +37,7 @@ app.config(function ($routeProvider, $locationProvider) {
 
     when('/moderator', {
       templateUrl: 'partials/moderator',
-      controller: 'AnalystCtrl'
+      controller: 'ModeratorCtrl'
     }).
 
     when('/picklist', {
