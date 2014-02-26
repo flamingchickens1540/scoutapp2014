@@ -4,7 +4,7 @@ var app = angular.module('ctrl.pit', [
   'ui.bootstrap'
 ]);
 
-app.controller('PitCtrl', function($scope) {
+app.controller('PitCtrl', function($scope, $http) {
 // ============================== GENERAL INFO ==============================
   // Team Name
   $scope.generalInfo = new Object();
@@ -120,5 +120,11 @@ app.controller('PitCtrl', function($scope) {
   //General Notes
   $scope.generalNotes = '';
 
-  // Do I need to do something with the save button?
+// ============================== SUBMIT ==============================
+  var submitData = $http.post('/submit/matchData', {
+        general: $scope.generalInfo,
+        robot: $scope.robotInfo,
+        auto: $scope.autoInfo,
+        notes: $scope.generalNotes,
+      });
 });
