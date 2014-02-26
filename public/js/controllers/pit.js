@@ -66,6 +66,7 @@ app.controller('PitCtrl', function($scope, $http) {
 	 // TO BE SUPPLIED BY PETER
 	 { name: 'None' }
    { name: 'Catapult' }
+   { name: 'Pinball' }
    { name: 'High Speed Roller' }
    { name: 'Kicker' }
    { name: 'Low Goal Only' }
@@ -81,7 +82,8 @@ app.controller('PitCtrl', function($scope, $http) {
     { name: 'Top Roller' }
     { name: 'Side Rollers' }
     { name: 'Forklift' }
-    { name: 'Lance?' }
+    { name: 'El Toro' }
+    { name: 'Scoops' }
     { name: 'Claw' }
     { name: 'Other' }
   ];
@@ -126,7 +128,8 @@ app.controller('PitCtrl', function($scope, $http) {
   // List of starting spots and where they start
   $scope.autoInfo.startSpots = [
   	// TO BE SUPPLIED BY DALE/PETER
-  	{ name: 'Middle' }
+  	{ name: 'White Line/Sit' }
+    { name: 'White Line/Shoot' }
     { name: 'Goalie' }
   ];
 
