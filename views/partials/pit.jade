@@ -12,7 +12,7 @@
 					span.input-group-addon Team  #
 					input.form-control(type='number', ng-model='generalInfo.teamNumber')
 			.col-sm-6
-				select.form-control(ng-options="event.name for event in genralInfo.events" ng-model="generalInfo.event" required)
+				select.form-control(ng-options="event.name for event in generalInfo.events" ng-model="generalInfo.currentEvent" required)
 		br
 		hr
 		.row
@@ -25,44 +25,36 @@
 					.col-sm-6
 						select.form-control(ng-options="wheelL1.name for wheelL1 in generalInfo.wheels" ng-model="generalInfo.wheelL1" required)
 					.col-sm-6
-						select.form-control(ng-options="wheelR1.name for wheelR1 in wheels" ng-model="wheelR1" required)
+						select.form-control(ng-options="wheelR1.name for wheelR1 in generalInfo.wheels" ng-model="generalInfo.wheelR1" required)
 				br
 				.row
 					.col-sm-6
-						select.form-control(ng-options="wheelL2.name for wheelL2 in wheels" ng-model="wheelL2" required)
+						select.form-control(ng-options="wheelL2.name for wheelL2 in generalInfo.wheels" ng-model="generalInfo.wheelL2" required)
 					.col-sm-6
-						select.form-control(ng-options="wheelR2.name for wheelR2 in wheels" ng-model="wheelR2" required)
+						select.form-control(ng-options="wheelR2.name for wheelR2 in generalInfo.wheels" ng-model="generalInfo.wheelR2" required)
 				br
 				.row
 					.col-sm-6
-						select.form-control(ng-options="wheelL3.name for wheelL3 in wheels" ng-model="wheelL3" required)
+						select.form-control(ng-options="wheelL3.name for wheelL3 in generalInfo.wheels" ng-model="generalInfo.wheelL3" required)
 					.col-sm-6
-						select.form-control(ng-options="wheelR3.name for wheelR3 in wheels" ng-model="wheelR3" required)
+						select.form-control(ng-options="wheelR3.name for wheelR3 in generalInfo.wheels" ng-model="generalInfo.wheelR3" required)
 				br
 				.row
 					.col-lg-12
 						.input-group
 							span.input-group-addon Notes:
-							input.form-control(type='text' ng-model='wheelNotes')
+							input.form-control(type='text' ng-model='generalInfo.wheelNotes')
 		hr
 		.row
-			.col-sm-4
-				h3.text-center
-					| Robot Height:
-					br
-					br
-					.input-group
-						input.form-control(type='number' ng-model='robotHeight')
-						span.input-group-addon inches
-			.col-sm-4
+			.col-sm-6
 				h3.text-center Shifting?
 				br
 				.row
 					.text-center
 						.btn-group
-							button.btn.btn-primary(type='button', ng-model='shifting', btn-radio="true") Yes
-							button.btn.btn-primary(type='button', ng-model='shifting', btn-radio="false") No
-			.col-sm-4
+							button.btn.btn-primary(type='button', ng-model='generalInfo.shifting', btn-radio="true") Yes
+							button.btn.btn-primary(type='button', ng-model='generalInfo.shifting', btn-radio="false") No
+			.col-sm-6
 				h3.text-center
 					| Shooting Range:
 					br
@@ -70,14 +62,11 @@
 						.col-sm-6
 							.text-center 
 								h4 Min
-								select.form-control(ng-options="minShoot.name for minShoot in zones" ng-model="minShoot" required)
+								select.form-control(ng-options="minShoot.name for minShoot in generalInfo.zones" ng-model="generalInfo.minShoot" required)
 						.col-sm-6
 							.text-center 
 								h4 Max
-								select.form-control(ng-options="maxShoot.name for maxShoot in zones" ng-model="maxShoot" required)
-
-	.panel-footer
-		.btn Save
+								select.form-control(ng-options="maxShoot.name for maxShoot in generalInfo.zones" ng-model="generalInfo.maxShoot" required)
 .panel.panel-default
 	.panel-heading Robot Information
 	.panel-body
@@ -86,12 +75,12 @@
 				h3.text-center
 					| Shooter Type:
 					br
-				select.form-control(ng-options="shooterType.name for shooterType in shooterTypes" ng-model="shooterType" required)
+				select.form-control(ng-options="shooterType.name for shooterType in robotInfo.shooterTypes" ng-model="robotInfo.shooterType" required)
 			.col-sm-6
 				h3.text-center
 					| Collector Type:
 					br
-				select.form-control(ng-options="collectorType.name for collectorType in collectorTypes" ng-model="collectorType" required)
+				select.form-control(ng-options="collectorType.name for collectorType in robotInfo.collectorTypes" ng-model="robotInfo.collectorType" required)
 		br
 		hr
 		.row
@@ -100,15 +89,15 @@
 				br
 				.text-center
 					.btn-group
-						button.btn.btn-primary(type='button', ng-model='catchAble', btn-radio="true") Yes
-						button.btn.btn-primary(type='button', ng-model='catchAble', btn-radio="false") No
+						button.btn.btn-primary(type='button', ng-model='robotInfo.catchAble', btn-radio="true") Yes
+						button.btn.btn-primary(type='button', ng-model='robotInfo.catchAble', btn-radio="false") No
 			.col-sm-6
 				h3.text-center
 					| What happens if disabled with ball?
 					br
 					br
 					.input-group
-						input.form-control(type='text', ng-model='disabledPlan')
+						input.form-control(type='text', ng-model='robotInfo.disabledPlan')
 						span.input-group-addon 
 		br
 		hr
@@ -118,16 +107,13 @@
 					| Preferred Play Style:
 					br
 					br
-					select.form-control(ng-options="playstyle.name for playstyle in playstyles" ng-model="playstyle" required)
+					select.form-control(ng-options="playstyle.name for playstyle in robotInfo.playstyles" ng-model="robotInfo.playstyle" required)
 			.col-sm-6
 				h3.text-center
 					| Reload Time:
 					br
 					br
-					select.form-control(ng-options="time.name for time in reloadTimes" ng-model="reloadTime" required)
-		br
-	.panel-footer
-		.btn Save
+					select.form-control(ng-options="time.name for time in robotInfo.reloadTimes" ng-model="robotInfo.reloadTime" required)
 .panel.panel-default
 	.panel-heading Autonomous Information
 	.panel-body
@@ -139,25 +125,25 @@
 				.row
 					.text-center
 						.btn-group
-							button.btn.btn-primary(type='button', ng-model='dfAuto', btn-radio="true") Yes
-							button.btn.btn-primary(type='button', ng-model='dfAuto', btn-radio="false") No
+							button.btn.btn-primary(type='button', ng-model='autoInfo.dfAuto', btn-radio="true") Yes
+							button.btn.btn-primary(type='button', ng-model='autoInfo.dfAuto', btn-radio="false") No
 			.col-sm-4
 				.row
 					.col-lg-12.text-center
 						h3 Number of balls they can score:
 						br
 						.btn-group
-							button.btn.btn-primary(type='button', ng-model='autoBalls', btn-radio="0") 0
-							button.btn.btn-primary(type='button', ng-model='autoBalls', btn-radio="1") 1
-							button.btn.btn-primary(type='button', ng-model='autoBalls', btn-radio="2") 2
-							button.btn.btn-primary(type='button', ng-model='autoBalls', btn-radio="3") 3
+							button.btn.btn-primary(type='button', ng-model='autoInfo.autoBalls', btn-radio="0") 0
+							button.btn.btn-primary(type='button', ng-model='autoInfo.autoBalls', btn-radio="1") 1
+							button.btn.btn-primary(type='button', ng-model='autoInfo.autoBalls', btn-radio="2") 2
+							button.btn.btn-primary(type='button', ng-model='autoInfo.autoBalls', btn-radio="3") 3
 			.col-sm-4
 				h3.text-center Recognize hot goal?
 				br
 				.text-center
 					.btn-group
-						button.btn.btn-primary(type='button', ng-model='hotRecog', btn-radio="true") Yes
-						button.btn.btn-primary(type='button', ng-model='hotRecog', btn-radio="false") No
+						button.btn.btn-primary(type='button', ng-model='autoInfo.hotRecog', btn-radio="true") Yes
+						button.btn.btn-primary(type='button', ng-model='autoInfo.hotRecog', btn-radio="false") No
 		hr
 		.row
 			.col-lg-12
@@ -165,9 +151,7 @@
 					| Starting Position:
 					br
 					br
-					select.form-control(ng-options="position.name for position in startSpots" ng-model="startPosition" required)
-	.panel-footer
-		.btn Save
+					select.form-control(ng-options="position.name for position in autoInfo.startSpots" ng-model="autoInfo.startPosition" required)
 .panel.panel-default
 	.panel-heading Notes
 	.panel-body
@@ -177,4 +161,4 @@
 					input.form-control(type='text', ng-model='generalNotes')
 					span.input-group-addon  
 	.panel-footer
-		.btn-lg.btn.btn-success Save All
+		.btn-lg.btn.btn-success#saveButton Save All

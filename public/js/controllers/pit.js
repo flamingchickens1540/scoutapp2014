@@ -19,7 +19,7 @@ app.controller('PitCtrl', function($scope, $http) {
   	{ name: 'World Championships' }
   ];
 
-  $scope.generalInfo.e = $scope.generalInfo.events[0]; // Maybe change this before each event to fascilitate lives
+  $scope.generalInfo.currentEvent = $scope.generalInfo.events[0]; // Maybe change this before each event to fascilitate lives
 
   // List of wheels and what kind of wheels are present. Also notes on wheels
   $scope.generalInfo.wheels = [
@@ -47,18 +47,20 @@ app.controller('PitCtrl', function($scope, $http) {
   // Can they shift?
   $scope.generalInfo.shifting = true;
 
-// ============================== ROBOT INFO ==============================
   // How far can they shoot/Shooting range
-  $scope.robotInfo = {};
-  $scope.robotInfo.zones = [
-  	{ name: 'Goal Line' },
-  	{ name: 'Zone 1' },
-  	{ name: 'Zone 2' }
+  $scope.generalInfo.zones = [
+    { name: 'Goal Line' },
+    { name: 'Zone 1' },
+    { name: 'Zone 2' }
   ];
 
-  $scope.robotInfo.minShoot = $scope.robotInfo.zones[0];
-  $scope.robotInfo.maxShoot = $scope.robotInfo.zones[0];
+  $scope.generalInfo.minShoot = $scope.generalInfo.zones[0];
+  $scope.generalInfo.maxShoot = $scope.generalInfo.zones[0];
 
+// ============================== ROBOT INFO ==============================
+
+  $scope.robotInfo = {};
+  
   // List of Shooter types
   $scope.robotInfo.shooterTypes = [
 	 // TO BE SUPPLIED BY PETER
@@ -88,6 +90,8 @@ app.controller('PitCtrl', function($scope, $http) {
   	{ name: 'Starter' },
   	{ name: 'Goalie' }
   ];
+
+  $scope.robotInfo.playstyle = $scope.robotInfo.playstyles[0];
 
   // How long it takes to reload/load
   $scope.robotInfo.reloadTimes = [
@@ -121,10 +125,10 @@ app.controller('PitCtrl', function($scope, $http) {
   $scope.generalNotes = '';
 
 // ============================== SUBMIT ==============================
-  var submitData = $http.post('/submit/matchData', {
-        general: $scope.generalInfo,
-        robot: $scope.robotInfo,
-        auto: $scope.autoInfo,
-        notes: $scope.generalNotes,
-      });
+  var submitData = $http.post('/submit/pitData', {
+    general: $scope.generalInfo,
+    robot: $scope.robotInfo,
+    auto: $scope.autoInfo,
+    notes: $scope.generalNotes,
+  });
 });
