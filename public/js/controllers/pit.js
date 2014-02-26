@@ -5,7 +5,7 @@ var app = angular.module('ctrl.pit', [
 ]);
 
 app.controller('PitCtrl', function($scope) {
-// General Info
+// ============================== GENERAL INFO ==============================
   // Team Name
   $scope.generalInfo = new Object();
   $scope.generalInfo.teamName = 0;
@@ -47,9 +47,9 @@ app.controller('PitCtrl', function($scope) {
   // Can they shift?
   $scope.generalInfo.shifting = true;
 
-//Robot Information
+// ============================== ROBOT INFO ==============================
   // How far can they shoot/Shooting range
-  $scope.robotInfo = new Object();
+  $scope.robotInfo = {};
   $scope.robotInfo.zones = [
   	{ name: 'Goal Line' },
   	{ name: 'Zone 1' },
@@ -97,7 +97,7 @@ app.controller('PitCtrl', function($scope) {
 
   $scope.robotInfo.reloadTime = $scope.robotInfo.reloadTimes[0];
 
-//Autonomous information
+// ============================== AUTONOMOUS INFO ==============================
   // Strait forward autonomous?
   $scope.autoInfo = new Object();
   $scope.autoInfo.dfAuto = false;
@@ -116,7 +116,7 @@ app.controller('PitCtrl', function($scope) {
 
   $scope.autoInfo.startPosition = $scope.autoInfo.startSpots[0];
 
-  //Notes
+// ============================== NOTES ==============================
   //General Notes
   $scope.generalNotes = '';
 
