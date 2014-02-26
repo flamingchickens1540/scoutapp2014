@@ -64,7 +64,12 @@ app.controller('PitCtrl', function($scope, $http) {
   // List of Shooter types
   $scope.robotInfo.shooterTypes = [
 	 // TO BE SUPPLIED BY PETER
-	 { name: 'Something' }
+	 { name: 'None' }
+   { name: 'Catapult' }
+   { name: 'High Speed Roller' }
+   { name: 'Kicker' }
+   { name: 'Low Goal Only' }
+   { name: 'Other' }
   ];
 
   $scope.robotInfo.shooterType = $scope.robotInfo.shooterTypes[0];
@@ -72,7 +77,13 @@ app.controller('PitCtrl', function($scope, $http) {
   // List of Collector types
   $scope.robotInfo.collectorTypes = [
   	// TO BE SUPPLIED BY PETER
-  	{ name: 'Something' }
+  	{ name: 'None' }
+    { name: 'Top Roller' }
+    { name: 'Side Rollers' }
+    { name: 'Forklift' }
+    { name: 'Lance?' }
+    { name: 'Claw' }
+    { name: 'Other' }
   ];
 
   $scope.robotInfo.collectorType = $scope.robotInfo.collectorTypes[0];
@@ -115,7 +126,8 @@ app.controller('PitCtrl', function($scope, $http) {
   // List of starting spots and where they start
   $scope.autoInfo.startSpots = [
   	// TO BE SUPPLIED BY DALE/PETER
-  	{ name: 'Something' }
+  	{ name: 'Middle' }
+    { name: 'Goalie' }
   ];
 
   $scope.autoInfo.startPosition = $scope.autoInfo.startSpots[0];
