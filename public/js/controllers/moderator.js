@@ -35,7 +35,7 @@ blueAlliance: {team1:Number,team2:Number,team3:Number},
       templateUrl: 'components/moderatorModal.jade',
       controller: function ($scope, $modalInstance) {
 
-        $scope.ok = function () {
+        $scope.closeModal = function () {
           $modalInstance.close();
         };
 

@@ -1,6 +1,8 @@
 
 .row
   .col-md-6
-    textarea.form-control
+    textarea.form-control(rows=30)
   .col-md-6
-    textarea.form-control(disabled)
+    textarea.form-control(rows=30)
+  .col-md-10.col-md-offset-1
+    .btn.btn-block.btn-info(ng-click="closeModal()") Done
