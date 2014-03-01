@@ -1,37 +1,38 @@
 link(rel='stylesheet' type='text/css' href='/css/index.css')
 
-select.form-control(ng-options="event.name as event.value for event in events" ng-model="thisEvent")
+select.form-control(ng-options="event.value as event.name for event in events" ng-model="eventId")
+
+hr
 
 // select bar
-ul
-	li(ng-repeat="match in matches | orderBy:moderated:reverse | orderBy:matchNum")
-		// three red teams
-		.row
-			.col-md-10
-				.well
-					.row
-						.col-md-5
-							.row
-								.col-md-4
-									.btn.btn-default.btn-block(ng-click="open( {{team1}} )") {{match.redAlliance.team1}}
-								.col-md-4
-									.btn.btn-default.btn-block(ng-click="open( {{team2}} )") {{match.redAlliance.team2}}
-								.col-md-4
-									.btn.btn-default.btn-block(ng-click="open( {{team3}} )") {{match.redAlliance.team3}}
-						.col-md-2
-								p.lead.text-center {{match.id}}
-						.col-md-5
-							.row
-								.col-md-4
-									.btn.btn-default.btn-block(ng-click="open( {{team1}} )") {{match.blueAlliance.team1}}
-								.col-md-4
-									.btn.btn-default.btn-block(ng-click="open( {{team2}} )") {{match.blueAlliance.team2}}
-								.col-md-4
-									.btn.btn-default.btn-block(ng-click="open( {{team3}} )") {{match.blueAlliance.team3}}
+div(ng-repeat="match in matches | orderBy:['moderated','number']")
+	// three red teams
+	.row
+		.col-md-10
+			.well
+				.row
+					.col-md-5
+						.row
+							.col-md-4
+								.btn.btn-danger.btn-block(ng-click="editNotes( {{ match.redAlliance.teams[0] }}, {{ match['team1Data'] }} )") {{ match.redAlliance.teams[0] }}
+							.col-md-4
+								.btn.btn-danger.btn-block(ng-click="editNotes( {{ match.redAlliance.teams[1] }}, {{ match['team2Data'] }} )") {{ match.redAlliance.teams[1] }}
+							.col-md-4
+								.btn.btn-danger.btn-block(ng-click="editNotes( {{ match.redAlliance.teams[2] }}, {{ match['team3Data'] }} )") {{ match.redAlliance.teams[2] }}
+					.col-md-2
+							h4.text-center {{match.number}}
+					.col-md-5
+						.row
+							.col-md-4
+								.btn.btn-primary.btn-block(ng-click="editNotes( {{ match.redAlliance.teams[0] }}, {{ match['team1Data'] || 5 }} )") {{ match.blueAlliance.teams[0] }}
+							.col-md-4
+								.btn.btn-primary.btn-block(ng-click="editNotes( {{ match.redAlliance.teams[1] }}, {{ match['team2Data'] }} )") {{ match.blueAlliance.teams[1] }}
+							.col-md-4
+								.btn.btn-primary.btn-block(ng-click="editNotes( {{ match.redAlliance.teams[2] }}, {{ match['team3Data'] }} )") {{ match.blueAlliance.teams[2] }}
 
-			.col-md-2
-				.btn.btn-default(ng-click="moderated=true") Finish Moderation
+		.col-md-2
+			.btn.btn-default(ng-click="match.moderated=!match.moderated") Finish Moderation
 
 .col-md-3
 	.row
-		a.btn(ng-click="generatePDF()") PDF
+		.btn.btn-info(ng-click="generatePDF()") PDF

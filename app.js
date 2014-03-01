@@ -15,6 +15,8 @@ var io = require('socket.io').listen(server);
 var db = require('./modules/db.js');
 var dataRouter = require('./modules/data.js');
 
+var mongoose = require('mongoose');
+
 /**
  * Configuration
  */
@@ -61,6 +63,24 @@ app.post('/submit/:dest', function(req, res) {
   });
 });
 
+
+io.sockets.on('connection', function(socket) {
+
+  socket.on('get-event', function(eventId) {
+    var Event = mongoose.model('Event');
+
+    Event.findOne({ id:eventId }).populate('matches teams').exec()
+
+    .then(
+
+      function returnEvent(event) {
+        socket.emit('receive-event', event);
+      }
+
+    );
+  });
+
+});
 
 
 

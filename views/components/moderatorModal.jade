@@ -1,6 +1,14 @@
+.modal-header
+	p.lead.pull-left
+.modal-body
+	.row
+		.col-md-5
+			textarea.form-control(rows=30 ng-model="notes.master")
+		.col-md-5.col-md-offset-2
+			textarea.form-control(rows=30 ng-model="notes.match")
 
-.row
-  .col-md-6
-    textarea.form-control
-  .col-md-6
-    textarea.form-control(disabled)
+.modal-footer
+	.btn-group.btn-group-lg
+		.btn.btn-info(ng-click="ok()") Moderate
+		.btn.btn-danger(ng-click="cancel()") Moderate
+			
