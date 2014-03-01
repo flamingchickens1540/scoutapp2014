@@ -4,7 +4,12 @@ var app = angular.module('ctrl.scout', [
   'btford.socket-io'
 ]);
 
-app.controller('ScoutCtrl', function($scope, $http, $log) {
+app.controller('ScoutHomeCtrl', function($scope) {
+  // scout home is where you select the alliance position you watch
+  // anything that goes on the team selection page? Nothing?
+});
+
+app.controller('ScoutCtrl', function($scope, $http, $routeParams, $log) {
   /* NON-DATA INFORMATION */
 
   /* COLLAPSE STATES */
@@ -68,10 +73,13 @@ app.controller('ScoutCtrl', function($scope, $http, $log) {
 
   /***************** INFO *****************/
   $scope.info = {
-    scout: null,
-    event: null,
-    team: null,
-    matchNum: null
+    scout: null, // chosen by select, set once and ignore
+    event: null, //chosen by select, set once and ignore
+    team: null, // returned in teh POST request to the server
+    matchNum: null, //set once when page opens and ignore
+
+    // red1, red2, etc
+    pos: $routeParams.pos
   };
 
 
@@ -261,5 +269,4 @@ app.controller('ScoutCtrl', function($scope, $http, $log) {
 
     return { verified: verified, errors: errLog };
   };
-
 });

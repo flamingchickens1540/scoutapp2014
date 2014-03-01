@@ -26,6 +26,11 @@ app.config(function ($routeProvider, $locationProvider) {
     }).
 
     when('/scout', {
+      templateUrl: 'partials/scoutHome',
+      controller: 'ScoutHomeCtrl'
+    }).
+
+    when('/scout/:pos', {
       templateUrl: 'partials/scout',
       controller: 'ScoutCtrl'
     }).
