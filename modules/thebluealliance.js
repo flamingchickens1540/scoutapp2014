@@ -19,20 +19,9 @@ exports = module.exports = function(name, description, version) {
 
 	tba['getTeam'] = function(teamId, year, callback) {
 
-		// arguments validation for year and callback
-	  switch( typeof year ) {
-	  	case 'number':
-	  		year = year;
-	  		break;
-
-	  	case 'function':
-	  		callback = year;
-	  		year = undefined;
-
-	  	case 'undefined':
-	  		year = new Date().getFullYear();
-	  		break;
-	  }
+		var validatedYear = yearValidation( year, callback );
+		year = validatedYear.year;
+		callback = validatedYear.callback;
 
 	  req.get({ headers:headers, url:rootURL+'team/frc'+ teamId +'/'+ year },
 
@@ -57,9 +46,124 @@ exports = module.exports = function(name, description, version) {
 	  );
 	};
 
-	tba['getEventById'] = function() {};
-	tba['getTeamsByEvent'] = function() {};
-	tba['getMatchesByTeam'] = function() {};
+	tba['getEventById'] = tba['getEvent'] = function(eventId, year, callback) {
+
+		// ARGS VALIDATION
+		var validatedYear = yearValidation(year, callback);
+		year = validatedYear.year;
+		callback = validatedYear.callback;
+
+		req.get({ headers:headers, url:rootURL+'event/'+year+eventId },
+
+	  	function(err, res) {
+	  		if(!err) {
+	  			var eventInfo = JSON.parse(res.body);
+
+	  			if(res.statusCode === 200)
+	  				// successful request
+	  				callback( null, eventInfo );
+	  			
+	  			else
+	  				// Unsuccessful because of 404 or something
+	  				callback( new Error('Unsuccessful request to TBA'), null, null );
+	  		}
+
+	  		else
+	  			// error in request
+	  			callback(err, null, null);
+	  	}
+
+	  );
+
+	};
+
+	// get all of the teams at an event
+	tba['getTeamsAtEvent'] = function(eventId, year, callback) {
+
+		// ARGS VALIDATION
+		var validatedYear = yearValidation(year, callback);
+		year = validatedYear.year;
+		callback = validatedYear.callback;
+
+		req.get({ headers:headers, url:rootURL+'event/'+year+eventId+'/teams' },
+
+	  	function(err, res) {
+	  		if(!err) {
+	  			var teamsInfo = JSON.parse(res.body);
+
+	  			if(res.statusCode === 200)
+	  				// successful request
+	  				callback( null, teamsInfo );
+	  			
+	  			else
+	  				// Unsuccessful because of 404 or something
+	  				callback( new Error('Unsuccessful request to TBA'), null, null );
+	  		}
+
+	  		else
+	  			// error w/ request
+	  			callback(err, null, null);
+	  	}
+
+	  );
+
+	};
+
+	// get all of the matches at an event
+	tba['getMatchesAtEvent'] = function(eventId, year, callback) {
+
+		// ARGS VALIDATION
+		var validatedYear = yearValidation(year, callback);
+		year = validatedYear.year;
+		callback = validatedYear.callback;
+
+		req.get({ headers:headers, url:rootURL+'event/'+year+eventId+'/matches' },
+
+	  	function(err, res) {
+	  		if(!err) {
+	  			var eventInfo = JSON.parse(res.body);
+
+	  			if(res.statusCode === 200)
+	  				// successful request
+	  				callback( null, eventInfo );
+	  			
+	  			else
+	  				// Unsuccessful because of 404 or something
+	  				callback( new Error('Unsuccessful request to TBA'), null, null );
+	  		}
+
+	  		else
+	  			// error in request
+	  			callback(err, null, null);
+	  	}
+
+	  );
+
+	};
 
 	return tba;
+};
+
+		
+var yearValidation = function(year, callback) {
+	// arguments validation for year and callback
+  switch( typeof year ) {
+  	case 'number':
+  		year = year;
+  		break;
+
+  	case 'function':
+  		callback = year;
+  		year = undefined;
+
+  	case 'undefined':
+  		year = new Date().getFullYear();
+  		break;
+  }
+
+  if( typeof callback !== 'function' ) {
+  	callback = function(err, info) { console.log(err, info) };
+  }
+
+  return { year:year, callback:callback };
 };
