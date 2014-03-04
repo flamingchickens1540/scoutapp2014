@@ -9,28 +9,31 @@ var ObjectId = Schema.Types.ObjectId;
 */
 
 var MatchSchema = new Schema({
-	event: String,
+	event: { type:String, required:'Event id is required' },
 
-	number: Number,
+	number: { type:Number, required:'Match number is required' },
 
 	//timeStamp: { type:Date },
 
-	redAlliance: {
-		teams: [{ type:Number, default:[] }],
+	// TeamMatch data for each team
+	red1Data: { type:ObjectId, ref:'TeamMatch' },
+	red2Data: { type:ObjectId, ref:'TeamMatch' },
+	red3Data: { type:ObjectId, ref:'TeamMatch' },
 
-		teamData: [{
-			type: ObjectId,
-			ref:'TeamMatch'
-		}],
+	blue1Data: { type:ObjectId, ref:'TeamMatch' },
+	blue2Data: { type:ObjectId, ref:'TeamMatch' },
+	blue3Data: { type:ObjectId, ref:'TeamMatch' },
+
+	redAlliance: {
+		teams: [{ type:Number, default:[], required:'Requires 3 red teams' }],
+		score: Number,
+		fouls: Number
 	},
 
 	blueAlliance: {
-		teams: [{ type:Number, default:[] }],
-
-		teamData: [{
-			type: ObjectId,
-			ref:'TeamMatch'
-		}]
+		teams: [{ type:Number, default:[], required:'Requires 3 blue teams' }],
+		score: Number,
+		fouls: Number
 	},
 	
 	moderated: { type: Boolean, default: false },

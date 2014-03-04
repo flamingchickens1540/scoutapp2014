@@ -54,6 +54,7 @@ dataPathways['matchData'] = function(data, callback) {
 			var teamMatch = new TeamMatch({
 				// stores a reference to the overall match object
 				match: match,
+				teamId: info.team,
 
 				scout: info.scout,
 

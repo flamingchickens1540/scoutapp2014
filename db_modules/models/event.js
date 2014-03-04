@@ -11,7 +11,7 @@ var ObjectId = Schema.Types.ObjectId;
 
 var EventSchema = new Schema({
 	//ex. ORPO
-	id: String,
+	id: { type:String, unique:true },
 
 	name: String,
 	region: String,
@@ -20,18 +20,15 @@ var EventSchema = new Schema({
 
 	teams: [{
 		type: ObjectId,
-		ref:'Team'
+		ref:'Team',
+		default: []
 	}],
 	
 	matches: [{
 		type: ObjectId,
-		ref:'Match'
+		ref:'Match',
+		default: []
 	}]
 });
-
-EventSchema.static('loadOne', function(id, callback) {
-
-});
-
 
 mongoose.model('Event', EventSchema);

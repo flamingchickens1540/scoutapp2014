@@ -7,6 +7,7 @@ var Mixed = Schema.Types.Mixed;
 
 
 var TeamMatchSchema = new Schema({
+	teamId: { type:Number, required:'Team Matches requires a team match' },
 
 	match: {
 		type: ObjectId,
