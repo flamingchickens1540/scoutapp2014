@@ -190,15 +190,7 @@ app.controller('ScoutCtrl', function($scope, $http, $log) {
         submit: $scope.submit
       });
 
-      $log.log(submitData);
-
-      submitData.success( function(data, status, headers, config) {
-        $log.log('success!');
-      });
-
-      submitData.error( function(data, status, headers, config) {
-        $log.log('Error!', data, status, headers);
-      });
+      .
 
     }
     else {
