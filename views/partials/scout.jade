@@ -21,17 +21,23 @@ header.navbar.navbar-inverse.navbar-fixed-top
 .panel.panel-default(collapse="collapsed.info")
 	.panel-heading Match Info
 	.panel-body
-		p.lead.text-center Red1
+		p.lead.text-center {{ info.color + info.posNum }} - {{ team.id }}
 
 		.row
-			.col-sm-3
+			.col-sm-2
 				p.lead Choose Event
-			.col-sm-9
-				select.form-control(ng-options="event.name as event.value group by event.region for event in events" ng-model="info.event")
+			.col-sm-4
+				select.form-control(ng-options="event.value as event.name group by event.region for event in events" ng-model="info.event")
+
+			.col-sm-2
+				p.lead Choose Match
+			.col-sm-4
+				select.form-control(ng-options="match.number for match in matches" ng-model="match")
+
 		.row
-			.col-sm-3
+			.col-sm-2
 				p.lead Scout Name
-			.col-sm-9
+			.col-sm-4
 				select.form-control(ng-options="scout for scout in scouts" ng-model="info.scout")
 
 		.row

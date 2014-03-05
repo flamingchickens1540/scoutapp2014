@@ -9,18 +9,115 @@ app.controller('ScoutHomeCtrl', function($scope) {
   // anything that goes on the team selection page? Nothing?
 });
 
-app.controller('ScoutCtrl', function($scope, $http, $routeParams, $log) {
+app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log) {
   /* NON-DATA INFORMATION */
 
-  /* COLLAPSE STATES */
-  $scope.collapsed = {
-    info: false,
-    auto: true,
-    scoring: true,
-    teamwork: true,
-    issues: true,
-    submit: true
+  var resetScout = function(finishedMatchNum) {
+    if( angular.isDefined(finishedMatchNum) ) {
+
+
+
+      // if I don't add one, it automatically jumps up one (CS starts at 0)
+      $scope.match = $scope.event.matches[finishedMatchNum];
+    }
+
+    /* COLLAPSE STATES */
+    $scope.collapsed = {
+      info: false,
+      auto: true,
+      scoring: true,
+      teamwork: true,
+      issues: true,
+      submit: true
+    };
+
+    /***************** AUTONOMOUS *****************/
+    $scope.auto = {
+      startPosition: null,
+      drivesForward: false,
+      fieldValues: {
+        goal: 0,
+        miss: 0,
+        hotgoal: 0
+      },
+      goalieValues: {
+        block: 0,
+        miss: 0
+      }
+    };
+
+    /***************** SCORING *****************/
+    $scope.scoring = {
+      playStyles: [],
+      goals: {
+        high: 0,
+        low: 0
+      }
+    };
+
+    $scope.scoring['playStyles'] = [
+      { name: 'dozer', action: false },
+      { name: 'goalie', action: false },
+      { name: 'truss shooter', action: false },
+      { name: 'defense', action:  false },
+      { name: 'shooter', action:  false }
+    ];
+
+    /***************** TEAMWORK *****************/
+    $scope.teamwork = {
+      zones: [],
+      receiving: {
+        roll: 0,
+        truss: 0,
+        aerial: 0
+      },
+      passing: {
+        roll: 0,
+        truss: 0,
+        aerial: 0
+      }
+    };
+
+    $scope.teamwork['zones'] = [
+      { name: 'one', action: false },
+      { name: 'two', action: false },
+      { name: 'three', action: false },
+      { name: 'goal', action: false }
+    ];
+
+    /***************** ISSUES *****************/
+    $scope.issues = {
+      // DEAD OR BROKEN?
+      deadBroken: null,
+      deadBrokenNotes: '',
+
+      // PASSIVE EJECTION ON ROBOT?
+      ejectable: null,
+      ejectionNotes: ''
+    };
+
+    /***************** SUBMISSION *****************/
+
+    /* RATINGS */
+    $scope.submit = {
+      ratings: [],
+      numStars: 5,
+
+      notes: ''
+    }; 
+
+    $scope.submit['ratings'] = [
+      { title: 'driving', stars: 0 },
+      { title: 'shooting', stars: 0 },
+      { title: 'passing', stars: 0 },
+      { title: 'defense', stars: 0 },
+      { title: 'catching', stars: 0 }
+    ];
   };
+
+  resetScout();
+
+  // collaped
 
   $scope.displayView = function displayView(panel) {
     $scope.collapsed = {
@@ -67,116 +164,82 @@ app.controller('ScoutCtrl', function($scope, $http, $routeParams, $log) {
 
   $scope.events = [
     { name: 'Autodesk Oregon Regional', value: 'orpo', region: 'Regionals' },
-    { name: 'pnw - district 1', value: 'test2', region: 'PNW' }
+    { name: 'pnw - district 1', value: 'test2', region: 'PNW' },
+    { name: 'Inland Empire Regional', value:'casb', region:'Regionals' }
   ];
+
+  // make sure event is always good
+  $scope.$watch('info.event', function(newEvent, oldEvent) {
+    getEvent( newEvent );
+  });
+
+  // make sure event is always good
+  $scope.$watch('match', function(newMatch, oldMatch) {
+    if(newMatch != null) {
+      console.log(newMatch);
+      var teamPosInArray = $scope.info.posNum - 1; // adjust for arrays
+      setTeam( newMatch[ $scope.info.color +'Alliance' ].teams[ teamPosInArray ] );
+      $scope.info.matchNum = newMatch.number;
+    }
+  });
+
+  $scope.$watch('team', function(newTeam, oldTeam) {
+    if(newTeam != null) {
+      $scope.info['team'] = newTeam.id;
+      $scope['currentNotes'] = newTeam.masterNotes;
+    }
+  });
+
+  var getEvent = function(eventId) {
+    socket.emit('get-event', eventId, function(event) {
+      $scope.event = event || {};
+
+      $scope.matches = $scope.event.matches || [];
+      $scope.matches = $scope.matches.sort(function numericSort(match1,match2) { console.log('SORT',match1.number,match2.number); return match1.number - match2.number; });
+
+      console.log(event);
+    });
+  };
+
+  var setTeam = function(teamId) {
+    socket.emit('get-team-info', teamId, function(team) {
+      $scope.team = team;
+      console.log(team);
+    });
+  };
 
 
   /***************** INFO *****************/
+  var pos = $routeParams.pos;
+  var posNum = parseInt(pos.slice( pos.length-1 )); // 'red1' => 1
+  var color = pos.slice(0, pos.length-1).toLowerCase(); // 'red1' => 'red'
+
   $scope.info = {
     scout: null, // chosen by select, set once and ignore
     event: null, //chosen by select, set once and ignore
-    team: null, // returned in teh POST request to the server
+    team: null, // returned in the POST request to the server
     matchNum: null, //set once when page opens and ignore
 
-    // red1, red2, etc
-    pos: $routeParams.pos
+    // 1, 2, or 3
+    posNum: posNum,
+    color: color
   };
 
+  $scope.match = null;
 
-  /***************** AUTONOMOUS *****************/
-  $scope.auto = {
-    startPosition: null,
-    drivesForward: false,
-    fieldValues: {
-      goal: 0,
-      miss: 0,
-      hotgoal: 0
-    },
-    goalieValues: {
-      block: 0,
-      miss: 0
-    }
-  };
+  // AUTONOMOUS
 
+  // SCORING
 
-  /***************** SCORING *****************/
-  $scope.scoring = {
-    playStyles: [],
-    goals: {
-      high: 0,
-      low: 0
-    }
-  };
+  // TEAMWORK
 
-  $scope.scoring['playStyles'] = [
-    { name: 'dozer', action: false },
-    { name: 'goalie', action: false },
-    { name: 'truss shooter', action: false },
-    { name: 'defense', action:  false },
-    { name: 'shooter', action:  false }
-  ];
+  // ISSUES
 
-  /***************** TEAMWORK *****************/
-  $scope.teamwork = {
-    zones: [],
-    receiving: {
-      roll: 0,
-      truss: 0,
-      aerial: 0
-    },
-    passing: {
-      roll: 0,
-      truss: 0,
-      aerial: 0
-    }
-  };
-
-  $scope.teamwork['zones'] = [
-    { name: 'one', action: false },
-    { name: 'two', action: false },
-    { name: 'three', action: false },
-    { name: 'goal', action: false }
-  ];
-
-
-  /***************** ISSUES *****************/
-  $scope.issues = {
-    // DEAD OR BROKEN?
-    deadBroken: null,
-    deadBrokenNotes: '',
-
-    // PASSIVE EJECTION ON ROBOT?
-    ejectable: null,
-    ejectionNotes: ''
-  };
-
-
-  /***************** SUBMISSION *****************/
-
-  /* RATINGS */
-  $scope.submit = {
-    ratings: [],
-    numStars: 5,
-
-    notes: ''
-  }; 
-
-  $scope.submit['ratings'] = [
-    { title: 'driving', stars: 0 },
-    { title: 'shooting', stars: 0 },
-    { title: 'passing', stars: 0 },
-    { title: 'defense', stars: 0 },
-    { title: 'catching', stars: 0 }
-  ];
-
-  // get from server
-  $scope.currentNotes = 'test';
+  // SUBMISSION
+  
 
   $scope.submitMatch = function submitMatch() {
     // verify all data is inputted
-
-    $scope.info.team = 1540;
-    $scope.info.matchNum = 3;
 
     var test = verify();
 
@@ -200,8 +263,15 @@ app.controller('ScoutCtrl', function($scope, $http, $routeParams, $log) {
 
       $log.log(submitData);
 
-      submitData.success( function(data, status, headers, config) {
-        $log.log('success!');
+      submitData.success( function(wasSaved) {
+        $log.log( 'WAS SAVED?', wasSaved );
+
+        if(wasSaved) {
+          resetScout( $scope.info.matchNum );
+        }
+        else {
+          alert('did not save properly, some error happened')
+        }
       });
 
       submitData.error( function(data, status, headers, config) {
