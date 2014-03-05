@@ -65,7 +65,7 @@ db.getTeam = db.getTeamById = function(teamId) {
 db.getMatch = function(eventId, matchNumber) {
 	return convertToQPromise(
 		Match.findOne({ event:eventId, number:matchNumber })
-		//.populate('matches teams')
+		.populate('red1Data red2Data red3Data blue1Data blue2Data blue3Data')
 		.exec()
 	)
 
@@ -76,9 +76,10 @@ db.getMatch = function(eventId, matchNumber) {
 	});
 };
 
-db.getMatchesByEvent = function(eventId) {
+db.getMatchesAtEvent = function(eventId) {
 	return convertToQPromise(
 		Match.find({ event:eventId })
+		.populate('red1Data red2Data red3Data blue1Data blue2Data blue3Data')
 		.exec()
 	)
 
@@ -92,6 +93,20 @@ db.getMatchesByEvent = function(eventId) {
 /********************************************
 ***************  TEAM_MATCH  ****************
 ********************************************/
+db.getTeamsAtEvent = function(eventId) {
+	return convertToQPromise(
+		Team.find({ events:eventId }) // events array contains eventId
+		.populate('matches')
+		.exec()
+	)
+
+	.then( function testForNullValues(teams) {
+		// null values are errors
+		if( _.isNull(teams) || _.isEmpty(teams) ) return new Error('can not find teams at event '+ eventId);
+		return teams;
+	});;
+};
+
 db.newUnsavedTeamMatch = function(info ) {
 	return convertToQPromise(
 		Match.find({})
