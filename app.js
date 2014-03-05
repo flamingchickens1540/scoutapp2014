@@ -18,6 +18,9 @@ var dataRouter = require('./modules/data.js');
 var mongoose = require('mongoose');
 var q = require('q');
 
+// connect to database
+db.connect();
+
 /**
  * Configuration
  */

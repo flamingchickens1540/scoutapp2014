@@ -2,7 +2,6 @@ var _ = require('underscore');
 var mongoose = require('mongoose');
 
 var db = require('./db_api.js');
-db.connect();
 
 var dataPathways = {};
 
