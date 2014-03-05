@@ -16,6 +16,7 @@ var db = require('./modules/db_api.js');
 var dataRouter = require('./modules/data.js');
 
 var mongoose = require('mongoose');
+var q = require('q');
 
 /**
  * Configuration
@@ -67,16 +68,18 @@ app.post('/submit/:dest', function(req, res) {
 io.sockets.on('connection', function(socket) {
 
   socket.on('get-event', function(eventId, returnDataToClient) {
-    var Event = mongoose.model('Event');
+    
+    db.getEvent( eventId )
 
-    Event.findOne({ id:eventId }).populate('matches teams').exec()
+    .then( function returnEvent(event) {
+      returnDataToClient(event);
+    })
 
-    .then(
+    .catch( function errHandler() {
+      // return some failing thing
+    });
+  });
 
-      function returnEvent(event) {
-        console.log(eventId, event)
-        returnDataToClient(event);
-      }
 
     );
   });

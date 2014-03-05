@@ -37,7 +37,7 @@ dataPathways['matchData'] = function(data, callback) {
 
 
 	q.all([ getMatch, getTeam ]) 
-	.spread(function createAndSaveTeamMatch( match, team ) {
+	.spread( function createAndSaveTeamMatch( match, team ) {
 
 		var teamMatch = new TeamMatch();
 
