@@ -41,8 +41,8 @@ dataPathways['matchData'] = function(data, callback) {
 
 		var teamMatch = new TeamMatch();
 
-		teamMatch['team'] = team;
-		teamMatch['match'] = match;
+		teamMatch['team'] = team.id;
+		teamMatch['match'] = match.number;
 		teamMatch['scout'] = info.scout;
 		teamMatch['posNum'] = info.posNum;
 		teamMatch['color'] = info.color;
