@@ -6,63 +6,55 @@ var app = angular.module('ctrl.moderator', [
 
 app.controller('ModeratorCtrl', function($scope, $modal, socket, $http, $log) {
 
+  // returns true/false depending on whether data exists for the match
+  $scope.containsData = function(matchData) {
+    return !angular.isDefined(matchData);
+  };
+
   $scope.events = [
-    { name:'PNW District Champs', value:'orpo' }
+    { name:'PNW District Champs', value:'orpo' },
+    { name:'Inland Empire Regional', value:'casb' }
   ];
 
-  $scope.matches = [];
-
   $scope.eventId = null;
-  $scope.event = null;
+  $scope.matches = [];
+  $scope.teams = {};
 
-  socket.on('receive-event', function(event) {
-    $scope.event = event || {};
-    $scope.matches = $scope.event.matches;
-    console.log(event);
-  });
+  var getEvent = function(eventId) {
+    socket.emit('moderator:get-data', eventId, function(data) {
+
+      console.log(data);
+
+      $scope.matches = data.matches || [];
+
+      angular.forEach(data.teams, function(team) {
+        $scope.teams[team.id] = team;
+        $scope.teams[team.id].masterNotes = team.masterNotes || 'FRC '+ team.id;
+      });
+      console.log($scope.teams);
+
+    });
+  };
 
   // make sure event is always good
   $scope.$watch('eventId', function(newEvent, oldEvent) {
-
-    socket.emit('get-event', newEvent);
-
+    getEvent( newEvent );
   });
 
+  $scope.editNotes = function (matchData) {
+    console.log(matchData);
+    var teamId = matchData.team;
 
-/*
-MATCH
-{id: Number,
-moderated: Boolean, //if true, then the match was moderated already
-redAlliance: {team1:Number,team2:Number,team3:Number},
-blueAlliance: {team1:Number,team2:Number,team3:Number},
-}
-  
-
-
-*/
-
-  $scope.matches = [
-    
-    // {number: 123,moderated: false, redAlliance: {team1:1540,team2:666,team3:4321}, blueAlliance: {team1:1234,team2:678,team3:8756}},
-    // {number: 13,moderated: false, redAlliance: {team1:140,team2:66,team3:432}, blueAlliance: {team1:124,team2:8,team3:876}},
-    // {number: 130,moderated: false, redAlliance: {team1:1540,team2:666,team3:4321}, blueAlliance: {team1:1234,team2:678,team3:8756}},
-    // {number: 135,moderated:true, redAlliance: {team1:140,team2:66,team3:432}, blueAlliance: {team1:124,team2:8,team3:876}},
-    // {number: 1263,moderated: false, redAlliance: {team1:1540,team2:666,team3:4321}, blueAlliance: {team1:1234,team2:678,team3:8756}},
-    // {number: 153,moderated: true, redAlliance: {team1:140,team2:66,team3:432}, blueAlliance: {team1:124,team2:8,team3:876}},
-    // {number: 1723,moderated: false, redAlliance: {team1:1540,team2:666,team3:4321}, blueAlliance: {team1:1234,team2:678,team3:8756}},
-    // {number: 173,moderated: true, redAlliance: {team1:140,team2:66,team3:432}, blueAlliance: {team1:124,team2:8,team3:876}},
-     
-  ];
-
-  $scope.editNotes = function (team, matchData) {
 
     var modalInstance = $modal.open({
       templateUrl: 'components/moderatorModal.jade',
       resolve: {
-        matchNotes: function() { return matchData.notes },
-        masterNotes: function() { return team.masterNotes }
+        matchNotes: function() { return matchData.data.submit.notes },
+        masterNotes: function() { return ($scope.teams[teamId] || {}).masterNotes } //REMOVE THIS WHEN POSSIBLE
       },
       controller: function ($scope, $modalInstance, matchNotes, masterNotes) {
+
+        $scope.teamId = teamId || 'None';
 
         $scope.notes = {};
         $scope.notes['master'] = masterNotes;
@@ -70,7 +62,10 @@ blueAlliance: {team1:Number,team2:Number,team3:Number},
 
         $scope.ok = function () {
           $log.log('CLOSING: ', $scope.notes);
-          $modalInstance.close( $scope.notes['master'] );
+          $modalInstance.close({ 
+            teamId:teamId, 
+            masterNotes:$scope.notes['master'] 
+          });
         };
 
         $scope.cancel = function () {
@@ -81,13 +76,24 @@ blueAlliance: {team1:Number,team2:Number,team3:Number},
     });
 
     modalInstance.result.then(
-      function(notes) {
-        console.log('OUTPUT NOTES: ',notes);
-      }, 
-      function() {
+      function saveAndShareNewNote(noteInfo) {
+        console.log(noteInfo);
+
+        // updates the master note locally so that I don't need to pull from the db for notes
+        $scope.teams[teamId].masterNotes = noteInfo.masterNotes;
+
+        socket.emit('save-moderated-notes', noteInfo, function(isSaved) {
+          console.log('Note was saved: '+ isSaved);
+          if(isSaved) alert('saved!');
+          else alert('not saved!');
+        })
+      },
+
+      function closeModal() {
         $log.info('Modal dismissed at: ' + new Date());
       }
     );
+    
   };
 
 

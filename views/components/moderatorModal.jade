@@ -1,14 +1,16 @@
 .modal-header
-	p.lead.pull-left
+	h3 Moderation - ({{ teamId }})
 .modal-body
 	.row
-		.col-md-5
+		.col-md-6
+			h4.text-center Master Notes
 			textarea.form-control(rows=30 ng-model="notes.master")
-		.col-md-5.col-md-offset-2
+		.col-md-6
+			h4.text-center Match Notes
 			textarea.form-control(rows=30 ng-model="notes.match")
 
 .modal-footer
-	.btn-group.btn-group-lg
+	.btn-group.btn-group-lg.btn-group-justified
 		.btn.btn-info(ng-click="ok()") Moderate
-		.btn.btn-danger(ng-click="cancel()") Moderate
+		.btn.btn-danger(ng-click="cancel()") Cancel
 			

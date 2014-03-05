@@ -56,7 +56,22 @@ app.post('/submit/:dest', function(req, res) {
 
   dataRouter.collect(submitTo, data, function(err, saved) {
     if(!err) {
-      res.send(saved);
+      var info = data.info;
+      db.getTeam(info.team)
+
+      .then( function broadcastUpdatedTeam(team) {
+        socket.broadcast.emit('moderator:update-team', team);
+      })
+
+      .then( function sendResponse() {
+        res.send(saved);
+      })
+      
+      .fail( function sendErrResponse(err) {
+        console.log(err);
+        res.send(err);
+      });
+      
     }
     else {
       res.send(err);
@@ -80,9 +95,25 @@ io.sockets.on('connection', function(socket) {
     });
   });
 
+  socket.on('moderator:get-data', function(eventId, returnDataToClient) {
 
-    );
+    q.all([ db.getTeamsAtEvent(eventId), db.getMatchesAtEvent(eventId) ])
+    
+    .spread( function getAllData(teams, matches) {
+      console.log(teams.length, matches.length);
+      return { teams:teams, matches:matches }
+    })
+
+    .then( function returnToClient(data) {
+      returnDataToClient({ teams:data.teams, matches:data.matches });
+    })
+
+    .catch( function errHandler(err) {
+      // return some failing thing
+      console.log(err);
+    });
   });
+
 
   socket.on('get-team-info', function(teamId, returnDataToClient) {
     var Team = mongoose.model('Team');
@@ -92,7 +123,6 @@ io.sockets.on('connection', function(socket) {
     .then(
 
       function returnTeam(team) {
-        console.log(teamId, team)
         returnDataToClient(team);
       }
 
