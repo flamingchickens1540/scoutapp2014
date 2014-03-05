@@ -12,7 +12,7 @@ var server = http.createServer(app);
 var io = require('socket.io').listen(server);
 
 
-var db = require('./modules/db.js');
+var db = require('./modules/db_api.js');
 var dataRouter = require('./modules/data.js');
 
 var mongoose = require('mongoose');
@@ -53,9 +53,9 @@ app.post('/submit/:dest', function(req, res) {
   var submitTo = req.params.dest;
   var data = req.body;
 
-  dataRouter.collect(submitTo, data, function(err, msg) {
+  dataRouter.collect(submitTo, data, function(err, saved) {
     if(!err) {
-      res.send(msg);
+      res.send(saved);
     }
     else {
       res.send(err);
@@ -66,7 +66,7 @@ app.post('/submit/:dest', function(req, res) {
 
 io.sockets.on('connection', function(socket) {
 
-  socket.on('get-event', function(eventId) {
+  socket.on('get-event', function(eventId, returnDataToClient) {
     var Event = mongoose.model('Event');
 
     Event.findOne({ id:eventId }).populate('matches teams').exec()
@@ -74,10 +74,44 @@ io.sockets.on('connection', function(socket) {
     .then(
 
       function returnEvent(event) {
-        socket.emit('receive-event', event);
+        console.log(eventId, event)
+        returnDataToClient(event);
       }
 
     );
+  });
+
+  socket.on('get-team-info', function(teamId, returnDataToClient) {
+    var Team = mongoose.model('Team');
+
+    Team.findOne({ id:teamId }).populate('matches').exec()
+
+    .then(
+
+      function returnTeam(team) {
+        console.log(teamId, team)
+        returnDataToClient(team);
+      }
+
+    );
+  });
+
+  socket.on('save-moderated-notes', function(info, returnDataToClient) {
+    var Team = mongoose.model('Team');
+
+    var teamId = info.teamId;
+    var masterNotes = info.masterNotes;
+
+    Team.findOneAndUpdate( { id:teamId }, { masterNotes:masterNotes }, function(err, team) {
+      if(!err) {
+        console.log('Added note '+ masterNotes +' to team '+ team.id);
+        returnDataToClient(true);
+      }
+      else{
+        returnDataToClient(false);
+      }
+
+    });
   });
 
 });
