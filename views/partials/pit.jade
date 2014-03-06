@@ -1,49 +1,49 @@
+// general info
 .panel.panel-default
 	.panel-heading General Information
 	.panel-body 
 		.row
-			h3.text-center
-				| Team/Event Info:
-				br
+			h3.text-center Team/Event Info:
 		br
-		.row
-			.col-sm-6
-				.input-group
-					span.input-group-addon Team  #
-					input.form-control(type='number', ng-model='generalInfo.teamNumber')
-			.col-sm-6
-				select.form-control(ng-options="event.name for event in genralInfo.events" ng-model="generalInfo.event" required)
+				.row
+			.col-sm-2
+				p.lead Choose Event
+			.col-sm-4
+				select.form-control(ng-options="event.value as event.name group by event.region for event in events" ng-model="eventId")
+
+			.col-sm-2
+				p.lead Choose Match
+			.col-sm-4
+				select.form-control(ng-options="team.id for team in teams" ng-model="teamId")
 		br
 		hr
 		.row
 			.col-sm-12
-				h3.text-center
-					| Wheels:
-					br
+				h3.text-center Wheels:
 					br
 				.row
 					.col-sm-6
-						select.form-control(ng-options="wheelL1.name for wheelL1 in generalInfo.wheels" ng-model="generalInfo.wheelL1" required)
+						select.form-control(ng-options="wheel for wheel in wheels" ng-model="generalInfo.wheel.wheelL1")
 					.col-sm-6
-						select.form-control(ng-options="wheelR1.name for wheelR1 in wheels" ng-model="wheelR1" required)
+						select.form-control(ng-options="wheel for wheel in wheels" ng-model="generalInfo.wheel.wheelR1")
 				br
 				.row
 					.col-sm-6
-						select.form-control(ng-options="wheelL2.name for wheelL2 in wheels" ng-model="wheelL2" required)
+						select.form-control(ng-options="wheel for wheel in wheels" ng-model="generalInfo.wheel.wheelL2")
 					.col-sm-6
-						select.form-control(ng-options="wheelR2.name for wheelR2 in wheels" ng-model="wheelR2" required)
+						select.form-control(ng-options="wheel for wheel in wheels" ng-model="generalInfo.wheel.wheelR2")
 				br
 				.row
 					.col-sm-6
-						select.form-control(ng-options="wheelL3.name for wheelL3 in wheels" ng-model="wheelL3" required)
+						select.form-control(ng-options="wheel for wheel in wheels" ng-model="generalInfo.wheel.wheelL3")
 					.col-sm-6
-						select.form-control(ng-options="wheelR3.name for wheelR3 in wheels" ng-model="wheelR3" required)
+						select.form-control(ng-options="wheel for wheel in wheels" ng-model="generalInfo.wheel.wheelR3")
 				br
 				.row
 					.col-lg-12
 						.input-group
 							span.input-group-addon Notes:
-							input.form-control(type='text' ng-model='wheelNotes')
+							input.form-control(type='text' ng-model='generalInfo.wheelNotes')
 		hr
 		.row
 			.col-sm-4
@@ -52,7 +52,7 @@
 					br
 					br
 					.input-group
-						input.form-control(type='number' ng-model='robotHeight')
+						input.form-control(type='number' ng-model='generalInfo.robotHeight')
 						span.input-group-addon inches
 			.col-sm-4
 				h3.text-center Shifting?
@@ -60,8 +60,8 @@
 				.row
 					.text-center
 						.btn-group
-							button.btn.btn-primary(type='button', ng-model='shifting', btn-radio="true") Yes
-							button.btn.btn-primary(type='button', ng-model='shifting', btn-radio="false") No
+							button.btn.btn-primary(type='button', ng-model='generalInfo.shifting', btn-radio="true") Yes
+							button.btn.btn-primary(type='button', ng-model='generalInfo.shifting', btn-radio="false") No
 			.col-sm-4
 				h3.text-center
 					| Shooting Range:
@@ -76,8 +76,11 @@
 								h4 Max
 								select.form-control(ng-options="maxShoot.name for maxShoot in zones" ng-model="maxShoot" required)
 
-	.panel-footer
-		.btn Save
+	//
+		.panel-footer
+			.btn.btn-info Save
+
+// robot information
 .panel.panel-default
 	.panel-heading Robot Information
 	.panel-body
@@ -126,8 +129,11 @@
 					br
 					select.form-control(ng-options="time.name for time in reloadTimes" ng-model="reloadTime" required)
 		br
-	.panel-footer
-		.btn Save
+	//
+		.panel-footer
+			.btn.btn-info Save
+
+// autonomous information
 .panel.panel-default
 	.panel-heading Autonomous Information
 	.panel-body
@@ -166,8 +172,11 @@
 					br
 					br
 					select.form-control(ng-options="position.name for position in startSpots" ng-model="startPosition" required)
-	.panel-footer
-		.btn Save
+	//
+		.panel-footer
+			.btn.btn-info Save
+
+// notes
 .panel.panel-default
 	.panel-heading Notes
 	.panel-body
@@ -179,4 +188,3 @@
 	.panel-footer
 		.btn-lg.btn.btn-success(ng-click="saveData()") Save All
 		.btn-lg.btn.btn-info(ng-click="submitData()") Send to Server
-

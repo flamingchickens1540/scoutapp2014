@@ -4,7 +4,7 @@ var app = angular.module('ctrl.pit', [
   'ui.bootstrap'
 ]);
 
-app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log) {
+app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket) {
   var fs = fileSystem;
 
   // request 100MB
@@ -19,44 +19,67 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log) {
 // ============================== GENERAL INFO ==============================
   // Team Name
   $scope.generalInfo = {};
-  $scope.generalInfo.teamNumber = 0;
+  $scope.generalInfo['teamNumber'] = 0;
+
+  $scope.teams = [];
+  $scope.event = {};
 
   // List of events and what event we are at
-  $scope.generalInfo.events = [
-  	{ name: 'Oregon City District' },
-  	{ name: 'Wilsonville District' },
-  	{ name: 'OSU District' },
-  	{ name: 'PNW Championships' },
-  	{ name: 'World Championships' }
+  $scope.events = [
+    { name: 'Autodesk Oregon Regional', value: 'orpo', region: 'Regionals' },
+    { name: 'pnw - district 1', value: 'test2', region: 'PNW' },
+    { name: 'Inland Empire Regional', value:'casb', region:'Regionals' }
   ];
 
-  $scope.generalInfo.e = $scope.generalInfo.events[0]; // Maybe change this before each event to fascilitate lives
+  var getEvent = function(eventId) {
+    socket.emit('get-event', eventId, function(event) {
+      console.log(event);
+
+      $scope.event = event || {};
+
+      $scope.teams = ($scope.event.teams || []).sort(function numericSort(team1,team2) { console.log('SORT',team1.id,team2.id); return team1.id - team2.id; });
+    });
+  };
+
+  // make sure event is always good
+  $scope.$watch('eventId', function(newEvent, oldEvent) {
+    getEvent( newEvent );
+  });
+
+  $scope.$watch('teamId', function(newTeam, oldTeam) {
+    if(newTeam != null) {
+      $scope.team = newTeam;
+      console.log('newTeam',newTeam.id)
+    }
+  });
 
   // List of wheels and what kind of wheels are present. Also notes on wheels
-  $scope.generalInfo.wheels = [
-  	{ name: 'None' },
-  	{ name: 'High Traction' },
-  	{ name: 'Traction' },
-  	{ name: 'Mecanum' },
-  	{ name: 'Omni' },
-  	{ name: 'Swerve' },
-  	{ name: 'Caster' }
+  $scope['wheels'] = [
+  	'None',
+  	'High Traction',
+  	'Traction',
+  	'Mecanum',
+  	'Omni',
+  	'Swerve',
+  	'Caster'
   ];
 
-  $scope.generalInfo.wheelL1 = $scope.generalInfo.wheels[0];
-  $scope.generalInfo.wheelL2 = $scope.generalInfo.wheels[0];
-  $scope.generalInfo.wheelL3 = $scope.generalInfo.wheels[0];
-  $scope.generalInfo.wheelR1 = $scope.generalInfo.wheels[0];
-  $scope.generalInfo.wheelR2 = $scope.generalInfo.wheels[0];
-  $scope.generalInfo.wheelR3 = $scope.generalInfo.wheels[0];
+  $scope.generalInfo['wheel'] = {
+    'wheelL1': null,
+    'wheelL2': null,
+    'wheelL3': null,
+    'wheelR1': null,
+    'wheelR2': null,
+    'wheelR3': null
+  };
 
-  $scope.generalInfo.wheelNotes = '';
+  $scope.generalInfo['wheelNotes'] = '';
 
   // Robot height
-  $scope.generalInfo.robotHeight = '';
+  $scope.generalInfo['robotHeight'] = '';
 
   // Can they shift?
-  $scope.generalInfo.shifting = true;
+  $scope.generalInfo['shifting'] = true;
 
 // ============================== ROBOT INFO ==============================
   // How far can they shoot/Shooting range
@@ -166,57 +189,40 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log) {
     // get all data from fs
     var promise = fs.getFolderContents('/')
 
-    .then(
-      function(dir) {
-        angular.forEach(dir, function(fileEntry, num) {
+    .then( function readFilesFromDirectory(dir) {
+      angular.forEach(dir, function(fileEntry, num) {
 
-          if( fileEntry.isFile ) {
-            allPromises.push( fs.readFile( fileEntry.name ) );
-            $log.log('Promise '+ num +' added!');
+        if( fileEntry.isFile ) {
+          allPromises.push( fs.readFile( fileEntry.name ) );
+          $log.log('Promise '+ num +' added!');
 
-          }
+        }
+      });
+    })
+
+    .then( function() {
+      $q.all(allPromises)
+
+      .then( function consolidateFileData(files) {
+        angular.forEach(files, function(file, num) {
+          file = JSON.parse(file);
+          teamData.push( file );
+
+          $log.log('File '+ num +' added!', file);
         });
-      },
+        $log.log('Team_data added!', teamData);
+      })
 
-      function(err) {
-        alert(err.message)
-      }
-    )
+      .then( function sendToServer() {
+        $log.log('Team_data, what is it?', teamData);
+        $http.post( '/submit/pitData', teamData );
+      });
 
-    .then(
+    })
 
-      function() {
-        $q.all(allPromises)
-
-        .then(
-
-          function(files) {
-            angular.forEach(files, function(file, num) {
-              file = JSON.parse(file);
-              teamData.push( file );
-
-              $log.log('File '+ num +' added!', file);
-            });
-            $log.log('Team_data added!', teamData);
-
-          },
-
-          function(err) {
-            alert(err.message)
-          }
-
-        )
-
-        .then(
-
-          function sendToServer() {
-            $log.log('Team_data, what is it?', teamData);
-            $http.post( '/submit/pitData', teamData );
-          }
-
-        );
-      }
-    )
+    .catch( function(err) {
+      console.error(err);
+    });
   };
 
 });
