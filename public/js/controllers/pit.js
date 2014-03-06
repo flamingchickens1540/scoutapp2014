@@ -106,6 +106,8 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log) {
   	{ name: 'Something' }
   ];
 
+  $scope.robotInfo.playstyle = $scope.robotInfo.playstyles[0];
+
   $scope.robotInfo.reloadTime = $scope.robotInfo.reloadTimes[0];
 
 // ============================== AUTONOMOUS INFO ==============================

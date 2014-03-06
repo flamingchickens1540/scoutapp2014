@@ -25,14 +25,15 @@ var eventId = eventId || 'casb';
 var year = year || (new Date()).getFullYear();
 var dbName = dbName || 'mockdata2014';
 
+console.log('DBNAME:', dbName);
 mongoose.connect('localhost', dbName);
 
 
-// remove all current models
-Team.remove({}).exec();
-Match.remove({}).exec();
-TeamMatch.remove({}).exec();
-Event.remove({}).exec();
+// // remove all current models
+// Team.remove({}).exec();
+// Match.remove({}).exec();
+// TeamMatch.remove({}).exec();
+// Event.remove({}).exec();
 
 var models = {};
 // hold the created models
@@ -112,17 +113,19 @@ q.all( [ createEvent, createAllTeams, createAllMatches ] )
 
 	// saves each team to database
 	_.each(teams, function saveEachTeam(team) { 
+
 		team.save(function(err) {
 			if(!err) console.log('saved team '+ team.id +' to database');
-			else throw new Error(' failed to save team '+ team.id +' o database');
+			else return new Error(' failed to save team '+ team.id +' o database');
 		}); 
 	});
 
 	// saves each match to database
 	_.each(matches, function saveEachTeam(match) { 
+		console.log(match._id);
 		match.save(function(err) {
 			if(!err) console.log('saved match '+ match.number +' to database');
-			else throw new Error(' failed to save match '+ match.number +' to database');
+			else return new Error(' failed to save match '+ match.number +' to database');
 		}); 
 	});
 
@@ -138,7 +141,7 @@ q.all( [ createEvent, createAllTeams, createAllMatches ] )
 
 	function successfulScriptRun() {
 		console.log('\nSuccessfully shutting down...');
-		process.exit(0);
+		//process.exit(0);
 	}
 
 )
