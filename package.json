@@ -14,6 +14,8 @@
     "underscore": "~1.5.2",
     "request": "~2.34.0",
     "q": "~1.0.0",
-    "thebluealliance": "~1.0.3"
+    "thebluealliance": "~1.0.3",
+    "systemd": "~0.2.6",
+    "pdfkit": "~0.4.3"
   }
 }
