@@ -28,11 +28,7 @@ var dbName = dbName || 'mockdata2014';
 mongoose.connect('localhost', dbName);
 
 
-// remove all current models
-Team.remove({}).exec();
-Match.remove({}).exec();
-TeamMatch.remove({}).exec();
-Event.remove({}).exec();
+// remove all current models => use promises
 
 var models = {};
 // hold the created models
@@ -138,7 +134,7 @@ q.all( [ createEvent, createAllTeams, createAllMatches ] )
 
 	function successfulScriptRun() {
 		console.log('\nSuccessfully shutting down...');
-		process.exit(0);
+		// breaks the program - process.exit(0);
 	}
 
 )
