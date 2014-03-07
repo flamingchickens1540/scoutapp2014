@@ -53,7 +53,7 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log) {
   $scope.generalInfo.wheelNotes = '';
 
   // Robot height
-  $scope.generalInfo.robotHeight = '';
+  $scope.generalInfo.robotHeight = 0;
 
   // Can they shift?
   $scope.generalInfo.shifting = true;
