@@ -19,7 +19,7 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log) {
 // ============================== GENERAL INFO ==============================
   // Team Name
   $scope.generalInfo = {};
-  $scope.generalInfo.teamNumber = 0;
+  $scope.generalInfo.teamNumber = $scope.team[0];
 
   // List of events and what event we are at
   $scope.generalInfo.events = [
@@ -132,6 +132,21 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log) {
 // ============================== NOTES ==============================
   //General Notes
   $scope.generalNotes = '';
+
+// ========================== GETTING TEAMS ==========================
+  $scope.$watch('team', function(newTeam, oldTeam) {
+    if(newTeam != null) {
+      $scope.info['team'] = newTeam.id;
+      $scope['currentNotes'] = newTeam.masterNotes;
+    }
+  });
+
+  var setTeam = function(teamId) {
+    socket.emit('get-team-info', teamId, function(team) {
+      $scope.team = team;
+      console.log(team);
+    });
+  };
 
 // ============================== SUBMIT ==============================
 

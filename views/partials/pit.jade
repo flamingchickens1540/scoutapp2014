@@ -10,7 +10,7 @@
 			.col-sm-6
 				.input-group
 					span.input-group-addon Team  #
-					input.form-control(type='number', ng-model='generalInfo.teamNumber')
+					select.form-control(ng-options="wheelL1.name for wheelL1 in team" ng-model="generalInfo.teamNumber" required)
 			.col-sm-6
 				select.form-control(ng-options="event.name for event in generalInfo.events" ng-model="generalInfo.e" required)
 		br
