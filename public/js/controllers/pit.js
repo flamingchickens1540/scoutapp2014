@@ -61,7 +61,7 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log) {
 // ============================== ROBOT INFO ==============================
   // How far can they shoot/Shooting range
   $scope.robotInfo = {};
-  $scope.robotInfo.zones = [
+  $scope.generalInfo.zones = [ //ignores this #toolazy
   	{ name: 'Goal Line' },
   	{ name: 'Zone 1' },
   	{ name: 'Zone 2' }

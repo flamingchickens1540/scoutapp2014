@@ -12,7 +12,7 @@
 					span.input-group-addon Team  #
 					input.form-control(type='number', ng-model='generalInfo.teamNumber')
 			.col-sm-6
-				select.form-control(ng-options="event.name for event in genralInfo.events" ng-model="generalInfo.e" required)
+				select.form-control(ng-options="event.name for event in generalInfo.events" ng-model="generalInfo.e" required)
 		br
 		hr
 		.row
@@ -75,9 +75,6 @@
 							.text-center 
 								h4 Max
 								select.form-control(ng-options="maxShoot.name for maxShoot in generalInfo.zones" ng-model="generalInfo.maxShoot" required)
-
-	.panel-footer
-		.btn Save
 .panel.panel-default
 	.panel-heading Robot Information
 	.panel-body
@@ -86,12 +83,12 @@
 				h3.text-center
 					| Shooter Type:
 					br
-				select.form-control(ng-options="shooterType.name for shooterType in generalInfo.shooterTypes" ng-model="robotInfo.shooterType" required)
+				select.form-control(ng-options="shooterType.name for shooterType in robotInfo.shooterTypes" ng-model="robotInfo.shooterType" required)
 			.col-sm-6
 				h3.text-center
 					| Collector Type:
 					br
-				select.form-control(ng-options="collectorType.name for collectorType in generalInfo.collectorTypes" ng-model="robotInfo.collectorType" required)
+				select.form-control(ng-options="collectorType.name for collectorType in robotInfo.collectorTypes" ng-model="robotInfo.collectorType" required)
 		br
 		hr
 		.row
@@ -126,8 +123,6 @@
 					br
 					select.form-control(ng-options="time.name for time in robotInfo.reloadTimes" ng-model="robotInfo.reloadTime" required)
 		br
-	.panel-footer
-		.btn Save
 .panel.panel-default
 	.panel-heading Autonomous Information
 	.panel-body
@@ -166,8 +161,6 @@
 					br
 					br
 					select.form-control(ng-options="position.name for position in autoInfo.startSpots" ng-model="autoInfo.startPosition" required)
-	.panel-footer
-		.btn Save
 .panel.panel-default
 	.panel-heading Notes
 	.panel-body
