@@ -4,31 +4,37 @@ h2.text-center Team Picklist
 
 //Entered Teams Well
 .row
-  .col-sm-6.h3.text-center(style = "font-weight: bold") Entered Teams
-    .well.text-center(style = "height: 790px; overflow: auto;")
-      .well(ng-repeat="(teamId, team) in allTeams", ng-click = "selectTeam({{teamId}})", ng-class = "getClass(teamId)")
-        p {{teamId}} : {{team.name}}
+  .col-sm-6.h3.text-center Entered Teams
+    .well.text-center.overflow
+      ul
+        li
+          .list(ng-repeat="(teamId, team) in teams" ng-click="selectTeam({{teamId}})" ng-style="team.style")
+            h5.text-center {{teamId}} : {{team.name}}
 
 
           //First Pick Teams Well
-  .col-sm-6.h3.text-center(style = "font-weight: bold") 1st Pick Teams
-    .well.text-center(style = "height: 790px; overflow: auto;")
-      .well(ng-repeat="(teamId, team) in firstPicks",ng-style = "getClass({{team}})", ng-click = "viewTeamInfo(teamId)")
-        p {{teamId}} : {{team.name}}
-                
-        //Team Info with second pick teams
+  .col-sm-6.h3.text-center 1st Pick Teams
+    .well.text-center.overflow
+      ul
+        li
+          .list(ng-repeat="(teamId, team) in firstPicks" ng-style="team.style" ng-click="viewTeamInfo({{teamId}})")
+            h5.text-center {{teamId}} : {{team.name}}
+                  
+        // Team Info with second pick teams
 .row
   .col-sm-12
-    .well(style = "height:350px; font-weight: bold;").h3.text-center
-        .row
+    h5.text-center First Pick - {{ firstPick.id }}, {{ firstPick.name }}
+    .well.h3.text-center.overflow
+      .row
+        .col-sm-6.text-center Team Info
+          .well
+            h5.pull-left {{ currentNotes }}
 
-          .col-sm-7.h3.text-center(style = "font-weight: bold;") Team Info
-            .well.text-center(style = "height: 280px; overflow: auto; width: 400px;")
-              p {{allTeams[currentTeamInfo].info}}
 
-
-          .col-sm-4.h3.text-center(style = "font-weight: bold;") 2nd Pick Teams
-            .well.text-center(style = "height: 280px; overflow: auto; width: 250px;")
-              .well(ng-repeat="(teamId, team) in secondPicks", ng-class = "getClass(teamId)")
-                p {{teamId}} : {{team.name}}
+        .col-sm-6.text-center 2nd Pick Teams
+          .well.text-center
+            ul
+              li
+                .list(ng-repeat="(teamId, team) in secondPicks" ng-style="team.style")
+                  h5.text-center {{ teamId }} - {{ team.name }}
 
