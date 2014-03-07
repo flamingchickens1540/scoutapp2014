@@ -106,6 +106,24 @@ db.getTeamsAtEvent = function(eventId) {
 		return teams;
 	});
 };
+
+db.getTeamMatch = function(eventId, matchNum, teamId) {
+	return convertToQPromise(
+		TeamMatch.findOne({ match:matchNum, team:teamId, event:eventId }) 
+		.exec()
+	)
+
+	.then( function testForNullValues(teamMatch) {
+		console.log(teamMatch);
+
+		// null values are errors
+		if( _.isNull(teamMatch) ) return new Error('can not find teamMatch '+ eventId +', '+ matchNum +', '+ teamId);
+		return teamMatch;
+	})
+
+	.catch(function(err) {
+		console.log(err);
+	});
 };
 
 db.newUnsavedTeamMatch = function(info ) {
