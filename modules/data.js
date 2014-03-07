@@ -42,6 +42,7 @@ dataPathways['matchData'] = function(data, callback) {
 
 		teamMatch['team'] = team.id;
 		teamMatch['match'] = match.number;
+		teamMatch['event'] = info.event;
 		teamMatch['scout'] = info.scout;
 		teamMatch['posNum'] = info.posNum;
 		teamMatch['color'] = info.color;
@@ -60,7 +61,6 @@ dataPathways['matchData'] = function(data, callback) {
 			match:match, 
 			team:team 
 		};
-
 	})
 
 	.then( function saveTeamMatchToOtherDocuments(models) {

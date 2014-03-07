@@ -87,7 +87,7 @@ db.getMatchesAtEvent = function(eventId) {
 		// null values are errors
 		if( _.isNull(matches) || _.isEmpty(matches) ) return new Error('can not find matches at event '+ eventId);
 		return matches;
-	});;
+	});
 };
 
 /********************************************
@@ -104,7 +104,8 @@ db.getTeamsAtEvent = function(eventId) {
 		// null values are errors
 		if( _.isNull(teams) || _.isEmpty(teams) ) return new Error('can not find teams at event '+ eventId);
 		return teams;
-	});;
+	});
+};
 };
 
 db.newUnsavedTeamMatch = function(info ) {

@@ -36,7 +36,6 @@ var MatchSchema = new Schema({
 		fouls: Number
 	},
 	
-	moderated: { type: Boolean, default: false },
 	complete: { type: Boolean, default: false }
 });
 

@@ -8,7 +8,7 @@ var Mixed = Schema.Types.Mixed;
 
 var TeamMatchSchema = new Schema({
 	team: { type:Number, required:'Team Matches requires a team id' },
-
+	event: { type: String, required:'Team Matches requires an event id' },
 	match: { type: String, required:'Team Matches requires a match number' },
 
 	color: { type:String, required:'Team matches must specify the position' },
@@ -16,6 +16,8 @@ var TeamMatchSchema = new Schema({
 
 	scout: String,
 	
+	moderated: { type: Boolean, default: false },
+
 	data: Mixed
 });
 
