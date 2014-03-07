@@ -61,14 +61,14 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log) {
 // ============================== ROBOT INFO ==============================
   // How far can they shoot/Shooting range
   $scope.robotInfo = {};
-  $scope.generalInfo.zones = [ //ignores this #toolazy
+  $scope.generalInfo.zones = [
   	{ name: 'Goal Line' },
   	{ name: 'Zone 1' },
   	{ name: 'Zone 2' }
   ];
 
-  $scope.robotInfo.minShoot = $scope.robotInfo.zones[0];
-  $scope.robotInfo.maxShoot = $scope.robotInfo.zones[0];
+  $scope.generalInfo.minShoot = $scope.generalInfo.zones[0];
+  $scope.generalInfo.maxShoot = $scope.generalInfo.zones[0];
 
   // List of Shooter types
   $scope.robotInfo.shooterTypes = [
