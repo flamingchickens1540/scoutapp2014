@@ -72,17 +72,27 @@ dataPathways['matchData'] = function(data, callback) {
 		// i.e.red1Data
 		match[info.color + info.posNum +'Data'] = teamMatch;
 
-		teamMatch.save(function(err) { if(err) return err });
-		match.save(function(err) { if(err) return err });
-		team.save(function(err) { if(err) return err });
+		// create promises
+		var saveTeamMatch = q.ninvoke(teamMatch, "save");
+		var saveTeam = q.ninvoke(match, "save");
+		var saveMatch = q.ninvoke(team, "save");
+
+		return q.all([ saveTeamMatch, saveMatch, saveTeam ])
+		.spread( function errors(teamMatchErr, matchErr, teamErr) {
+			if( teamMatchErr )  return teamMatchErr;
+			if( matchErr ) return matchErr;
+			if( teamErr ) return teamErr;
+
+			return teamMatch;
+		});
 	})
 
-	.then( function returnSuccess() {
-		callback(null, true);
+	.spread( function returnSuccess(teamMatch) {
+		callback(null, 'match', teamMatch);
 	})
 
 	.catch( function saveMatchDataErrHandler(err) {
-		callback(err, false);
+		callback(err, null);
 		// delete the teamMatch
 	});
 };
@@ -96,6 +106,8 @@ dataPathways['pitData'] = function(data, callback) {
 		// save pit data to team
 		Team.findOneAndUpdate( { id:teamId }, { pit:pitData }, function(err, c) {console.log(err,c)} );
 	});
+
+	// return something
 };
 
 exports.collect = function(submitTo, data, callback) {
