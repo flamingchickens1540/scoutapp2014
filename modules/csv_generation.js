@@ -33,6 +33,8 @@ var pitHeaderLine = pitHeader.join(',');
 console.log(pitHeaderLine);
 
 var scoutHeader = [];
+scoutHeader.push("Match Number");
+scoutHeader.push("Team Number");
 scoutHeader.push("Autonomous Starting Position");
 scoutHeader.push("Simple Autonomous");
 scoutHeader.push("Goals Made");
@@ -104,9 +106,12 @@ db.getTeamsAtEvent("casb")
 .then(function scoutData(teamMatches) {
 	_.each(teamMatches, function(teamMatch) {
 		var scoutData = team_match.data;
+		var teamData = team_match.
 
 		//MORE CSV GENERATION STUFF
 		var scoutInfo = [];
+		scoutInfo.push(team_match.match);
+		scoutInfo.push(team_match.team);
 		scoutInfo.push(scoutData.auto.startPosition);
 		scoutInfo.push(scoutData.auto.drivesForward);		
 		scoutInfo.push(scoutData.auto.fieldValues.goal);
