@@ -4,6 +4,40 @@ var app = angular.module('ctrl.pit', [
   'ui.bootstrap'
 ]);
 
+var clearFS = function(q, fs) {
+  fs.getFolderContents('/')
+
+  .then( function readFilesFromDirectory(dir) {
+    console.log('DIR', dir);
+
+    return q.all( dir.map( function(fileEntry) {
+      if(fileEntry.isFile)
+        return fs.deleteFile( fileEntry.fullPath )
+    }));
+
+  })
+
+  .then( function(files) {
+    console.log(files);
+  })
+
+  .catch( function errHandler(err) {
+    console.log(err);
+  });
+};
+
+var getDir = function(q, fs) {
+  fs.getFolderContents('/')
+
+  .then( function readFilesFromDirectory(dir) {
+    console.log('DIR', dir);
+  })
+
+  .catch( function errHandler(err) {
+    console.log(err);
+  });
+};
+
 app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket) {
   var fs = fileSystem;
 
@@ -16,13 +50,12 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket) 
   function(err) {
     console.log(err);
   }); 
-// ============================== GENERAL INFO ==============================
-  // Team Name
-  $scope.generalInfo = {};
-  $scope.generalInfo['teamNumber'] = 0;
 
   $scope.teams = [];
   $scope.event = {};
+
+  $scope.eventId = null;
+  $scope.team = null;
 
   // List of events and what event we are at
   $scope.events = [
@@ -46,115 +79,97 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket) 
     getEvent( newEvent );
   });
 
-  $scope.$watch('teamId', function(newTeam, oldTeam) {
+  $scope.$watch('team', function(newTeam, oldTeam) {
     if(newTeam != null) {
       $scope.team = newTeam;
       console.log('newTeam',newTeam.id)
     }
   });
 
+// ==============================  DATA  ==============================
+
   // List of wheels and what kind of wheels are present. Also notes on wheels
   $scope['wheels'] = [
-  	'None',
-  	'High Traction',
-  	'Traction',
-  	'Mecanum',
-  	'Omni',
-  	'Swerve',
-  	'Caster'
+    'None',
+    'High Traction',
+    'Traction',
+    'Mecanum',
+    'Omni',
+    'Swerve',
+    'Caster'
   ];
 
-  $scope.generalInfo['wheel'] = {
-    'wheelL1': null,
-    'wheelL2': null,
-    'wheelL3': null,
-    'wheelR1': null,
-    'wheelR2': null,
-    'wheelR3': null
+  // List of Shooter types
+  $scope['shooterTypes'] = [
+    'Catapult',
+    'Spinner',
+    'Kicker',
+    'None'
+  ];
+
+  // List of Collector types
+  $scope['collectorTypes'] = [
+    'Claw',
+    'Forklift',
+    'Rollers',
+    'Passive',
+    'None'
+  ];
+
+  // Play style
+  $scope['playstyles'] = [
+    'Forward',
+    'Middle',
+    'Starter',
+    'Goalie'
+  ];
+
+
+// ============================== GENERAL INFO ==============================
+  // Team Name
+  $scope.generalInfo = {
+    wheel: {
+      'wheelL1': null,
+      'wheelL2': null,
+      'wheelL3': null,
+      'wheelR1': null,
+      'wheelR2': null,
+      'wheelR3': null
+    },
+
+    shifting: null,
+
+    shootingRange: {
+      far: false,
+      medium: false,
+      near: false
+    }    
   };
-
-  $scope.generalInfo['wheelNotes'] = '';
-
-  // Robot height
-  $scope.generalInfo['robotHeight'] = '';
-
-  // Can they shift?
-  $scope.generalInfo['shifting'] = true;
 
 // ============================== ROBOT INFO ==============================
   // How far can they shoot/Shooting range
-  $scope.robotInfo = {};
-  $scope.generalInfo.zones = [
-  	{ name: 'Goal Line' },
-  	{ name: 'Zone 1' },
-  	{ name: 'Zone 2' }
-  ];
+  $scope.robotInfo = {
+    shooterType: null,
+    collectorType: null,
 
-  $scope.generalInfo.minShoot = $scope.generalInfo.zones[0];
-  $scope.generalInfo.maxShoot = $scope.generalInfo.zones[0];
+    catchable: null,
 
-  // List of Shooter types
-  $scope.robotInfo.shooterTypes = [
-	 // TO BE SUPPLIED BY PETER
-	 { name: 'Something' }
-  ];
+    disabledPlan: '',
 
-  $scope.robotInfo.shooterType = $scope.robotInfo.shooterTypes[0];
-
-  // List of Collector types
-  $scope.robotInfo.collectorTypes = [
-  	// TO BE SUPPLIED BY PETER
-  	{ name: 'Something' }
-  ];
-
-  $scope.robotInfo.collectorType = $scope.robotInfo.collectorTypes[0];
-
-  // Can they catch balls?
-  $scope.robotInfo.catchable = true;
-
-  // Their plan for if disabled with ball
-  $scope.robotInfo.disabledPlan = '';
-
-  // Play style
-  $scope.robotInfo.playstyles = [
-  	{ name: 'Forward' },
-  	{ name: 'Middle' },
-  	{ name: 'Starter' },
-  	{ name: 'Goalie' }
-  ];
-
-  // How long it takes to reload/load
-  $scope.robotInfo.reloadTimes = [
-  	// TO BE SUPPLIED BY ???
-  	{ name: 'Something' }
-  ];
-
-  $scope.robotInfo.playstyle = $scope.robotInfo.playstyles[0];
-
-  $scope.robotInfo.reloadTime = $scope.robotInfo.reloadTimes[0];
+    playstyle: null
+  };
 
 // ============================== AUTONOMOUS INFO ==============================
   // Strait forward autonomous?
-  $scope.autoInfo = {};
-  $scope.autoInfo.dfAuto = false;
-
-  // How many balls can they score in Auto?
-  $scope.autoInfo.autoBalls = 0;
-
-  // Do they recognize a hot goal?
-  $scope.autoInfo.hotRecog = true;
-
-  // List of starting spots and where they start
-  $scope.autoInfo.startSpots = [
-  	// TO BE SUPPLIED BY DALE/PETER
-  	{ name: 'Something' }
-  ];
-
-  $scope.autoInfo.startPosition = $scope.autoInfo.startSpots[0];
+  $scope.autoInfo = {
+    dfAuto: null,
+    autoBalls: 0,
+    hotRecog: null
+  };
 
 // ============================== NOTES ==============================
   //General Notes
-  $scope.generalNotes = '';
+  $scope.notes = '';
 
 // ========================== GETTING TEAMS ==========================
   $scope.$watch('team', function(newTeam, oldTeam) {
@@ -174,8 +189,10 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket) 
 // ============================== SUBMIT ==============================
 
   $scope.saveData = function() {
+    var teamId = $scope.team.id;
 
       var pitData = {
+        teamId: teamId,
         general: $scope.generalInfo,
         robot: $scope.robotInfo,
         auto: $scope.autoInfo,
@@ -184,19 +201,20 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket) 
 
       console.log('PITDATA', pitData);
 
-      fs.writeText(pitData.general.teamNumber+".json", JSON.stringify(pitData))
+      fs.writeText( teamId +".json", JSON.stringify(pitData))
 
       .then(function(granted) {
-        console.log('Saved '+ pitData.general.teamNumber +".json", JSON.stringify(pitData));
+        console.log('Saved '+ teamId +".json", JSON.stringify(pitData));
 
-        fs.readFile('0.json').then(function(file) {console.log(JSON.parse(file))});
+        fs.readFile(teamId +'.json').then(function(file) {console.log(JSON.parse(file))});
 
         fs.getFolderContents('/').then(function(dir) {console.log(dir)});
-      },
-      function(err) {
+      })
+      
+      .catch( function errHandler(err) {
         console.log(err);
-      }); 
-    //}
+        alert(err, "not saved");
+      });
   };
 
   $scope.submitData = function() {
@@ -204,42 +222,37 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket) 
     var allPromises = [];
 
     // get all data from fs
-    var promise = fs.getFolderContents('/')
+    fs.getFolderContents('/')
 
     .then( function readFilesFromDirectory(dir) {
-      angular.forEach(dir, function(fileEntry, num) {
+      console.log('DIR', dir);
 
-        if( fileEntry.isFile ) {
-          allPromises.push( fs.readFile( fileEntry.name ) );
-          $log.log('Promise '+ num +' added!');
-
-        }
-      });
+      return q.all( dir.map( function(fileEntry) {
+        if(fileEntry.isFile)
+          return fs.readFile( fileEntry.name )
+      }))
     })
 
-    .then( function() {
-      $q.all(allPromises)
+    .then( function doStuffWithFiles(files) {
+      angular.forEach(files, function(file, num) {
 
-      .then( function consolidateFileData(files) {
-        angular.forEach(files, function(file, num) {
-          file = JSON.parse(file);
-          teamData.push( file );
-
-          $log.log('File '+ num +' added!', file);
-        });
-        $log.log('Team_data added!', teamData);
-      })
-
-      .then( function sendToServer() {
-        $log.log('Team_data, what is it?', teamData);
-        $http.post( '/submit/pitData', teamData );
+        $log.log(files);
+        $log.log('Promise '+ num +' added!');
       });
-
     })
 
     .catch( function(err) {
       console.error(err);
+      alert(err, "not saved");
     });
+  };
+
+  $scope.clearEntries = function() {
+    clearFS($q, fs);
+  };
+
+  $scope.printEntries = function() {
+    getDir($q, fs);
   };
 
 });
