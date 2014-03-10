@@ -4,3 +4,4 @@ node_modules/*
 public/libs/*
 unused/*
 dump/*
+*.pdf

@@ -84,14 +84,14 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket) 
 // ============================== ROBOT INFO ==============================
   // How far can they shoot/Shooting range
   $scope.robotInfo = {};
-  $scope.robotInfo.zones = [
+  $scope.generalInfo.zones = [
   	{ name: 'Goal Line' },
   	{ name: 'Zone 1' },
   	{ name: 'Zone 2' }
   ];
 
-  $scope.robotInfo.minShoot = $scope.robotInfo.zones[0];
-  $scope.robotInfo.maxShoot = $scope.robotInfo.zones[0];
+  $scope.generalInfo.minShoot = $scope.generalInfo.zones[0];
+  $scope.generalInfo.maxShoot = $scope.generalInfo.zones[0];
 
   // List of Shooter types
   $scope.robotInfo.shooterTypes = [
@@ -129,6 +129,8 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket) 
   	{ name: 'Something' }
   ];
 
+  $scope.robotInfo.playstyle = $scope.robotInfo.playstyles[0];
+
   $scope.robotInfo.reloadTime = $scope.robotInfo.reloadTimes[0];
 
 // ============================== AUTONOMOUS INFO ==============================
@@ -153,6 +155,21 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket) 
 // ============================== NOTES ==============================
   //General Notes
   $scope.generalNotes = '';
+
+// ========================== GETTING TEAMS ==========================
+  $scope.$watch('team', function(newTeam, oldTeam) {
+    if(newTeam != null) {
+      $scope.info['team'] = newTeam.id;
+      $scope['currentNotes'] = newTeam.masterNotes;
+    }
+  });
+
+  var setTeam = function(teamId) {
+    socket.emit('get-team-info', teamId, function(team) {
+      $scope.team = team;
+      console.log(team);
+    });
+  };
 
 // ============================== SUBMIT ==============================
 
