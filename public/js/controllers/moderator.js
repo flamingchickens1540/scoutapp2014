@@ -23,9 +23,10 @@ app.controller('ModeratorCtrl', function($scope, $modal, socket, $http, $log) {
   var getEvent = function(eventId) {
     socket.emit('moderator:get-data', eventId, function(data) {
 
-      console.log(data);
+      if(!angular.isDefined(data.matches))
+        data.matches = [];
 
-      $scope.matches = data.matches || [];
+      $scope.matches = (data.matches || []).sort(function numericSort(match1,match2) { console.log('SORT',match1.number,match2.number); return match1.number - match2.number; });;
 
       angular.forEach(data.teams, function(team) {
         $scope.teams[team.id] = team;
@@ -44,7 +45,6 @@ app.controller('ModeratorCtrl', function($scope, $modal, socket, $http, $log) {
   $scope.editNotes = function (matchData) {
     console.log(matchData);
     var teamId = matchData.team;
-
 
     var modalInstance = $modal.open({
       templateUrl: 'components/moderatorModal.jade',
@@ -93,7 +93,7 @@ app.controller('ModeratorCtrl', function($scope, $modal, socket, $http, $log) {
         $log.info('Modal dismissed at: ' + new Date());
       }
     );
-    
+
   };
 
 

@@ -195,7 +195,7 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log) 
       $scope.event = event || {};
 
       $scope.matches = $scope.event.matches || [];
-      $scope.matches = $scope.matches.sort(function numericSort(match1,match2) { console.log('SORT',match1.number,match2.number); return match1.number - match2.number; });
+      $scope.matches = ($scope.matches || []).sort(function numericSort(match1,match2) { console.log('SORT',match1.number,match2.number); return parseInt(match1.number) - parseInt(match2.number); });
 
       console.log(event);
     });
