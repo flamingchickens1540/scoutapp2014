@@ -35,6 +35,6 @@ h2.text-center Team Picklist
           .well.text-center
             ul
               li
-                .list(ng-repeat="(teamId, team) in secondPicks" ng-style="team.style")
-                  h5.text-center {{ teamId }} - {{ team.name }}
+                .list(ng-repeat="team in secondPicks" ng-style="team.style")
+                  h5.text-center {{ team.id }} - {{ team.name }}
 
