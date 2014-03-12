@@ -1,5 +1,10 @@
 link(rel='stylesheet' type='text/css' href='/css/index.css')
 
+#alerts
+	.row
+		.col-sm-12(ng-repeat="alert in alerts")
+			alert(type="alert.type" close="closeAlert($index)" ng-click="closeAlert($index)") {{ alert.msg }}
+
 select.form-control(ng-options="event.value as event.name for event in events" ng-model="eventId")
 
 hr
