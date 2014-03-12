@@ -19,7 +19,7 @@ var mongoose = require('mongoose');
 var q = require('q');
 
 // connect to database
-db.connect('mock2014v2');
+db.connect('mockdata2014');
 
 /**
  * Configuration
@@ -73,7 +73,7 @@ app.post('/submit/:dest', function(req, res) {
       else if( savedTo == 'pit' ) {
         isSaved = true;
       }
-      
+
       res.send(isSaved);
     }
     else {
