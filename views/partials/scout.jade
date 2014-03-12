@@ -42,7 +42,7 @@ header.navbar.navbar-inverse.navbar-fixed-top
 
 		.row
 			.col-sm-10.col-sm-offset-1
-				.btn.btn-block.btn-info(ng-click="continueToMatch(); displayView( 'auto' )") I See My Robot!
+				.btn.btn-block.btn-info.btn-lg(ng-click="continueToMatch(); displayView( 'auto' )") I See My Robot!
 
 // autonomous info
 .panel.panel-default(collapse="collapsed.auto")
@@ -63,27 +63,31 @@ header.navbar.navbar-inverse.navbar-fixed-top
 					br
 					.row
 						.col-sm-8.col-sm-offset-2
-							.btn.btn-success.btn-block(ng-model="auto.drivesForward" btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false") Drives Forward - ({{auto.drivesForward}})
+							.btn.btn-success.btn-block.btn-lg(ng-model="auto.drivesForward" btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false") Drives Forward? ({{auto.drivesForward}})
+					br
 					.row
 						.col-sm-6
-							comp-spinner(title="Goal" type="success" ng-model="auto.fieldValues.goal")
+							comp-spinner(title="Goal" type="success btn-lg" ng-model="auto.fieldValues.goal")
 						.col-sm-6
-							comp-spinner(title="Hot" type="warning" ng-model="auto.fieldValues.hotgoal")
+							comp-spinner(title="Hot" type="warning btn-lg" ng-model="auto.fieldValues.hotgoal")
+					br
+					.row
 						.col-sm-6
-							comp-spinner(title="Miss" type="danger" ng-model="auto.fieldValues.miss")
+							comp-spinner(title="Miss" type="danger btn-lg" ng-model="auto.fieldValues.miss")
 				
 				div(ng-if="auto.startPosition === 'goalie'")
+					br
 					.row
 						.col-sm-6
-							comp-spinner(title="Block" type="success" ng-model="auto.goalieValues.block")
+							comp-spinner(title="Block" type="success btn-lg" ng-model="auto.goalieValues.block")
 						.col-sm-6
-							comp-spinner(title="Miss" type="danger" ng-model="auto.goalieValues.miss")
+							comp-spinner(title="Miss" type="danger btn-lg" ng-model="auto.goalieValues.miss")
 
 		br
 
 		.row
 			.col-sm-10.col-sm-offset-1
-				.btn.btn-block.btn-info(ng-click="displayView( 'teleop' )") Finish Autonomous
+				.btn.btn-block.btn-info.btn-lg(ng-click="displayView( 'teleop' )") Finish Autonomous
 
 // For scoring
 .panel.panel-default(collapse="collapsed.scoring")
@@ -103,9 +107,9 @@ header.navbar.navbar-inverse.navbar-fixed-top
 			.col-offset-2.col-sm-10
 				p.lead.pull-left Goals
 			.col-sm-6
-				comp-spinner(title="High" type="success" ng-model="scoring.goals.high")
+				comp-spinner(title="High" type="success btn-lg" ng-model="scoring.goals.high")
 			.col-sm-6
-				comp-spinner(title="Low" type="warning" ng-model="scoring.goals.low")
+				comp-spinner(title="Low" type="warning btn-lg" ng-model="scoring.goals.low")
 
 // Teamwork - passing/receiving
 .panel.panel-default(collapse="collapsed.teamwork")
@@ -129,30 +133,35 @@ header.navbar.navbar-inverse.navbar-fixed-top
 						.btn.btn-primary(btn-checkbox, ng-model="zones[1].action", ng-click="print()") Zone 2
 						.btn.btn-primary(btn-checkbox, ng-model="zones[2].action", ng-click="print()") Zone 3 
 						.btn.btn-primary(btn-checkbox, ng-model="zones[3].action", ng-click="print()") Goalie Zone 
-
+		br
 		p.lead.text-center Receiving
 		.row 
 			.col-sm-6
-				comp-spinner(title="Rolling" ng-model="teamwork.receiving.roll" type="warning")
-				comp-spinner(title="Truss" ng-model="teamwork.receiving.truss" type="success")
-
+				comp-spinner(title="Rolling" ng-model="teamwork.receiving.roll" type="warning btn-lg")
 			.col-sm-6
-				comp-spinner(title="Aerial" ng-model="teamwork.receiving.aerial" type="danger")
+				comp-spinner(title="Truss" ng-model="teamwork.receiving.truss" type="success btn-lg")
+		br
+		.row
+			.col-sm-6
+				comp-spinner(title="Aerial" ng-model="teamwork.receiving.aerial" type="danger btn-lg")
 
 		br
 
 		p.lead.text-center Passing
 		.row
 			.col-sm-6
-				comp-spinner(title="Rolling", ng-model="teamwork.passing.roll" type="warning")
-				comp-spinner(title="Truss" ng-model="teamwork.passing.truss" type="success")
-
+				comp-spinner(title="Rolling", ng-model="teamwork.passing.roll" type="warning btn-lg")
 			.col-sm-6
-				comp-spinner(title="Aerial" ng-model="teamwork.passing.aerial" type="danger")
-
+				comp-spinner(title="Truss" ng-model="teamwork.passing.truss" type="success btn-lg")
+		br
+		.row
+			.col-sm-6
+				comp-spinner(title="Aerial" ng-model="teamwork.passing.aerial" type="danger btn-lg")
+		br
+		br
 		.row
 			.col-sm-10.col-sm-offset-1
-				.btn.btn-block.btn-info(ng-click="displayView( 'submit' )") Finish Match
+				.btn.btn-block.btn-info.btn-lg(ng-click="displayView( 'submit' )") Finish Match
 
 // issues
 .panel.panel-default(collapse="collapsed.issues")
@@ -162,56 +171,56 @@ header.navbar.navbar-inverse.navbar-fixed-top
 			.col-sm-12
 		.input-group
 			.input-group-btn
-				.btn.btn-danger(ng-model="issues.deadBroken" btn-radio="'dead'") Dead or No-show
-				.btn.btn-warning(ng-model="issues.deadBroken" btn-radio="'broken'") Broken
-			input.form-control(type="text" ng-model="issues.deadBrokenNotes" placeholder="Dead / No-show / Broken")
+				.btn.btn-danger.btn-lg(ng-model="issues.deadBroken" btn-radio="'dead'") Dead or No-show
+				.btn.btn-warning.btn-lg(ng-model="issues.deadBroken" btn-radio="'broken'") Broken
+			input.form-control.input-lg(type="text" ng-model="issues.deadBrokenNotes" placeholder="Dead / No-show / Broken")
 			.input-group-btn
-				.btn.btn-default(ng-model="issues.deadBroken" btn-radio="null")
+				.btn.btn-default.btn-lg(ng-model="issues.deadBroken" btn-radio="null")
 					span.glyphicon.glyphicon-remove
 
 		br
 
 		.input-group
 			.input-group-btn
-				.btn.btn-success(ng-model="issues.ejectable" btn-radio="'ejectable'") Passive Eject
-				.btn.btn-danger(ng-model="issues.ejectable" btn-radio="'stuck'") Stuck
-			input.form-control(type="text" ng-model="issues.ejectionNotes" placeholder="If robot breaks while holding ball, what happens?")
+				.btn.btn-success.btn-lg(ng-model="issues.ejectable" btn-radio="'ejectable'") Passive Eject
+				.btn.btn-danger.btn-lg(ng-model="issues.ejectable" btn-radio="'stuck'") Stuck
+			input.form-control.input-lg(type="text" ng-model="issues.ejectionNotes" placeholder="If robot is holding ball, what's happening?")
 			.input-group-btn
-				.btn.btn-default(ng-model="issues.ejectable" btn-radio="null")
+				.btn.btn-default.btn-lg(ng-model="issues.ejectable" btn-radio="null")
 					span.glyphicon.glyphicon-remove
 
 // submit match
 .panel.panel-default(collapse="collapsed.submit")
 	.panel-heading Post-Match
 	.panel-body
-		h3(ng-if=" !(issues.deadBroken === 'dead') ") Ratings
-
+		h2(ng-if=" !(issues.deadBroken === 'dead') ") Ratings
+		br
 		.row(ng-if=" !(issues.deadBroken === 'dead') ")
 			// repeats this when not even
 			.col-sm-6(ng-repeat-start="rating in submit.ratings track by $index")
 				.row(ng-if="$even")
 					.col-sm-5
-						p.pull-left {{rating.title | capitalize}}
+						h4.pull-left {{rating.title | capitalize}}
 					.col-sm-offset-2.col-sm-5
 						rating.stars.pull-right(value="submit.ratings[$index].stars" max="submit.numStars")
 
 			.col-sm-6(ng-repeat-end )
 				.row(ng-if="$odd")
 					.col-sm-5
-						p.pull-left {{rating.title | capitalize}}
+						h4.pull-left {{rating.title | capitalize}}
 					.col-sm-offset-2.col-sm-5
 						rating.stars.pull-right(value="submit.ratings[$index].stars" max="submit.numStars")
-
+		br
 		.row
 			.form-group
 				.col-sm-4
-					p.lead.text-center Current Notes
+					p.lead.text-center Current Notes:
 				.col-sm-12
 					textarea.form-control(rows=15 disabled) {{currentNotes}}
 				.col-sm-12
 					// if a robot is dead, there is no need for match notes
-					textarea.form-control(placeholder="Notes..." ng-model="submit.notes" rows=15 ng-disabled="issues.deadBroken === 'dead'")
-
+					textarea.form-control(placeholder="Notes..." ng-model="submit.notes" rows=15 ng-disabled="issues.deadBroken === 'dead'" placeholder = "Anything to add?")
+		br
 		.row
 			.col-sm-10.col-sm-offset-1
 				.btn.btn-lg.btn-block.btn-info(ng-click="submitMatch()") Submit Match for Team ####

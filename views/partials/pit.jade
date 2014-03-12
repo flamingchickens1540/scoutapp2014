@@ -14,12 +14,12 @@
 		br
 		.row
 			.col-sm-2
-				p.lead Choose Event
+				p.lead Choose Event:
 			.col-sm-4
 				select.form-control(ng-options="event.value as event.name group by event.region for event in events" ng-model="eventId")
 
 			.col-sm-2
-				p.lead Choose Team
+				p.lead Choose Team:
 			.col-sm-4
 				select.form-control(ng-options="team.id for team in teams" ng-model="team")
 		br
@@ -79,6 +79,7 @@
 				h3.text-center Collector Type:
 					br
 				select.form-control(ng-options="collectorType for collectorType in collectorTypes" ng-model="robotInfo.collectorType")
+			
 		br
 		hr
 		.row
@@ -90,18 +91,11 @@
 						.btn.btn-lg.btn-primary(ng-model='robotInfo.catchable' btn-radio="true") Yes
 						.btn.btn-lg.btn-primary(ng-model='robotInfo.catchable' btn-radio="false") No
 			.col-sm-6
-				h3.text-center What happens if disabled with ball?
-					br
-				input.form-control(ng-model='robotInfo.disabledPlan')
-		br
-		hr
-		.row 
-			.col-sm-6
 				h3.text-center Preferred Play Style:
 					br
+					br
 				select.form-control(ng-options="playstyle for playstyle in playstyles" ng-model="robotInfo.playstyle")
-
-
+			
 .panel.panel-default
 	.panel-heading Autonomous Information
 	.panel-body
@@ -120,6 +114,7 @@
 					.col-sm-12
 						h3.text-center Balls Scorable:
 						br
+						br
 					.col-sm-12
 						.btn-group.btn-group-justified
 							.btn.btn-lg.btn-primary(ng-model='autoInfo.autoBalls' btn-radio="0") 0
@@ -135,23 +130,32 @@
 						.btn.btn-lg.btn-primary(ng-model='autoInfo.hotRecog' btn-radio="false") No
 		hr
 		.row
-			.col-sm-12
+			.col-sm-6
 				h3.text-center Starting Position:
+					br
 					br
 				.btn-group.btn-group-justified
 					.btn.btn-lg.btn-primary(ng-model='autoInfo.startPosition' btn-radio="'goalie'") Goalie
 					.btn.btn-lg.btn-primary(ng-model='autoInfo.startPosition' btn-radio="'field'") Field
+			.col-sm-6
+				h3.text-center What happens if disabled with ball?
+					br
+					br
+				input.form-control(ng-model='robotInfo.disabledPlan')
 
 .panel.panel-default
 	.panel-heading Notes
 	.panel-body
 		.row
 			.col-sm-12
-				textarea.form-control(rows=7 ng-model='notes')
+				textarea.form-control(rows=8 ng-model='notes')
 
 	.panel-footer
 		.btn-sm.btn.btn-lg.btn-success(ng-click="saveData()") Save All
+		&nbsp&nbsp&nbsp
 		.btn-sm.btn.btn-lg.btn-info(ng-click="submitData()") Send to Server
+		&nbsp&nbsp&nbsp
 		.btn-sm.btn.btn-lg.btn-danger(ng-click="clearEntries()") Clear All Files
+		&nbsp&nbsp&nbsp
 		.btn-sm.btn.btn-lg.btn-danger(ng-click="printEntries()") Print All Files
 
