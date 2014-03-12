@@ -11,15 +11,19 @@ app.controller('ModeratorCtrl', function($scope, $modal, socket, $http, $log) {
     return !angular.isDefined(matchData);
   };
 
+  $scope.eventId = null;
+  $scope.matches = [];
+  $scope.teams = {};
+
+  $scope.alerts = [];
+
+// ===== DATA =============================================
   $scope.events = [
     { name:'PNW District Champs', value:'orpo' },
     { name:'Inland Empire Regional', value:'casb' }
   ];
 
-  $scope.eventId = null;
-  $scope.matches = [];
-  $scope.teams = {};
-
+// ===== WATCHER FUNCTIONS ====================================
   var getEvent = function(eventId) {
     socket.emit('moderator:get-data', eventId, function(data) {
 
@@ -40,8 +44,30 @@ app.controller('ModeratorCtrl', function($scope, $modal, socket, $http, $log) {
   // make sure event is always good
   $scope.$watch('eventId', function(newEvent, oldEvent) {
     getEvent( newEvent );
+
   });
 
+  // DOES NOT ACCOUNT FOR ANOTHER PERSON EDITING THE NOTE DURING UPDATE
+  socket.on('save-moderated-notes', function updateLocalNotes(info) {
+    console.log('New notes!', info);
+
+    if($scope.teams[info.teamId]) {
+      $scope.teams[info.teamId].masterNotes = info.masterNotes;
+    }
+  });
+
+  socket.on('moderator:new-team-match', function(teamMatch) {
+    console.log('NEW TEAM MATCH',teamMatch);
+
+    var matchNum = teamMatch.match;
+    var pos = teamMatch.color + teamMatch.posNum;
+
+    $scope.matches[matchNum-1][pos+'Data'] = teamMatch;
+    $scope.$apply();
+
+  });
+
+// ===== $SCOPE FUNCTIONS ====================================
   $scope.editNotes = function (matchData) {
     console.log(matchData);
     var teamId = matchData.team;
@@ -80,7 +106,9 @@ app.controller('ModeratorCtrl', function($scope, $modal, socket, $http, $log) {
         console.log(noteInfo);
 
         // updates the master note locally so that I don't need to pull from the db for notes
-        $scope.teams[teamId].masterNotes = noteInfo.masterNotes;
+        $scope.teams[noteInfo.teamId].masterNotes = noteInfo.masterNotes;
+
+        noteInfo['teamMatch'] = matchData; //mongodb object - INSECURE
 
         socket.emit('save-moderated-notes', noteInfo, function(isSaved) {
           console.log('Note was saved: '+ isSaved);
@@ -93,10 +121,7 @@ app.controller('ModeratorCtrl', function($scope, $modal, socket, $http, $log) {
         $log.info('Modal dismissed at: ' + new Date());
       }
     );
-
   };
-
-
   
 });
 
