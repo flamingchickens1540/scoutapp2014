@@ -19,7 +19,7 @@ var mongoose = require('mongoose');
 var q = require('q');
 
 // connect to database
-db.connect();
+db.connect('mock2014v2');
 
 /**
  * Configuration
@@ -70,12 +70,43 @@ app.post('/submit/:dest', function(req, res) {
         // emit event
         io.sockets.emit('moderator:new-team-match', teamMatch);
       }
+      else if( savedTo == 'pit' ) {
+        isSaved = true;
+      }
       
+      res.send(isSaved);
     }
     else {
       res.send(err);
     }
   });
+});
+
+app.get('/stuff/:data', function(req, res) {
+  var data = req.params.data;
+  var Match = mongoose.model('Match');
+  var Team = mongoose.model('Team');
+  var TeamMatch = mongoose.model('TeamMatch');
+
+  switch(data) {
+    case 'match':
+      Match.find(function(err, matches) {
+        res.json(matches);
+      });
+      break;
+
+    case 'team':
+      Team.find(function(err, matches) {
+        res.json(matches);
+      });
+      break;
+
+    case 'teammatch':
+      TeamMatch.find(function(err, matches) {
+        res.json(matches);
+      });
+      break;
+  }
 });
 
 

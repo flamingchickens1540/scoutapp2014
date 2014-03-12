@@ -4,52 +4,28 @@ var app = angular.module('ctrl.pit', [
   'ui.bootstrap'
 ]);
 
-var clearFS = function(q, fs) {
-  fs.getFolderContents('/')
-
-  .then( function readFilesFromDirectory(dir) {
-    console.log('DIR', dir);
-
-    return q.all( dir.map( function(fileEntry) {
-      if(fileEntry.isFile)
-        return fs.deleteFile( fileEntry.fullPath )
-    }));
-
-  })
-
-  .then( function(files) {
-    console.log(files);
-  })
-
-  .catch( function errHandler(err) {
-    console.log(err);
-  });
-};
-
-var getDir = function(q, fs) {
-  fs.getFolderContents('/')
-
-  .then( function readFilesFromDirectory(dir) {
-    console.log('DIR', dir);
-  })
-
-  .catch( function errHandler(err) {
-    console.log(err);
-  });
-};
-
-app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket) {
+app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket, $timeout) {
   var fs = fileSystem;
+
+  fs.createFolder('pit')
+
+    .then(function(test) {
+      console.log(test);
+    })
+
+    .catch(function(err) {
+      console.log('already created or error', err.obj);
+    });
 
   // request 100MB
   fs.requestQuota(100)
 
-  .then(function(granted) {
-    console.log('GRANTED '+ granted +'MB of persistent data');
-  },
-  function(err) {
-    console.log(err);
-  }); 
+    .then( function(granted) {
+      console.log('GRANTED '+ granted +' bytes of persistent data');
+    })
+    .catch( function(err) {
+      console.log(err);
+    }); 
 
   $scope.teams = [];
   $scope.event = {};
@@ -57,23 +33,10 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket) 
   $scope.eventId = null;
   $scope.team = null;
 
-  // List of events and what event we are at
-  $scope.events = [
-    { name: 'Autodesk Oregon Regional', value: 'orpo', region: 'Regionals' },
-    { name: 'pnw - district 1', value: 'test2', region: 'PNW' },
-    { name: 'Inland Empire Regional', value:'casb', region:'Regionals' }
-  ];
+  $scope.alerts = [];
 
-  var getEvent = function(eventId) {
-    socket.emit('get-event', eventId, function(event) {
-      console.log(event);
 
-      $scope.event = event || {};
-
-      $scope.teams = ($scope.event.teams || []).sort(function numericSort(team1,team2) { console.log('SORT',team1.id,team2.id); return team1.id - team2.id; });
-    });
-  };
-
+// ===== WATCHERS =========================================
   // make sure event is always good
   $scope.$watch('eventId', function(newEvent, oldEvent) {
     getEvent( newEvent );
@@ -86,7 +49,15 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket) 
     }
   });
 
-// ==============================  DATA  ==============================
+// ===== DATA =============================================
+
+  // List of events and what event we are at
+  $scope.events = [
+    { name: 'Autodesk Oregon Regional', value: 'orpo', region: 'Regionals' },
+    { name: 'PNW District - Oregon City', value: 'orore', region: 'PNW' },
+    { name: 'PNW District - Wilsonville', value: 'orwil', region: 'PNW' },
+    { name: 'Inland Empire Regional', value:'casb', region:'Regionals' }
+  ];
 
   // List of wheels and what kind of wheels are present. Also notes on wheels
   $scope['wheels'] = [
@@ -124,57 +95,60 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket) 
     'Goalie'
   ];
 
+// ===== RESET ============================================
+  var reset = function() {
+    // ============================== GENERAL INFO ==============================
+    // Team Name
+    $scope.generalInfo = {
+      wheel: {
+        'wheelL1': null,
+        'wheelL2': null,
+        'wheelL3': null,
+        'wheelR1': null,
+        'wheelR2': null,
+        'wheelR3': null
+      },
 
-// ============================== GENERAL INFO ==============================
-  // Team Name
-  $scope.generalInfo = {
-    wheel: {
-      'wheelL1': null,
-      'wheelL2': null,
-      'wheelL3': null,
-      'wheelR1': null,
-      'wheelR2': null,
-      'wheelR3': null
-    },
+      shifting: null,
 
-    shifting: null,
+      shootingRange: {
+        far: false,
+        medium: false,
+        near: false,
+        low: false
+      }    
+    };
 
-    shootingRange: {
-      far: false,
-      medium: false,
-      near: false
-    }    
+    // ============================== ROBOT INFO ==============================
+    // How far can they shoot/Shooting range
+    $scope.robotInfo = {
+      shooterType: null,
+      collectorType: null,
+
+      catchable: null,
+
+      disabledPlan: '',
+
+      playstyle: null
+    };
+
+    // ============================== AUTONOMOUS INFO ==============================
+    // Strait forward autonomous?
+    $scope.autoInfo = {
+      dfAuto: null,
+      autoBalls: null,
+      hotRecog: null
+    };
+
+    // ============================== NOTES ==============================
+    //General Notes
+    $scope.notes = '';
   };
 
-// ============================== ROBOT INFO ==============================
-  // How far can they shoot/Shooting range
-  $scope.robotInfo = {
-    shooterType: null,
-    collectorType: null,
-
-    catchable: null,
-
-    disabledPlan: '',
-
-    playstyle: null
-  };
-
-// ============================== AUTONOMOUS INFO ==============================
-  // Strait forward autonomous?
-  $scope.autoInfo = {
-    dfAuto: null,
-    autoBalls: 0,
-    hotRecog: null
-  };
-
-// ============================== NOTES ==============================
-  //General Notes
-  $scope.notes = '';
-
-// ========================== GETTING TEAMS ==========================
+// ===== GETTING DB INFO ====================================
   $scope.$watch('team', function(newTeam, oldTeam) {
     if(newTeam != null) {
-      $scope.info['team'] = newTeam.id;
+      $scope['team'].id = newTeam.id;
       $scope['currentNotes'] = newTeam.masterNotes;
     }
   });
@@ -186,58 +160,206 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket) 
     });
   };
 
-// ============================== SUBMIT ==============================
+  var getEvent = function(eventId) {
+    socket.emit('get-event', eventId, function(event) {
+      console.log(event);
+
+      $scope.event = event || {};
+
+      $scope.teams = ($scope.event.teams || []).sort(function numericSort(team1,team2) { console.log('SORT',team1.id,team2.id); return team1.id - team2.id; });
+    });
+  };
+
+// ===== SUBMISSION =======================================
 
   $scope.saveData = function() {
-    var teamId = $scope.team.id;
 
-      var pitData = {
-        teamId: teamId,
-        general: $scope.generalInfo,
-        robot: $scope.robotInfo,
-        auto: $scope.autoInfo,
-        notes: $scope.generalNotes,
-      };
+    var team = $scope.team;
+    var teamId = null;
 
-      console.log('PITDATA', pitData);
+    if(team != null) {
+      teamId = team.id;
+    }
 
-      fs.writeText( teamId +".json", JSON.stringify(pitData))
 
-      .then(function(granted) {
+    var pitData = {
+      teamId: teamId,
+      general: $scope.generalInfo,
+      robot: $scope.robotInfo,
+      auto: $scope.autoInfo,
+      notes: $scope.notes,
+    };
+
+    console.log('PITDATA', pitData);
+
+    var verified = verifyData( pitData );
+
+    if( verified.isValidated ) {
+
+      fs.writeText( 'pit/'+ teamId +".json", JSON.stringify(pitData))
+
+      .then( function(granted) {
         console.log('Saved '+ teamId +".json", JSON.stringify(pitData));
 
-        fs.readFile(teamId +'.json').then(function(file) {console.log(JSON.parse(file))});
+        $scope.alerts.push({ type:'success', msg:'Successfully saved team '+ teamId +'\'s pit data.' });
 
-        fs.getFolderContents('/').then(function(dir) {console.log(dir)});
+        $timeout(function() {
+          // reset
+          reset();
+          // empty alerts
+          $scope.alerts = [];
+        }, 5000);
+
+        fs.readFile('pit/'+ teamId +'.json').then(function(file) {console.log(JSON.parse(file))});
+
+        fs.getFolderContents('/pit/').then(function(dir) {console.log(dir)});
       })
       
       .catch( function errHandler(err) {
         console.log(err);
-        alert(err, "not saved");
+        $scope.alerts.push({ type:'danger', msg:err.message });
       });
+
+    }
+
+    else {
+      angular.forEach( verified.errLog, function(err) {
+        $scope.alerts.push({ type:'danger', msg:err });
+      });
+
+    }
+  };
+
+  // check all data
+  var verifyData = function verifyData(pitData) {
+    
+    var errLog = [];
+    var validated = {};
+
+    validated['general'] = true;
+    validated['robot'] = true;
+    validated['auto'] = true;
+    validated['team'] = true;
+
+    if( pitData['teamId'] === null ) {
+      validated['general'] = false;
+      errLog.push('Select a team!')
+    }    
+
+    // none for wheels or shootingRange
+    /* $scope.generalInfo = {
+      wheel: {
+        'wheelL1': null,
+        'wheelL2': null,
+        'wheelL3': null,
+        'wheelR1': null,
+        'wheelR2': null,
+        'wheelR3': null
+      },
+
+      shifting: null,
+
+      shootingRange: {
+        far: false,
+        medium: false,
+        near: false,
+        low: false
+      }    
+    };*/
+
+    if( pitData.general['shifting'] === null ) {
+      validated['general'] = false;
+      errLog.push('Issues in autoInfo. Have you filled out shifting?')
+    }
+
+
+    // ROBOT INFO
+    /*$scope.robotInfo = {
+      shooterType: null,
+      collectorType: null,
+
+      catchable: null,
+
+      disabledPlan: '',
+
+      playstyle: null
+    };*/
+    if( !( 
+      pitData.robot['shooterType'] &&
+      pitData.robot['collectorType'] &&
+      pitData.robot['playStyle']
+      ) && pitData.robot['catchable'] === null ) {
+
+      validated['robot'] = false;
+      errLog.push('Issues in robotInfo. Have you filled out shooter type, collector type, catchable, and primary play style?')
+    }
+
+
+    // AUTONOMOUS VALIDATION
+    /*$scope.autoInfo = {
+      dfAuto: null,
+      autoBalls: null,
+      hotRecog: null
+    };*/
+    if(
+      pitData.auto['dfAuto'] === null &&
+      pitData.auto['autoBalls'] === null &&
+      pitData.auto['hotRecog'] === null
+      ) {
+
+      validated['auto'] = false;
+      errLog.push('Issues in autoInfo. Have you filled out drive forward, autonomous balls, and hot goal recognition?')
+    }
+
+
+    var validatePit = ( validated['robot'] && validated['auto'] && validated['general'] );
+
+    return { isValidated:validatePit, errLog:errLog };
   };
 
   $scope.submitData = function() {
     var teamData = [];
-    var allPromises = [];
 
     // get all data from fs
-    fs.getFolderContents('/')
+    fs.getFolderContents('/pit/')
 
     .then( function readFilesFromDirectory(dir) {
       console.log('DIR', dir);
 
-      return q.all( dir.map( function(fileEntry) {
+      return $q.all( dir.map( function(fileEntry) {
         if(fileEntry.isFile)
-          return fs.readFile( fileEntry.name )
+          return fs.readFile( 'pit/'+ fileEntry.name )
       }))
     })
 
     .then( function doStuffWithFiles(files) {
-      angular.forEach(files, function(file, num) {
+      var teamPitData = files.map( function returnParsedJSON(file) {
+        return JSON.parse(file);
+      });
 
-        $log.log(files);
-        $log.log('Promise '+ num +' added!');
+      console.log(teamPitData);
+
+      
+      return $http.post('/submit/pitData', teamPitData)
+
+      .success( function(data, status, headers, config) {
+        console.log(data, status, headers, config);
+        if(status == 200) {
+          $scope.alerts.push({ type:'success', msg:'Saved to server' });
+
+          $timeout(function() {
+            console.log('TEST TIMEOUT')
+            // empty alerts
+            $scope.alerts = [];
+          }, 5000);
+        }
+        else {
+          return new Error('bad request');
+        }
+      })
+
+      .catch( function(err) {
+        console.log(err.message+' IN REQUEST');
       });
     })
 
@@ -245,6 +367,10 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket) 
       console.error(err);
       alert(err, "not saved");
     });
+  };
+
+  $scope.closeAlert = function(index) {
+    $scope.alerts.splice(index, 1);
   };
 
   $scope.clearEntries = function() {
@@ -255,4 +381,44 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket) 
     getDir($q, fs);
   };
 
+
+  // init all fields
+  reset();
 });
+
+// ============================== DEV FUNCTIONS ===========
+  // empty pit directory
+  var clearFS = function(q, fs) {
+    fs.getFolderContents('/pit/')
+
+    .then( function readFilesFromDirectory(dir) {
+      console.log('DIR', dir);
+
+      return q.all( dir.map( function(fileEntry) {
+        if(fileEntry.isFile)
+          return fs.deleteFile( 'pit/'+ fileEntry.fullPath )
+      }));
+
+    })
+
+    .then( function(files) {
+      console.log(files);
+    })
+
+    .catch( function errHandler(err) {
+      console.log(err);
+    });
+  };
+
+  // console.log pit directory
+  var getDir = function(q, fs) {
+    fs.getFolderContents('/pit/')
+
+    .then( function readFilesFromDirectory(dir) {
+      console.log('DIR', dir);
+    })
+
+    .catch( function errHandler(err) {
+      console.log(err);
+    });
+  };
