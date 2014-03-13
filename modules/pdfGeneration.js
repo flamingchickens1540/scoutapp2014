@@ -1,6 +1,5 @@
 var mongoose = require('mongoose');
 var _ = require('underscore');
-var ObjectId = mongoose.Schema.Types.ObjectId;
 
 require('./../db_modules/models/event.js');
 require('./../db_modules/models/team.js');
@@ -38,30 +37,37 @@ var match_overview =
 db.getMatch(eventToFind, matchToFind) //.then is called once db.getMatch returns the info.
 .then(function getMatch(match){
 
-
-redTeams = match.redAlliance.teams;
-blueTeams = match.blueAlliance.teams;
-
-matchComplete = match.complete;
-matchModerated = match.moderated;
-
-redScore = match.redAlliance.score;
-blueScore = match.blueAlliance.score;
-
-redFouls = match.redAlliance.fouls;
-blueFouls = match.blueAlliance.fouls;
-
-console.log("Line reached!");
-console.log(match.blue1Data);
-console.log("Second line reached");
-
-
+	redTeams = match.redAlliance.teams;
+	blueTeams = match.blueAlliance.teams;
+	
+	return match;
 })
 
+// get all team
+.then( function(match) {
+	var getRedTeams = db.getTeams( match.redAlliance.teams );
+	var getBlueTeams = db.getTeams( match.blueAlliance.teams );
 
-.then(function pdfshiz(){
-generatePDF();
+	return q.all([ getRedTeams, getBlueTeams ])
+	.spread( function(redTeams, blueTeams) {
+		console.log('found all teams in '+ match.number +', red: '+ redTeams +', blue: '+ blueTeams)
+		
+		// return match and each alliance's teams
+		return { match:match, redTeams:redTeams, blueTeams:blueTeams };
+	});
 })
+
+.then(function pdfshiz(data) {
+	var match = data.match;
+	var redTeams = data.redTeams;
+	var blueTeams = data.blueTeams;
+
+	generatePDF();
+})
+
+.catch( function errHandler(err) {
+	console.error(err);
+});
 
 
 
@@ -75,31 +81,30 @@ var doc = new PDFDocument;
 
 
 var text;
-var match = 13;
+var match = matchToFind;
 
 
 
 
 //The main box, in which everything is held.
 var box = {
-top: 75,
+	top: 75,
 
-//Note: the document is 612x792 px by default
-left: 31,
-width: 550,
-height: 650,
-//os = overview size
-os: 200
-}
+	//Note: the document is 612x792 px by default
+	left: 31,
+	width: 550,
+	height: 650,
+	//os = overview size
+	os: 200
+};
 
 //Overview box, the grey one at the top of the main box that holds summary text and the two graphs.
 var ob = {
-
-top: box.top+15,
-left: box.left + 15,
-width: box.width/2 -30,
-height: box.os - 30
-}
+	top: box.top+15,
+	left: box.left + 15,
+	width: box.width/2 -30,
+	height: box.os - 30
+};
 
 
 
@@ -115,45 +120,43 @@ var tempTop1 = (box.top+m)                          // so I had to make some ext
 
 var gb1 = {
 
-top: tempTop1,
-left: tempLeft1,
-width: tempWidth1,
-height: box.os/2 - (2*m),
+	top: tempTop1,
+	left: tempLeft1,
+	width: tempWidth1,
+	height: box.os/2 - (2*m),
 
-barWidth: 40,
+	barWidth: 40,
 
-bars: [     //Array that holds the three bars of the graph.
-//The three bars each have basic rectangle attributes, and values for caluclating thier height.
-{
-max: 100,
-value: 42,
-left: tempLeft1 + ((tempWidth1/4)*1),
-top: tempTop1,
-height: 100},
-
-
-{
-max: 100,
-value: 25,
-left: tempLeft1 + ((tempWidth1/4)*2),
-top: tempTop1,
-height: 100},
-
-
-{
-max: 100,
-value: 75,
-left: tempLeft1 + ((tempWidth1/4)*3),
-top: tempTop1,
-height: 100}
-]
-
-}
+	bars: [     //Array that holds the three bars of the graph.
+	//The three bars each have basic rectangle attributes, and values for caluclating thier height.
+		{
+			max: 100,
+			value: 42,
+			left: tempLeft1 + ((tempWidth1/4)*1),
+			top: tempTop1,
+			height: 100
+		},
+		{
+			max: 100,
+			value: 25,
+			left: tempLeft1 + ((tempWidth1/4)*2),
+			top: tempTop1,
+			height: 100
+		},
+		{
+			max: 100,
+			value: 75,
+			left: tempLeft1 + ((tempWidth1/4)*3),
+			top: tempTop1,
+			height: 100
+		}
+	]
+};
 
 
 //set the height and y-value.
-for (var h=0; h<=2; h++){
-setHeightAndTop(gb1, h);
+for (var h=0; h<=2; h++) {
+	setHeightAndTop(gb1, h);
 }
 
 
@@ -165,42 +168,39 @@ tempTop2 = (box.top+box.os/2)
 
 var gb2 = {
 
-top: tempTop2,
-left: tempLeft2,
-width: tempWidth2,
-height: box.os/2 - (2*m),
+	top: tempTop2,
+	left: tempLeft2,
+	width: tempWidth2,
+	height: box.os/2 - (2*m),
 
-barWidth: 40,
+	barWidth: 40,
 
-bars : [
-
-{
-max: 100,
-value: 13,
-left: tempLeft2 + ((tempWidth2/4)*1),
-top: tempTop2,
-height: 100},
-
-{
-max: 100,
-value: 84,
-left: tempLeft2 + ((tempWidth2/4)*2),
-top: tempTop2,
-height: 100},
-
-{
-max: 100,
-value: 52,
-left: tempLeft2 + ((tempWidth2/4)*3),
-top: tempTop2,
-height: 100}
-
-]
-}
+	bars : [
+		{
+			max: 100,
+			value: 13,
+			left: tempLeft2 + ((tempWidth2/4)*1),
+			top: tempTop2,
+			height: 100
+		}, {
+			max: 100,
+			value: 84,
+			left: tempLeft2 + ((tempWidth2/4)*2),
+			top: tempTop2,
+			height: 100
+		}, {
+			max: 100,
+			value: 52,
+			left: tempLeft2 + ((tempWidth2/4)*3),
+			top: tempTop2,
+			height: 100
+		}
+	]
+};
 
 //set the height and y-value.
 for (var h=0; h<=2; h++){
-setHeightAndTop(gb2, h);
+	setHeightAndTop(gb2, h);
 }
 
 
@@ -232,11 +232,10 @@ function fillBack()
 function drawMainLines(){
 
 	for (var i=0; i<2; i++){
-	doc.rect(box.left, (box.top+box.os)+(150*i), box.width, 150).stroke('black');
+		doc.rect(box.left, (box.top+box.os)+(150*i), box.width, 150).stroke('black');
 	}
 
 	doc.moveTo(box.left+(box.width/2), box.top+box.os).lineTo(box.left+(box.width/2), box.top+box.height).stroke('black');
-
 }
 
 //Just draws the text in the overview box.
@@ -246,7 +245,7 @@ function drawMatchOverview(){
 	doc.fillOpacity(1.0);
 
 	doc.text("     "+ match_overview, ob.left, ob.top, {
-	width: ob.width
+		width: ob.width
 	})
 }
 
@@ -257,26 +256,36 @@ function drawTitle(text){
 	doc.fill('black');
 
 	doc.text(text, box.left, box.top-30, {
-	width: box.width,
-	align: "center"
-	}).fillOpacity(1.0).fill('black');
+		width: box.width,
+		align: "center"
+	})
+		.fillOpacity(1.0)
+		.fill('black');
 }
 
 //Not called normally. Use if you want to see the actual locations of gb1, gb2, and ob.
 function drawOverviewOutlines(){
+	doc.rect(gb1.left, gb1.top, gb1.width, gb1.height)
+		.stroke("000000");
 
-	doc.rect(gb1.left, gb1.top, gb1.width, gb1.height).stroke("000000");
-	doc.rect(gb2.left, gb2.top, gb2.width, gb2.height).stroke("000000");
-	doc.rect(ob.left, ob.top, ob.width, ob.height).stroke('black');
+	doc.rect(gb2.left, gb2.top, gb2.width, gb2.height)
+		.stroke("000000");
 
+	doc.rect(ob.left, ob.top, ob.width, ob.height)
+		.stroke('black');
 }
 
 //Draws the text for each team's name above that team's section.
 function drawSectionTitles(){
 	for (var i=0; i <=2; i++){
 
-	doc.rect(box.left, box.top+box.os+(i*150), box.width/2, 30).fillOpacity(1.0).fill('#FFB3B3');
-	doc.rect(box.left+box.width/2, box.top+box.os+(i*150), box.width/2, 30).fillOpacity(1.0).fill('#99B3FF');
+	doc.rect(box.left, box.top+box.os+(i*150), box.width/2, 30)
+		.fillOpacity(1.0)
+		.fill('#FFB3B3');
+
+	doc.rect(box.left+box.width/2, box.top+box.os+(i*150), box.width/2, 30)
+		.fillOpacity(1.0)
+		.fill('#99B3FF');
 
 	doc.fill("black");
 
@@ -292,21 +301,26 @@ function drawSectionTitles(){
 	  align: 'center'
 	});
 
-	doc.moveTo(box.left, box.top+box.os+(i*150)+30).lineTo(box.left+box.width/2, box.top+box.os+(i*150)+30).stroke('black');
-	doc.moveTo(box.left+(box.width/2), box.top+box.os+(i*150)+30).lineTo(box.left+box.width, box.top+box.os+(i*150)+30).stroke('black');
+	doc.moveTo(box.left, box.top+box.os+(i*150)+30)
+		.lineTo(box.left+box.width/2, box.top+box.os+(i*150)+30)
+		.stroke('black');
+
+	doc.moveTo(box.left+(box.width/2), box.top+box.os+(i*150)+30)
+		.lineTo(box.left+box.width, box.top+box.os+(i*150)+30)
+		.stroke('black');
 	}
 };
 
 
 //A basic format that makes is a lot easier to set the location of each team's attributes.
 baseStats = [
-{n:0, string :"Play Style: ", align: "center"}, 
-{n:1, string: "Active Zones: ", align: "center"}, 
-{n:2, string:"High Goals: ", align: "left"}, 
-{n:2, string: "Low Goals: ", align: "right"},
-{n:3, string: "Passes Made: ", align: "left"},
-{n:3, string: "Recieves Made: ", align: "right"},
-{n:4, string: "Issues: ", align: "center"}
+	{ n:0, string:"Play Style: "		, align:"center" }, 
+	{ n:1, string:"Active Zones: "	, align:"center" }, 
+	{ n:2, string:"High Goals: "		, align:"left" }, 
+	{ n:2, string:"Low Goals: "			, align:"right" },
+	{ n:3, string:"Passes Made: "		, align:"left" },
+	{ n:3, string:"Recieves Made: "	, align:"right" },
+	{ n:4, string:"Issues: "				, align:"center" }
 ];
 
 
@@ -319,24 +333,23 @@ function drawBaseStats(){
 
 	for (var o=0; o<baseStats.length; o++){
 
-	for (var i=0; i<=2; i++){
+		for (var i=0; i<=2; i++){
 
-	var top_margin = 45;
-	var spacing = 20;
+			var top_margin = 45;
+			var spacing = 20;
 
-	//Red Stats:
-	doc.text(baseStats[o].string, box.left+25, box.top+top_margin+((baseStats[o].n)*spacing)+box.os + (i*150), {
-	 width: 225,
-	 align: baseStats[o].align
-	});
+			//Red Stats:
+			doc.text(baseStats[o].string, box.left+25, box.top+top_margin+((baseStats[o].n)*spacing)+box.os + (i*150), {
+			 width: 225,
+			 align: baseStats[o].align
+			});
 
-
-	//Blue Stats:
-	doc.text(baseStats[o].string, box.left+25+(box.width/2), box.top+top_margin+((baseStats[o].n)*spacing)+box.os + (i*150), {
-	 width: 225,
-	 align: baseStats[o].align
-	});
-	}
+			//Blue Stats:
+			doc.text(baseStats[o].string, box.left+25+(box.width/2), box.top+top_margin+((baseStats[o].n)*spacing)+box.os + (i*150), {
+			 width: 225,
+			 align: baseStats[o].align
+			});
+		}
 	}
 }
 
@@ -345,51 +358,63 @@ function drawBaseStats(){
 //Draws the graphs.
 function drawGraphs(){
 
-
 	for (var b=0; b<=2; b++){
 
-	doc.fill('red');
-	doc.fontSize(10);
+		doc.fill('red');
+		doc.fontSize(10);
 
-	doc.rect(gb1.bars[b].left-(gb1.barWidth/3)+1, gb1.bars[b].top+1, 30, gb1.bars[b].height).fill('black');
-	doc.rect(gb1.bars[b].left-(gb1.barWidth/3), gb1.bars[b].top, 30, gb1.bars[b].height).fill('red');
+		doc.rect(gb1.bars[b].left-(gb1.barWidth/3)+1, gb1.bars[b].top+1, 30, gb1.bars[b].height)
+			.fill('black');
+		doc.rect(gb1.bars[b].left-(gb1.barWidth/3), gb1.bars[b].top, 30, gb1.bars[b].height)
+			.fill('red');
 
-	doc.text("Team "+redTeams[b], gb1.bars[b].left-(gb1.barWidth/2), gb1.top+gb1.height-2);
+		doc.text("Team "+redTeams[b], gb1.bars[b].left-(gb1.barWidth/2), gb1.top+gb1.height-2);
 
 
-	doc.fill('blue');
-	doc.fontSize(10);
+		doc.fill('blue');
+		doc.fontSize(10);
 
-	doc.rect(gb2.bars[b].left-(gb2.barWidth/3)+1, gb2.bars[b].top+1, 30, gb2.bars[b].height).fill('black');
-	doc.rect(gb2.bars[b].left-(gb2.barWidth/3), gb2.bars[b].top, 30, gb2.bars[b].height).fill('blue');
-	doc.text("Team "+blueTeams[b], gb2.bars[b].left-(gb2.barWidth/2), gb2.top+gb2.height-2);
+		doc.rect(gb2.bars[b].left-(gb2.barWidth/3)+1, gb2.bars[b].top+1, 30, gb2.bars[b].height)
+			.fill('black');
+
+		doc.rect(gb2.bars[b].left-(gb2.barWidth/3), gb2.bars[b].top, 30, gb2.bars[b].height)
+			.fill('blue');
+
+		doc.text("Team "+blueTeams[b], gb2.bars[b].left-(gb2.barWidth/2), gb2.top+gb2.height-2);
 	}
 
-	doc.moveTo(gb1.left+10, gb1.top+gb1.height-10).lineTo(gb1.left+gb1.width-10, gb1.top+gb1.height-10).stroke('black');
-	doc.moveTo(gb1.left+10, gb1.top+gb1.height-10).lineTo(gb1.left+10, gb1.top).stroke('black');
+	doc.moveTo(gb1.left+10, gb1.top+gb1.height-10)
+		.lineTo(gb1.left+gb1.width-10, gb1.top+gb1.height-10)
+		.stroke('black');
+	doc.moveTo(gb1.left+10, gb1.top+gb1.height-10)
+		.lineTo(gb1.left+10, gb1.top)
+		.stroke('black');
 
-	doc.moveTo(gb2.left+10, gb2.top+gb1.height-10).lineTo(gb2.left+gb2.width-10, gb2.top+gb1.height-10).stroke('black');
-	doc.moveTo(gb2.left+10, gb2.top+gb1.height-10).lineTo(gb2.left+10, gb2.top).stroke('black');
-	 
 
+	doc.moveTo(gb2.left+10, gb2.top+gb1.height-10)
+		.lineTo(gb2.left+gb2.width-10, gb2.top+gb1.height-10)
+		.stroke('black');
+	doc.moveTo(gb2.left+10, gb2.top+gb1.height-10)
+		.lineTo(gb2.left+10, gb2.top)
+		.stroke('black');
 }
 
 //Writes the PDF to a document of given name.
-function exportPDF(name){
+function exportPDF(name) {
 	doc.write(name+'.pdf');
-	}
+}
 
 	//Runs all the collective functions that make the PDF.
 	function generatePDF(){
 
 	fillBack();
 	drawMatchOverview();
-	drawTitle("Match " + match +": Overview");
+	drawTitle("Overview: Event "+ eventToFind +", Match " + match);
 	drawSectionTitles();
 	drawBaseStats();
 	drawGraphs();
 	drawMainLines();
-	exportPDF("page1");
+	exportPDF( eventToFind+'_'+matchToFind );
 
 	console.log("PDF generated!");
 
