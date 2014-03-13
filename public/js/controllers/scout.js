@@ -9,13 +9,14 @@ app.controller('ScoutHomeCtrl', function($scope) {
   // anything that goes on the team selection page? Nothing?
 });
 
-app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log) {
+app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, $timeout) {
+  
+  $scope.alerts = [];
   /* NON-DATA INFORMATION */
 
+// ===== DATA AND RESET ====================================
   var resetScout = function(finishedMatchNum) {
     if( angular.isDefined(finishedMatchNum) ) {
-
-
 
       // if I don't add one, it automatically jumps up one (CS starts at 0)
       $scope.match = $scope.event.matches[finishedMatchNum];
@@ -117,8 +118,20 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log) 
 
   resetScout();
 
-  // collaped
+    /* LISTS */
+  $scope.scouts = [
+    'Ben Balden',
+    'Anna Dodson',
+    'Ian Hoyt'
+  ];
 
+  $scope.events = [
+    { name: 'Autodesk Oregon Regional', value: 'orpo', region: 'Regionals' },
+    { name: 'pnw - district 1', value: 'test2', region: 'PNW' },
+    { name: 'Inland Empire Regional', value:'casb', region:'Regionals' }
+  ];
+
+// ===== VIEW FUNCTIONS ====================================
   $scope.displayView = function displayView(panel) {
     $scope.collapsed = {
       info: true,
@@ -155,19 +168,15 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log) 
     }
   };
 
-  /* LISTS */
-  $scope.scouts = [
-    'Ben Balden',
-    'Anna Dodson',
-    'Ian Hoyt'
-  ];
+  var alertUser = function(type, message) {
+    $scope.alerts.push({ type:type || 'info', msg:message });
+    $timeout( function() {
+      // doesn't take into account multiple coming in every few seconds
+      $scope.alerts.shift(); // removes first item in alerts
+    }, 5000);
+  };
 
-  $scope.events = [
-    { name: 'Autodesk Oregon Regional', value: 'orpo', region: 'Regionals' },
-    { name: 'pnw - district 1', value: 'test2', region: 'PNW' },
-    { name: 'Inland Empire Regional', value:'casb', region:'Regionals' }
-  ];
-
+// ===== WATCHER FUNCTIONS ====================================
   // make sure event is always good
   $scope.$watch('info.event', function(newEvent, oldEvent) {
     getEvent( newEvent );
@@ -183,8 +192,6 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log) 
     }
   });
 
-  
-
   var getEvent = function(eventId) {
     socket.emit('get-event', eventId, function(event) {
       $scope.event = event || {};
@@ -199,12 +206,13 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log) 
   var setTeam = function(teamId) {
     socket.emit('get-team-info', teamId, function(team) {
       $scope.team = team;
-      console.log(team);
+      console.log('SET TEAM', team);
+
+      $scope.info['team'] = teamId;
     });
   };
 
-
-  /***************** INFO *****************/
+// ===== SET INFO ====================================
   var pos = $routeParams.pos;
   var posNum = parseInt(pos.slice( pos.length-1 )); // 'red1' => 1
   var color = pos.slice(0, pos.length-1).toLowerCase(); // 'red1' => 'red'
@@ -232,7 +240,7 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log) 
 
   // SUBMISSION
   
-
+// ===== SCOUT SCOPE FUNCTIONS ====================================
   $scope.submitMatch = function submitMatch() {
     // verify all data is inputted
 
@@ -262,10 +270,11 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log) 
         $log.log( 'WAS SAVED?', wasSaved );
 
         if(wasSaved) {
-          resetScout( $scope.info.matchNum );
+          alertUser('success', 'Successfully submitted data for team '+ $scope.info.team +' in match '+ $scope.info.matchNum);
+          resetScout( $scope.info.matchNum ); // since matches start from 1, anf indexes start from 0, there is no matchNum+1
         }
         else {
-          alert('did not save properly, some error happened')
+          alertUser('danger', 'did not save properly, some error happened on the server');
         }
       });
 
@@ -275,12 +284,10 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log) 
 
     }
     else {
-      // alert user
-      var errors = test.errors.join('\n');
-
-      alert(errors);
+      angular.forEach( test.errors, function(errMessage) {
+        alertUser('danger', errMessage);
+      });
     }
-
   };
 
   // Verifying function
@@ -313,6 +320,8 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log) 
       !$scope.info.team || 
       !$scope.info.matchNum
     ) {
+
+      console.log($scope.info);
       verified = false;
       errLog.push('Match information is not complete.');
     }
