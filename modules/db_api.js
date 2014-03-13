@@ -59,6 +59,30 @@ db.getTeam = db.getTeamById = function(teamId) {
 	});
 };
 
+db.getTeams = db.getTeamsById = function(teamIdArray) {
+	var teamsRegExp = new RegExp( teamIdArray.join('|') );
+	console.log(teamsRegExp);
+
+	return q.all( _.map( teamIdArray, function(teamId) {
+		return convertToQPromise(
+			Team.findOne({ id:teamId })
+			.populate('matches')
+			.exec()
+		)
+
+		.then( function testForNullValues(team) {
+			// null values are errors
+			if( _.isNull(team) || _.isUndefined(team) ) return new Error('can not find teams '+ teamIdArray);
+			return team;
+		});
+
+	}))
+
+	.then( function handleTeams(teams) {
+		return teams;
+	});
+};
+
 /********************************************
 ******************  MATCH  ******************
 ********************************************/

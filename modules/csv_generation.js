@@ -1,4 +1,4 @@
-var db = require("./db_api.js");
+var db = require("./db_api.js"); // in modules folder
 var _ = require('underscore');
 var csv = require("ya-csv");
 var writer = csv.createCsvStreamWriter(process.stdout);
