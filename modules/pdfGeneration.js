@@ -12,8 +12,6 @@ db = require('./db_api.js');
 var PDFDocument = require('pdfkit');
 var doc = new PDFDocument();
 
-db.connect();
-
 //Arrays of team numbers, default of 0 for all.
 	var redTeams = [0,0,0];
 	var blueTeams = [0,0,0];
@@ -31,10 +29,6 @@ db.connect();
 	var matchToFind = 3;
 
 
-	var match_overview = 
-	"\nMatch Over?: "+ matchComplete + "\nmatchModerated: "+matchModerated+"\nRed Score: "+redScore+
-	"\nBlue Score: "+ blueScore + "\nRed Fouls: "+redFouls+"\nBlue Fouls: " + blueFouls;
-
 module.exports = exports = function genPDF(eventToFind, matchToFind) {
 
 	eventToFind = eventToFind || "casb";
@@ -42,7 +36,7 @@ module.exports = exports = function genPDF(eventToFind, matchToFind) {
 
 
 	// get match
-	db.getMatch(eventToFind, matchToFind) //.then is called once db.getMatch returns the info.
+	return db.getMatch(eventToFind, matchToFind) //.then is called once db.getMatch returns the info.
 	
 	// set match info and pass it on
 	.then(function setMatchInfo(match){
@@ -80,13 +74,12 @@ module.exports = exports = function genPDF(eventToFind, matchToFind) {
 		console.log('BLUE ======================', blueTeams);
 
 		fillBack();
-		drawMatchOverview();
 		drawTitle("Overview: Event "+ eventToFind +", Match " + match.number);
-		drawSectionTitles();
+		drawSectionTitles(redTeams, blueTeams);
 		drawBaseStats(redTeams, blueTeams);
+		//setGraphValues(redTeams, blueTeams);
 		drawGraphs();
 		drawMainLines();
-		exportPDF( eventToFind+'_'+matchToFind );
 
 		console.log("PDF generated!");
 	})
@@ -121,7 +114,8 @@ var box = {
 	width: 550,
 	height: 650,
 	//os = overview size
-	os: 200
+	os: 130,
+	tabHeight: (650-130)/3
 };
 
 //Overview box, the grey one at the top of the main box that holds summary text and the two graphs.
@@ -147,7 +141,7 @@ function fillBack() {
 function drawMainLines(){
 
 	for (var i=0; i<2; i++){
-		doc.rect(box.left, (box.top+box.os)+(150*i), box.width, 150).stroke('black');
+		doc.rect(box.left, (box.top+box.os)+(box.tabHeight*i), box.width, box.tabHeight).stroke('black');
 	}
 
 	doc.moveTo(box.left+(box.width/2), box.top+box.os).lineTo(box.left+(box.width/2), box.top+box.height).stroke('black');
@@ -164,19 +158,19 @@ var m = 15;
 
 var tempLeft1 = box.left +(box.width/2);
 var tempWidth1 = box.width - (2*m)-(box.width/2)    //Apparently I can't base values off of other values inside an object, 
-var tempTop1 = (box.top+m)                          // so I had to make some external variables to be able to set everything at once.
+var tempTop1 = (box.top+10)                          // so I had to make some external variables to be able to set everything at once.
 
 var gb1 = {
 
 	top: tempTop1,
 	left: tempLeft1,
 	width: tempWidth1,
-	height: box.os/2 - (2*m),
+	height: box.os - (2*m),
 
 	barWidth: 40,
 
-	bars: [     //Array that holds the three bars of the graph.
-	//The three bars each have basic rectangle attributes, and values for caluclating thier height.
+	autoBars: [ 
+	
 		{
 			max: 100,
 			value: 42,
@@ -198,6 +192,31 @@ var gb1 = {
 			top: tempTop1,
 			height: 100
 		}
+	],
+
+	teleBars: [ 
+	
+		{
+			max: 100,
+			value: 99,
+			left: tempLeft1 + ((tempWidth1/4)*1),
+			top: tempTop1,
+			height: 100
+		},
+		{
+			max: 100,
+			value: 14,
+			left: tempLeft1 + ((tempWidth1/4)*2),
+			top: tempTop1,
+			height: 100
+		},
+		{
+			max: 100,
+			value: 62,
+			left: tempLeft1 + ((tempWidth1/4)*3),
+			top: tempTop1,
+			height: 100
+		}
 	]
 };
 
@@ -210,20 +229,20 @@ for (var h=0; h<=2; h++) {
 
 //Graph Box 2 - container for the second graph. Format is identical to gb1.
 
-tempLeft2 = box.left +(box.width/2);
+tempLeft2 = box.left +10;
 tempWidth2 = box.width - (2*m)-(box.width/2)
-tempTop2 = (box.top+box.os/2)
+tempTop2 = (box.top+10)
 
 var gb2 = {
 
 	top: tempTop2,
 	left: tempLeft2,
 	width: tempWidth2,
-	height: box.os/2 - (2*m),
+	height: box.os - (2*m),
 
 	barWidth: 40,
 
-	bars : [
+	autoBars : [
 		{
 			max: 100,
 			value: 13,
@@ -243,6 +262,28 @@ var gb2 = {
 			top: tempTop2,
 			height: 100
 		}
+	],
+
+	teleBars : [
+		{
+			max: 100,
+			value: 26,
+			left: tempLeft2 + ((tempWidth2/4)*1),
+			top: tempTop2,
+			height: 100
+		}, {
+			max: 100,
+			value: 90,
+			left: tempLeft2 + ((tempWidth2/4)*2),
+			top: tempTop2,
+			height: 100
+		}, {
+			max: 100,
+			value: 3,
+			left: tempLeft2 + ((tempWidth2/4)*3),
+			top: tempTop2,
+			height: 100
+		}
 	]
 };
 
@@ -253,8 +294,89 @@ for (var h=0; h<=2; h++){
 
 //Used for Calculating the height and top point of a bar based on the values that it holds.
 function setHeightAndTop(graphBox, b){
-	graphBox.bars[b].height = ((graphBox.height-10)*((graphBox.bars[b].value)/(graphBox.bars[b].max)));
-	graphBox.bars[b].top = ((graphBox.top+gb1.height-10)-graphBox.bars[b].height);
+	graphBox.teleBars[b].height = ((graphBox.height-10)*((graphBox.teleBars[b].value)/(graphBox.teleBars[b].max)));
+	graphBox.teleBars[b].top = ((graphBox.top+gb1.height-10)-graphBox.teleBars[b].height);
+
+	graphBox.autoBars[b].height = ((graphBox.height-10)*((graphBox.autoBars[b].value)/(graphBox.autoBars[b].max)));
+	graphBox.autoBars[b].top = ((graphBox.top+gb1.height-10)-graphBox.autoBars[b].height);
+}
+
+function setGraphValues(redTeams, blueTeams){
+
+		_.each(redTeams, function(team, index) {
+
+		// SCOUTING DATA
+		var matches = team.matches || [];
+
+		var scoutData = {
+			high: 0,
+			highTotal: 0,
+			highRatio: 0.0,
+
+			pass: 0,
+			passTotal: 0,
+			passRatio: 0.0,
+
+			trussPasses: 0,
+			totalTrussPasses: 0,
+			trussRatio: 0.0
+		};
+
+		_.each( matches, function(teamMatch) {
+			var data = teamMatch.data;
+
+			scoutData.highTotal += data.scoring.goals.high; //+ data.scoring.goals.highMiss;
+			scoutData.high += data.scoring.goals.high;
+
+			scoutData.pass += data.teamwork.passing.roll + data.teamwork.passing.aerial //+ data.teamwork.passing.aerialMisses + data.teamwork.passing.rollMisses;
+			scoutData.passTotal += data.teamwork.passing.roll + data.teamwork.passing.aerial;
+
+			scoutData.trussPasses += data.teamwork.passing.truss;
+			scoutData.totalTrussPasses += data.teamwork.passing.truss; //+ data.teamwork.passing.trussMisses;
+		});
+
+		gb1.teleBars[index] = scoutData.high/scoutData.highTotal;
+		console.log(scoutData.high/scoutData.highTotal);
+
+	});
+
+		_.each( blueTeams, function(team, index) {
+
+		// SCOUTING DATA
+		var matches = team.matches || [];
+
+		var scoutData = {
+			high: 0,
+			highTotal: 0,
+			highRatio: 0.0,
+
+			pass: 0,
+			passTotal: 0,
+			passRatio: 0.0,
+
+			trussPasses: 0,
+			totalTrussPasses: 0,
+			trussRatio: 0.0
+		};
+
+		_.each( matches, function(teamMatch) {
+			var data = teamMatch.data;
+
+			scoutData.highTotal += data.scoring.goals.high; //+ data.scoring.goals.highMiss;
+			scoutData.high += data.scoring.goals.high;
+
+			scoutData.pass += data.teamwork.passing.roll + data.teamwork.passing.aerial //+ data.teamwork.passing.aerialMisses + data.teamwork.passing.rollMisses;
+			scoutData.passTotal += data.teamwork.passing.roll + data.teamwork.passing.aerial;
+
+			scoutData.trussPasses += data.teamwork.passing.truss;
+			scoutData.totalTrussPasses += data.teamwork.passing.truss; //+ data.teamwork.passing.trussMisses;
+		});
+
+		gb2.teleBars[index] = scoutData.high/scoutData.highTotal;
+		console.log(scoutData.high/scoutData.highTotal || 3);
+
+	});
+
 }
 
 //Draws the graphs.
@@ -265,24 +387,40 @@ function drawGraphs() {
 		doc.fill('red');
 		doc.fontSize(10);
 
-		doc.rect(gb1.bars[b].left-(gb1.barWidth/3)+1, gb1.bars[b].top+1, 30, gb1.bars[b].height)
+//tele-op bars
+		doc.rect(gb1.teleBars[b].left-(gb1.barWidth/3)+16, gb1.teleBars[b].top+1, 15, gb1.teleBars[b].height)
 			.fill('black');
-		doc.rect(gb1.bars[b].left-(gb1.barWidth/3), gb1.bars[b].top, 30, gb1.bars[b].height)
-			.fill('red');
+		doc.rect(gb1.teleBars[b].left-(gb1.barWidth/3)+15, gb1.teleBars[b].top, 15, gb1.teleBars[b].height)
+			.fill('#1D1AB2');
 
-		doc.text("Team "+redTeams[b], gb1.bars[b].left-(gb1.barWidth/2), gb1.top+gb1.height-2);
+//auto bars
+		doc.rect(gb1.autoBars[b].left-(gb1.barWidth/3)+1, gb1.autoBars[b].top+1, 15, gb1.autoBars[b].height)
+			.fill('black');
+		doc.rect(gb1.autoBars[b].left-(gb1.barWidth/3), gb1.autoBars[b].top, 15, gb1.autoBars[b].height)
+			.fill('#0B0974');
 
+		doc.fontSize(15);
+		doc.text(blueTeams[b], gb1.teleBars[b].left-(gb1.barWidth/2)+8, gb1.top+gb1.height-2);
+		doc.fontSize(12);
 
 		doc.fill('blue');
 		doc.fontSize(10);
 
-		doc.rect(gb2.bars[b].left-(gb2.barWidth/3)+1, gb2.bars[b].top+1, 30, gb2.bars[b].height)
+		doc.rect(gb2.teleBars[b].left-(gb2.barWidth/3)+16, gb2.teleBars[b].top+1, 15, gb2.teleBars[b].height)
 			.fill('black');
+		doc.rect(gb2.teleBars[b].left-(gb2.barWidth/3)+15, gb2.teleBars[b].top, 15, gb2.teleBars[b].height)
+			.fill('#FF0000');
 
-		doc.rect(gb2.bars[b].left-(gb2.barWidth/3), gb2.bars[b].top, 30, gb2.bars[b].height)
-			.fill('blue');
+		doc.rect(gb2.autoBars[b].left-(gb2.barWidth/3)+1, gb2.autoBars[b].top+1, 15, gb2.autoBars[b].height)
+			.fill('black');
+		doc.rect(gb2.autoBars[b].left-(gb2.barWidth/3), gb2.autoBars[b].top, 15, gb2.autoBars[b].height)
+			.fill('#A60000');
 
-		doc.text("Team "+blueTeams[b], gb2.bars[b].left-(gb2.barWidth/2), gb2.top+gb2.height-2);
+
+
+		doc.fontSize(15);
+		doc.text(redTeams[b], gb2.teleBars[b].left-(gb2.barWidth/2)+8, gb2.top+gb2.height-2);
+		doc.fontSize(12);
 	}
 
 	doc.moveTo(gb1.left+10, gb1.top+gb1.height-10)
@@ -341,37 +479,38 @@ function drawOverviewOutlines(){
 }
 
 //Draws the text for each team's name above that team's section.
-function drawSectionTitles() {
+function drawSectionTitles(redT, blueT) {
+
 	for (var i=0; i <=2; i++) {
 
-		doc.rect(box.left, box.top+box.os+(i*150), box.width/2, 30)
+		doc.rect(box.left, box.top+box.os+(i*box.tabHeight), box.width/2, 30)
 			.fillOpacity(1.0)
 			.fill('#FFB3B3');
 
-		doc.rect(box.left+box.width/2, box.top+box.os+(i*150), box.width/2, 30)
+		doc.rect(box.left+box.width/2, box.top+box.os+(i*box.tabHeight), box.width/2, 30)
 			.fillOpacity(1.0)
 			.fill('#99B3FF');
 
 		doc.fill("black");
 
 		doc.fontSize(14);
-		doc.text(redTeams[i]+": "+"Team Name", box.left+25, box.top+10+box.os + (i*150), {
+		doc.text(redT[i].id+": " +redT[i].name, box.left+25, box.top+10+box.os + (i*box.tabHeight), {
 		  width: 225,
 		  align: 'center'
 		});
 
 		doc.fontSize(14);
-		doc.text(blueTeams[i]+": "+"Team Name", box.left+25+(box.width/2), box.top+10+box.os + (i*150), {
+		doc.text(blueT[i].id+": "+ blueT[i].name, box.left+25+(box.width/2), box.top+10+box.os + (i*box.tabHeight), {
 		  width: 225,
 		  align: 'center'
 		});
 
-		doc.moveTo(box.left, box.top+box.os+(i*150)+30)
-			.lineTo(box.left+box.width/2, box.top+box.os+(i*150)+30)
+		doc.moveTo(box.left, box.top+box.os+(i*box.tabHeight)+30)
+			.lineTo(box.left+box.width/2, box.top+box.os+(i*box.tabHeight)+30)
 			.stroke('black');
 
-		doc.moveTo(box.left+(box.width/2), box.top+box.os+(i*150)+30)
-			.lineTo(box.left+box.width, box.top+box.os+(i*150)+30)
+		doc.moveTo(box.left+(box.width/2), box.top+box.os+(i*box.tabHeight)+30)
+			.lineTo(box.left+box.width, box.top+box.os+(i*box.tabHeight)+30)
 			.stroke('black');
 	}
 };
@@ -401,43 +540,161 @@ function drawBaseStats(redTeams, blueTeams) {
 	var top_margin = 45;
 	var spacing = 20;
 
-	_.each( redTeams, function(team, i) {
-			doc.text("Play Style: "+ ((((team.pit || {}).robot || {}).playstyle) || 'No pit data for Play Style'), box.left+25, box.top+box.os + top_margin + (i*150)) //top_margin+((baseStats[o].n)*spacing)
-			doc.text("Play Style: "+ ((((team.pit || {}).robot || {}).playstyle) || 'No pit data for Play Style'));
+	_.each( redTeams, function(team, index) {
+		
+		// PIT DATA
+		var pitWheels = ((((team.pit || {}).general || {}).wheel) || {});
+		var wheelsText = [];
+		_.each( pitWheels, function(wheel) {
+			if( !_.isNull(wheel) ) {
+				wheelsText.push(wheel);
+			}
+		});		
 
-			/*for(var o=0; o<baseStats.length; o++) {
-				for (var i=0; i<=2; i++){
-					//Red Stats:
-					doc.text(baseStats[o].string + 'lol', box.left+25, box.top+top_margin+((baseStats[o].n)*spacing)+box.os + (i*150), {
-					  width: 225,
-					  align: baseStats[o].align
-					});
-				}
-			}*/
+		var shootingRange = ((((team.pit || {}).general || {}).shootingRange) || {});
+		var rangeText = [];
+		_.each( shootingRange, function(canShootFrom, name) {
+			if( canShootFrom ) {
+				rangeText.push(name);
+			}
+		});		
+
+		// SCOUTING DATA
+		var matches = team.matches || [];
+
+		var scoutData = {
+			high: 0,
+			highTotal: 0,
+			highRatio: 0.0,
+
+			pass: 0,
+			passTotal: 0,
+			passRatio: 0.0,
+
+			trussPasses: 0,
+			totalTrussPasses: 0,
+			trussRatio: 0.0
+		};
+
+		_.each( matches, function(teamMatch) {
+			var data = teamMatch.data;
+
+			scoutData.highTotal += data.scoring.goals.high; //+ data.scoring.goals.highMiss;
+			scoutData.high += data.scoring.goals.high;
+
+			scoutData.pass += data.teamwork.passing.roll + data.teamwork.passing.aerial //+ data.teamwork.passing.aerialMisses + data.teamwork.passing.rollMisses;
+			scoutData.passTotal += data.teamwork.passing.roll + data.teamwork.passing.aerial;
+
+			scoutData.trussPasses += data.teamwork.passing.truss;
+			scoutData.totalTrussPasses += data.teamwork.passing.truss; //+ data.teamwork.passing.trussMisses;
+		});
+
+		scoutData.highRatio = scoutData.high +'/'+ scoutData.highTotal;
+		scoutData.passRatio = scoutData.pass+'/'+scoutData.passTotal;
+		scoutData.trussRatio = scoutData.trussPasses+'/'+scoutData.totalTrussPasses;
+
+
+
+
+		doc.fontSize(10);
+		doc.text("Play Style: "+ ((((team.pit || {}).robot || {}).playstyle) || 'No pit data for Play Style'), box.left+25, box.top+box.os + top_margin + (index*box.tabHeight), { width:225 })
+			.text("Shifting: "+ ((((team.pit || {}).general || {}).shifting) || 'No shifting data found'))
+			.text("Wheels: "+ wheelsText.join(','), { width:225 })
+			.text('Shooting Range: '+ rangeText.join(','), { width:225 })
+			.text("High: " + scoutData.highRatio)
+			.text("Passes: " + scoutData.passRatio)
+			.text("Truss Passes: " + scoutData.trussRatio)
+
 	});
+		doc.fontSize(12);
 
-	_.each( blueTeams, function(team) {
+
+
+_.each( blueTeams, function(team, index) {
+		
+		// PIT DATA
+		var pitWheels = ((((team.pit || {}).general || {}).wheel) || {});
+		var wheelsText = [];
+		_.each( pitWheels, function(wheel) {
+			if( !_.isNull(wheel) ) {
+				wheelsText.push(wheel);
+			}
+		});		
+
+		var shootingRange = ((((team.pit || {}).general || {}).shootingRange) || {});
+		var rangeText = [];
+		_.each( shootingRange, function(canShootFrom, name) {
+			if( canShootFrom ) {
+				rangeText.push(name);
+			}
+		});		
+
+		// SCOUTING DATA
+		var matches = team.matches || [];
+
+		var scoutData = {
+			high: 0,
+			highTotal: 0,
+			highRatio: 0.0,
+
+			pass: 0,
+			passTotal: 0,
+			passRatio: 0.0,
+
+			trussPasses: 0,
+			totalTrussPasses: 0,
+			trussRatio: 0.0
+		};
+
+		_.each( matches, function(teamMatch) {
+			var data = teamMatch.data;
+
+			scoutData.highTotal += data.scoring.goals.high; //+ data.scoring.goals.highMiss;
+			scoutData.high += data.scoring.goals.high;
+
+			scoutData.pass += data.teamwork.passing.roll + data.teamwork.passing.aerial //+ data.teamwork.passing.aerialMisses + data.teamwork.passing.rollMisses;
+			scoutData.passTotal += data.teamwork.passing.roll + data.teamwork.passing.aerial;
+
+			scoutData.trussPasses += data.teamwork.passing.truss;
+			scoutData.totalTrussPasses += data.teamwork.passing.truss; //+ data.teamwork.passing.trussMisses;
+		});
+
+		scoutData.highRatio = scoutData.high +'/'+ scoutData.highTotal;
+		scoutData.passRatio = scoutData.pass+'/'+scoutData.passTotal;
+		scoutData.trussRatio = scoutData.trussPasses+'/'+scoutData.totalTrussPasses;
+
+
+		doc.fontSize(10);
+		doc.text("Play Style: "+ ((((team.pit || {}).robot || {}).playstyle) || 'No pit data for Play Style'), box.left+25+(box.width/2), box.top+box.os + top_margin + (index*box.tabHeight), { width:225 })
+			.text("Shifting: "+ ((((team.pit || {}).general || {}).shifting) || 'No shifting data found'))
+			.text("Wheels: "+ wheelsText.join(','), { width:225 })
+			.text('Shooting Range: '+ rangeText.join(','), { width:225 })
+			.text("High: " + scoutData.highRatio)
+			.text("Passes: " + scoutData.passRatio)
+			.text("Truss Passes: " + scoutData.trussRatio)
+
+	});
+		doc.fontSize(12);
+
+
+
+	/*_.each( blueTeams, function(team) {
 			for(var o=0; o<baseStats.length; o++) {
 				for (var i=0; i<=2; i++){
 					//Blue Stats:
-					doc.text(baseStats[o].string, box.left+25+(box.width/2), box.top+top_margin+((baseStats[o].n)*spacing)+box.os + (i*150), {
+					doc.text(baseStats[o].string, box.left+25+(box.width/2), box.top+top_margin+box.os + (i*box.tabHeight), {
 					 	width: 225,
 					 	align: baseStats[o].align
 					});
 				}
 			}
-	});
+	});*/
 
 	/*for (var o=0; o<baseStats.length; o++){
 
 		for (var i=0; i<=2; i++){
-
-
-
-
-
 			//Blue Stats:
-			doc.text(baseStats[o].string, box.left+25+(box.width/2), box.top+top_margin+((baseStats[o].n)*spacing)+box.os + (i*150), {
+			doc.text(baseStats[o].string, box.left+25+(box.width/2), box.top+top_margin+((baseStats[o].n)*spacing)+box.os + (i*box.tabHeight), {
 			 width: 225,
 			 align: baseStats[o].align
 			});

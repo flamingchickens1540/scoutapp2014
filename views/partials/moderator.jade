@@ -37,7 +37,4 @@ div(ng-repeat="match in matches | orderBy:['moderated','number']")
 
 		.col-md-2
 			.btn.btn-block.btn-info(ng-click="match.moderated=!match.moderated") Finish Moderation
-
-.col-md-3
-	.row
-		.btn.btn-info(ng-click="generatePDF()") PDF
+			.btn.btn-block.btn-primary(ng-click="openMatchPdf(match.event,match.number)") Match PDF

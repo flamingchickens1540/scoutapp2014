@@ -18,6 +18,8 @@ var dataRouter = require('./modules/data.js');
 var mongoose = require('mongoose');
 var q = require('q');
 
+var generatePDF = require('./modules/pdfGeneration.js');
+
 // connect to database
 db.connect('mockdata2014');
 
@@ -144,6 +146,24 @@ io.sockets.on('connection', function(socket) {
     });
   });
 
+  socket.on('moderator:generate-PDF', function(data, returnDataToClient) {
+    var eventId = data.eventId;
+    var matchNum = data.matchNum;
+
+    generatePDF(eventId, matchNum)
+
+    .then( function() {
+      returnDataToClient(true);
+    })
+
+    .catch( function(err) {
+      console.log(err);
+      returnDataToClient(false);
+    });
+    
+    
+
+  });
 
   socket.on('get-team-info', function(teamId, returnDataToClient) {
     var Team = mongoose.model('Team');
