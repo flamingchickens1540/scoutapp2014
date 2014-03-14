@@ -60,8 +60,6 @@ db.getTeam = db.getTeamById = function(teamId) {
 };
 
 db.getTeams = db.getTeamsById = function(teamIdArray) {
-	var teamsRegExp = new RegExp( teamIdArray.join('|') );
-	console.log(teamsRegExp);
 
 	return q.all( _.map( teamIdArray, function(teamId) {
 		return convertToQPromise(

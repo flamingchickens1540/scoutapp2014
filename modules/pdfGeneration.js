@@ -9,65 +9,95 @@ require('./../db_modules/models/team_match.js');
 var q = require('q');
 db = require('./db_api.js');
 
+var PDFDocument = require('pdfkit');
+var doc = new PDFDocument();
+
 db.connect();
 
-var eventToFind = "casb";
-var matchToFind = 1;
-
 //Arrays of team numbers, default of 0 for all.
-var redTeams = [0,0,0];
-var blueTeams = [0,0,0];
+	var redTeams = [0,0,0];
+	var blueTeams = [0,0,0];
 
-var matchComplete = false;
-var matchModerated = false;
+	var matchComplete = false;
+	var matchModerated = false;
 
-var redScore = 0;
-var blueScore = 0;
+	var redScore = 0;
+	var blueScore = 0;
 
-var redFouls = 0;
-var blueFouls = 0;
+	var redFouls = 0;
+	var blueFouls = 0;
 
-var match_overview = 
-"\nMatch Over?: "+ matchComplete + "\nmatchModerated: "+matchModerated+"\nRed Score: "+redScore+
-"\nBlue Score: "+ blueScore + "\nRed Fouls: "+redFouls+"\nBlue Fouls: " + blueFouls;
-
+	var eventToFind = 'casb';
+	var matchToFind = 3;
 
 
+	var match_overview = 
+	"\nMatch Over?: "+ matchComplete + "\nmatchModerated: "+matchModerated+"\nRed Score: "+redScore+
+	"\nBlue Score: "+ blueScore + "\nRed Fouls: "+redFouls+"\nBlue Fouls: " + blueFouls;
 
-db.getMatch(eventToFind, matchToFind) //.then is called once db.getMatch returns the info.
-.then(function getMatch(match){
+module.exports = exports = function genPDF(eventToFind, matchToFind) {
 
-	redTeams = match.redAlliance.teams;
-	blueTeams = match.blueAlliance.teams;
+	eventToFind = eventToFind || "casb";
+	matchToFind = matchToFind || 3;
+
+
+	// get match
+	db.getMatch(eventToFind, matchToFind) //.then is called once db.getMatch returns the info.
 	
-	return match;
-})
+	// set match info and pass it on
+	.then(function setMatchInfo(match){
 
-// get all team
-.then( function(match) {
-	var getRedTeams = db.getTeams( match.redAlliance.teams );
-	var getBlueTeams = db.getTeams( match.blueAlliance.teams );
+		console.log('MATCH', match);
 
-	return q.all([ getRedTeams, getBlueTeams ])
-	.spread( function(redTeams, blueTeams) {
-		console.log('found all teams in '+ match.number +', red: '+ redTeams +', blue: '+ blueTeams)
-		
-		// return match and each alliance's teams
-		return { match:match, redTeams:redTeams, blueTeams:blueTeams };
+		redTeams = match.redAlliance.teams;
+		blueTeams = match.blueAlliance.teams;
+
+		return match;
+	})
+
+	// get all teams
+	.then( function(match) {
+		var getRedTeams = db.getTeams( match.redAlliance.teams );
+		var getBlueTeams = db.getTeams( match.blueAlliance.teams );
+
+		return q.all([ getRedTeams, getBlueTeams ])
+		.spread( function(redTeams, blueTeams) {
+			console.log('found all teams in '+ match.number +', red: '+ redTeams +', blue: '+ blueTeams)
+			
+			// return match and each alliance's teams
+			return { match:match, redTeams:redTeams, blueTeams:blueTeams };
+		});
+	})
+
+	// generate PDF
+	.then(function pdfshiz(data) {
+		var match = data.match;
+		var redTeams = data.redTeams;
+		var blueTeams = data.blueTeams;
+
+		console.log('MATCH ======================', match);
+		console.log('RED ======================', redTeams);
+		console.log('BLUE ======================', blueTeams);
+
+		fillBack();
+		drawMatchOverview();
+		drawTitle("Overview: Event "+ eventToFind +", Match " + match.number);
+		drawSectionTitles();
+		drawBaseStats(redTeams, blueTeams);
+		drawGraphs();
+		drawMainLines();
+		exportPDF( eventToFind+'_'+matchToFind );
+
+		console.log("PDF generated!");
+	})
+
+	//.then( function() {process.exit(0);}) 
+	.catch( function errHandler(err) {
+		console.error(err);
 	});
-})
 
-.then(function pdfshiz(data) {
-	var match = data.match;
-	var redTeams = data.redTeams;
-	var blueTeams = data.blueTeams;
+};
 
-	generatePDF();
-})
-
-.catch( function errHandler(err) {
-	console.error(err);
-});
 
 
 
@@ -76,16 +106,12 @@ db.getMatch(eventToFind, matchToFind) //.then is called once db.getMatch returns
 //Put all the pdf stuff in a function to be called when the promise is fufilled.
 
 
-var PDFDocument = require('pdfkit');
-var doc = new PDFDocument;
-
-
 var text;
 var match = matchToFind;
 
 
 
-
+// === OVERVIEW BOXES DATA =====================================================
 //The main box, in which everything is held.
 var box = {
 	top: 75,
@@ -106,8 +132,30 @@ var ob = {
 	height: box.os - 30
 };
 
+//draws all the big, filled in rectangles that make up the back of the main box.
+function fillBack() {
+	doc.rect(box.left+10, box.top+10, box.width, box.height).fillOpacity(.8).fill("black"); //black shadow
+
+	doc.rect(box.left, box.top+box.os, box.width/2, box.height-box.os).fillOpacity(1.0).fill('#FFCCCC'); //red
+	doc.rect(box.left+box.width/2, box.top+box.os, box.width/2, box.height-box.os).fillOpacity(1.0).fill('#B3C6FF'); //blue
+	doc.rect(box.left, box.top, box.width, box.os).fillOpacity(1.0).fill('#BFBFBF'); //gray
+
+	doc.rect(box.left, box.top, box.width, box.height).stroke('black');
+}
+
+//The most important lines of the main box. (box outline + section outline).
+function drawMainLines(){
+
+	for (var i=0; i<2; i++){
+		doc.rect(box.left, (box.top+box.os)+(150*i), box.width, 150).stroke('black');
+	}
+
+	doc.moveTo(box.left+(box.width/2), box.top+box.os).lineTo(box.left+(box.width/2), box.top+box.height).stroke('black');
+}
 
 
+
+// === GENERATE AND PRINT GRAPHS =====================================================
 
 //m = margin. A temporary placeholder so that I could adjust some of the margins more easily.
 var m = 15;
@@ -203,160 +251,14 @@ for (var h=0; h<=2; h++){
 	setHeightAndTop(gb2, h);
 }
 
-
-
-
 //Used for Calculating the height and top point of a bar based on the values that it holds.
 function setHeightAndTop(graphBox, b){
 	graphBox.bars[b].height = ((graphBox.height-10)*((graphBox.bars[b].value)/(graphBox.bars[b].max)));
 	graphBox.bars[b].top = ((graphBox.top+gb1.height-10)-graphBox.bars[b].height);
 }
 
-//----------------------------------------------
-
-
-
-//draws all the big, filled in rectangles that make up the back of the main box.
-function fillBack()
-{
-	doc.rect(box.left+10, box.top+10, box.width, box.height).fillOpacity(.8).fill("black"); //black shadow
-
-	doc.rect(box.left, box.top+box.os, box.width/2, box.height-box.os).fillOpacity(1.0).fill('#FFCCCC'); //red
-	doc.rect(box.left+box.width/2, box.top+box.os, box.width/2, box.height-box.os).fillOpacity(1.0).fill('#B3C6FF'); //blue
-	doc.rect(box.left, box.top, box.width, box.os).fillOpacity(1.0).fill('#BFBFBF'); //gray
-
-	doc.rect(box.left, box.top, box.width, box.height).stroke('black');
-}
-
-//The most important lines of the main box. (box outline + section outline).
-function drawMainLines(){
-
-	for (var i=0; i<2; i++){
-		doc.rect(box.left, (box.top+box.os)+(150*i), box.width, 150).stroke('black');
-	}
-
-	doc.moveTo(box.left+(box.width/2), box.top+box.os).lineTo(box.left+(box.width/2), box.top+box.height).stroke('black');
-}
-
-//Just draws the text in the overview box.
-function drawMatchOverview(){
-	doc.fontSize(12);
-	doc.fill("black");
-	doc.fillOpacity(1.0);
-
-	doc.text("     "+ match_overview, ob.left, ob.top, {
-		width: ob.width
-	})
-}
-
-//Draws the given text as the title above the main box.
-function drawTitle(text){
-
-	doc.fontSize(20);
-	doc.fill('black');
-
-	doc.text(text, box.left, box.top-30, {
-		width: box.width,
-		align: "center"
-	})
-		.fillOpacity(1.0)
-		.fill('black');
-}
-
-//Not called normally. Use if you want to see the actual locations of gb1, gb2, and ob.
-function drawOverviewOutlines(){
-	doc.rect(gb1.left, gb1.top, gb1.width, gb1.height)
-		.stroke("000000");
-
-	doc.rect(gb2.left, gb2.top, gb2.width, gb2.height)
-		.stroke("000000");
-
-	doc.rect(ob.left, ob.top, ob.width, ob.height)
-		.stroke('black');
-}
-
-//Draws the text for each team's name above that team's section.
-function drawSectionTitles(){
-	for (var i=0; i <=2; i++){
-
-	doc.rect(box.left, box.top+box.os+(i*150), box.width/2, 30)
-		.fillOpacity(1.0)
-		.fill('#FFB3B3');
-
-	doc.rect(box.left+box.width/2, box.top+box.os+(i*150), box.width/2, 30)
-		.fillOpacity(1.0)
-		.fill('#99B3FF');
-
-	doc.fill("black");
-
-	doc.fontSize(14);
-	doc.text(redTeams[i]+": "+"Team Name", box.left+25, box.top+10+box.os + (i*150), {
-	  width: 225,
-	  align: 'center'
-	});
-
-	doc.fontSize(14);
-	doc.text(blueTeams[i]+": "+"Team Name", box.left+25+(box.width/2), box.top+10+box.os + (i*150), {
-	  width: 225,
-	  align: 'center'
-	});
-
-	doc.moveTo(box.left, box.top+box.os+(i*150)+30)
-		.lineTo(box.left+box.width/2, box.top+box.os+(i*150)+30)
-		.stroke('black');
-
-	doc.moveTo(box.left+(box.width/2), box.top+box.os+(i*150)+30)
-		.lineTo(box.left+box.width, box.top+box.os+(i*150)+30)
-		.stroke('black');
-	}
-};
-
-
-//A basic format that makes is a lot easier to set the location of each team's attributes.
-baseStats = [
-	{ n:0, string:"Play Style: "		, align:"center" }, 
-	{ n:1, string:"Active Zones: "	, align:"center" }, 
-	{ n:2, string:"High Goals: "		, align:"left" }, 
-	{ n:2, string:"Low Goals: "			, align:"right" },
-	{ n:3, string:"Passes Made: "		, align:"left" },
-	{ n:3, string:"Recieves Made: "	, align:"right" },
-	{ n:4, string:"Issues: "				, align:"center" }
-];
-
-
-//Draws all the data for each team. Should draw every piece of info shown in baseStats.
-function drawBaseStats(){
-
-	doc.fontSize(12);
-	doc.fill("black");
-	doc.fillOpacity(1.0);
-
-	for (var o=0; o<baseStats.length; o++){
-
-		for (var i=0; i<=2; i++){
-
-			var top_margin = 45;
-			var spacing = 20;
-
-			//Red Stats:
-			doc.text(baseStats[o].string, box.left+25, box.top+top_margin+((baseStats[o].n)*spacing)+box.os + (i*150), {
-			 width: 225,
-			 align: baseStats[o].align
-			});
-
-			//Blue Stats:
-			doc.text(baseStats[o].string, box.left+25+(box.width/2), box.top+top_margin+((baseStats[o].n)*spacing)+box.os + (i*150), {
-			 width: 225,
-			 align: baseStats[o].align
-			});
-		}
-	}
-}
-
-
-
 //Draws the graphs.
-function drawGraphs(){
+function drawGraphs() {
 
 	for (var b=0; b<=2; b++){
 
@@ -399,26 +301,157 @@ function drawGraphs(){
 		.stroke('black');
 }
 
-//Writes the PDF to a document of given name.
+// === PRINT TEXT =====================================================
+
+//Just draws the text in the overview box.
+function drawMatchOverview(){
+	doc.fontSize(12);
+	doc.fill("black");
+	doc.fillOpacity(1.0);
+
+	doc.text("     "+ match_overview, ob.left, ob.top, {
+		width: ob.width
+	})
+}
+
+//Draws the given text as the title above the main box.
+function drawTitle(text){
+
+	doc.fontSize(20);
+	doc.fill('black');
+
+	doc.text(text, box.left, box.top-30, {
+		width: box.width,
+		align: "center"
+	})
+		.fillOpacity(1.0)
+		.fill('black');
+}
+
+//Not called normally. Use if you want to see the actual locations of gb1, gb2, and ob.
+function drawOverviewOutlines(){
+	doc.rect(gb1.left, gb1.top, gb1.width, gb1.height)
+		.stroke("000000");
+
+	doc.rect(gb2.left, gb2.top, gb2.width, gb2.height)
+		.stroke("000000");
+
+	doc.rect(ob.left, ob.top, ob.width, ob.height)
+		.stroke('black');
+}
+
+//Draws the text for each team's name above that team's section.
+function drawSectionTitles() {
+	for (var i=0; i <=2; i++) {
+
+		doc.rect(box.left, box.top+box.os+(i*150), box.width/2, 30)
+			.fillOpacity(1.0)
+			.fill('#FFB3B3');
+
+		doc.rect(box.left+box.width/2, box.top+box.os+(i*150), box.width/2, 30)
+			.fillOpacity(1.0)
+			.fill('#99B3FF');
+
+		doc.fill("black");
+
+		doc.fontSize(14);
+		doc.text(redTeams[i]+": "+"Team Name", box.left+25, box.top+10+box.os + (i*150), {
+		  width: 225,
+		  align: 'center'
+		});
+
+		doc.fontSize(14);
+		doc.text(blueTeams[i]+": "+"Team Name", box.left+25+(box.width/2), box.top+10+box.os + (i*150), {
+		  width: 225,
+		  align: 'center'
+		});
+
+		doc.moveTo(box.left, box.top+box.os+(i*150)+30)
+			.lineTo(box.left+box.width/2, box.top+box.os+(i*150)+30)
+			.stroke('black');
+
+		doc.moveTo(box.left+(box.width/2), box.top+box.os+(i*150)+30)
+			.lineTo(box.left+box.width, box.top+box.os+(i*150)+30)
+			.stroke('black');
+	}
+};
+
+
+//A basic format that makes is a lot easier to set the location of each team's attributes.
+var baseStats = [
+	{ n:0, string:"Play Style: "		, align:"left" 	}, 
+	{ n:1, string:"Active Zones: "	, align:"left" 	}, 
+	{ n:2, string:"High Goals: "		, align:"left" 	}, 
+	{ n:2, string:"Low Goals: "			, align:"right"	},
+	{ n:3, string:"Passes Made: "		, align:"left" 	},
+	{ n:3, string:"Recieves Made: "	, align:"right"	},
+	{ n:4, string:"Issues: "				, align:"left" 	}
+];
+
+
+// === FILL IN DATA =====================================================
+
+//Draws all the data for each team. Should draw every piece of info shown in baseStats.
+function drawBaseStats(redTeams, blueTeams) {
+
+	doc.fontSize(12);
+	doc.fill("black");
+	doc.fillOpacity(1.0);
+
+	var top_margin = 45;
+	var spacing = 20;
+
+	_.each( redTeams, function(team, i) {
+			doc.text("Play Style: "+ ((((team.pit || {}).robot || {}).playstyle) || 'No pit data for Play Style'), box.left+25, box.top+box.os + top_margin + (i*150)) //top_margin+((baseStats[o].n)*spacing)
+			doc.text("Play Style: "+ ((((team.pit || {}).robot || {}).playstyle) || 'No pit data for Play Style'));
+
+			/*for(var o=0; o<baseStats.length; o++) {
+				for (var i=0; i<=2; i++){
+					//Red Stats:
+					doc.text(baseStats[o].string + 'lol', box.left+25, box.top+top_margin+((baseStats[o].n)*spacing)+box.os + (i*150), {
+					  width: 225,
+					  align: baseStats[o].align
+					});
+				}
+			}*/
+	});
+
+	_.each( blueTeams, function(team) {
+			for(var o=0; o<baseStats.length; o++) {
+				for (var i=0; i<=2; i++){
+					//Blue Stats:
+					doc.text(baseStats[o].string, box.left+25+(box.width/2), box.top+top_margin+((baseStats[o].n)*spacing)+box.os + (i*150), {
+					 	width: 225,
+					 	align: baseStats[o].align
+					});
+				}
+			}
+	});
+
+	/*for (var o=0; o<baseStats.length; o++){
+
+		for (var i=0; i<=2; i++){
+
+
+
+
+
+			//Blue Stats:
+			doc.text(baseStats[o].string, box.left+25+(box.width/2), box.top+top_margin+((baseStats[o].n)*spacing)+box.os + (i*150), {
+			 width: 225,
+			 align: baseStats[o].align
+			});
+		}
+	}*/
+}
+
+// === SAVE NEW PDF =====================================================
+
+//Writes the PDF in the public/pdf folder
 function exportPDF(name) {
-	doc.write(name+'.pdf');
+	doc.write('public/pdf/'+name+'.pdf', function(err) {console.log(err)});
 }
 
-	//Runs all the collective functions that make the PDF.
-	function generatePDF(){
+// make a new pdf
+exports('casb', 3);
 
-	fillBack();
-	drawMatchOverview();
-	drawTitle("Overview: Event "+ eventToFind +", Match " + match);
-	drawSectionTitles();
-	drawBaseStats();
-	drawGraphs();
-	drawMainLines();
-	exportPDF( eventToFind+'_'+matchToFind );
-
-	console.log("PDF generated!");
-
-}
-
-//---------------------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------

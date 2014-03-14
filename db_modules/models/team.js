@@ -3,6 +3,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var ObjectId = Schema.Types.ObjectId;
+var Mixed = Schema.Types.Mixed;
 
 /**
 * Team Schema
@@ -18,7 +19,7 @@ var TeamSchema = new Schema({
 		awards: [String],
 	},
 
-	pit: {},
+	pit: { type:Mixed, default:{} },
 	masterNotes: { type:String, default:'' },
 
 	matches: [{ type:ObjectId, ref:'TeamMatch', default:[] }],
