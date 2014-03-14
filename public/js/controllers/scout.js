@@ -79,7 +79,8 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
         roll: 0,
         truss: 0,
         aerial: 0
-      }
+      },
+      humanPass: false
     };
 
     $scope.teamwork['zones'] = [

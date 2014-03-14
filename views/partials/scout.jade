@@ -121,9 +121,9 @@ header.navbar.navbar-inverse.navbar-fixed-top
 
 		.row
 			.col-sm-6
-				comp-spinner(title="High Miss" type="danger btn-lg" ng-model="scoring.goals.highMisses")
+				comp-spinner(title="HiMiss" type="danger btn-lg" ng-model="scoring.goals.highMisses")
 			.col-sm-6
-				comp-spinner(title="Low Miss" type="warning btn-lg" ng-model="scoring.goals.lowMisses")
+				comp-spinner(title="LoMiss" type="warning btn-lg" ng-model="scoring.goals.lowMisses")
 
 // Teamwork - passing/receiving
 .panel.panel-default(collapse="collapsed.teamwork")
@@ -171,6 +171,9 @@ header.navbar.navbar-inverse.navbar-fixed-top
 		.row
 			.col-sm-6
 				comp-spinner(title="Aerial" ng-model="teamwork.passing.aerial" type="danger btn-lg")
+			.col-sm-6
+				.btn.btn-lg.btn-primary.btn-block(ng-model="teamwork.humanPass" btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false") Successful Human Player Pass ({{ teamwork.humanPass }})
+
 		br
 		br
 		.row
