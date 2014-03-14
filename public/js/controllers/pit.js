@@ -63,7 +63,7 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket, 
   $scope['wheels'] = [
     'None',
     'High Traction',
-    'Traction',
+    'Kit',
     'Mecanum',
     'Omni',
     'Swerve',
@@ -75,13 +75,15 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket, 
     'Catapult',
     'Spinner',
     'Kicker',
+    'Slingshot',
+    'Puncher',
     'None'
   ];
 
   // List of Collector types
   $scope['collectorTypes'] = [
     'Claw',
-    'Forklift',
+    'Toro',
     'Rollers',
     'Passive',
     'None'
@@ -89,9 +91,10 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket, 
 
   // Play style
   $scope['playstyles'] = [
-    'Forward',
-    'Middle',
-    'Starter',
+    'All',
+    'Passer',
+    'Shooter',
+    'Defense',
     'Goalie'
   ];
 
