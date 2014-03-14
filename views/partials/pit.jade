@@ -40,7 +40,8 @@
 						select.form-control(ng-options="wheel for wheel in wheels" ng-model="generalInfo.wheel.wheelR3")
 		hr
 		.row
-			.col-sm-4
+			.col-sm-1
+			.col-sm-3.text-center
 				h3.text-center Shifting?
 				br
 				.row
@@ -48,15 +49,15 @@
 						.btn-group.btn-group-justified
 							.btn.btn-lg.btn-primary(ng-model='generalInfo.shifting' btn-radio="true") Yes
 							.btn.btn-lg.btn-primary(ng-model='generalInfo.shifting' btn-radio="false") No
-			.col-sm-8
+			.col-sm-8.text-center
 				h3.text-center Shooting Range:
 				br
 				.row
 					.col-sm-12
 						.btn-group
-							.btn.btn-lg.btn-primary(btn-checkbox ng-model='generalInfo.shootingRange.far') Far - White
-							.btn.btn-lg.btn-primary(btn-checkbox ng-model='generalInfo.shootingRange.medium') Medium - Back
-							.btn.btn-lg.btn-primary(btn-checkbox ng-model='generalInfo.shootingRange.near') Near - Front
+							.btn.btn-lg.btn-primary(btn-checkbox ng-model='generalInfo.shootingRange.far') Far
+							.btn.btn-lg.btn-primary(btn-checkbox ng-model='generalInfo.shootingRange.medium') Medium
+							.btn.btn-lg.btn-primary(btn-checkbox ng-model='generalInfo.shootingRange.near') Near
 
 // robot information
 .panel.panel-default
@@ -86,6 +87,7 @@
 				h3.text-center Preferred Play Style:
 					br
 					br
+					br
 				select.form-control(ng-options="playstyle for playstyle in playstyles" ng-model="robotInfo.playstyle")
 			
 .panel.panel-default
@@ -96,15 +98,17 @@
 				.row
 					h3.text-center Drive forward autonomous?
 					br
+					br
 				.row
 					.col-sm-12
 						.btn-group.btn-group-justified
 							.btn.btn-lg.btn-primary(ng-model='autoInfo.dfAuto' btn-radio="true") Yes
 							.btn.btn-lg.btn-primary(ng-model='autoInfo.dfAuto' btn-radio="false") No
-			.col-sm-4
+			.col-sm-4.text-center
 				.row
 					.col-sm-12
 						h3.text-center Balls Scorable:
+						br
 						br
 						br
 					.col-sm-12
@@ -115,6 +119,7 @@
 							.btn.btn-lg.btn-primary(ng-model='autoInfo.autoBalls' btn-radio="3") 3
 			.col-sm-4
 				h3.text-center Recognize hot goal?
+				br
 				br
 				.text-center
 					.btn-group.btn-group-justified
@@ -140,7 +145,7 @@
 	.panel-body
 		.row
 			.col-sm-12
-				textarea.form-control(rows=8 ng-model='notes')
+				textarea.form-control(rows=col-sm-8 ng-model='notes')
 
 
 	alert(ng-if= type="'danger'" close="closeAlert($index)") {{alert.msg}}

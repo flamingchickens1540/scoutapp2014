@@ -1,7 +1,6 @@
 var db = require("./db_api.js");
 var _ = require('underscore');
-var csv = require("ya-csv");
-var writer = csv.createCsvStreamWriter(process.stdout);
+var fs = require('fs')
 
 db.connect();
 
@@ -31,6 +30,11 @@ pitHeader.push("Notes");
 
 var pitHeaderLine = pitHeader.join(',');
 console.log(pitHeaderLine);
+
+fs.writeFile('./pit.txt', pitHeaderLine, function (err) {
+  if (err) throw err;
+  console.log('It\'s saved!');
+});
 
 var scoutHeader = [];
 scoutHeader.push("Match Number");
@@ -69,44 +73,16 @@ scoutHeader.push("Overall Notes");
 var scoutHeaderString = scoutHeader.join(',');
 console.log(scoutHeaderString);
 
+fs.writeFile('./matches.txt', scoutHeaderString, function (err) {
+  if (err) throw err;
+  console.log('It\'s saved!');
+});
+
 db.getTeamsAtEvent("casb")
-.then(function pitData(teams) {
-	_.each(teams, function(team) {
-		var pitData = team.pit;
-
-		// CSV GENERATION STUFF
-		var pitInfo = [];
-		pitInfo.push(pitData.general.teamNumber);
-		pitInfo.push(pitData.general.wheelL1);
-		pitInfo.push(pitData.general.wheelR1);
-		pitInfo.push(pitData.general.wheelL2);
-		pitInfo.push(pitData.general.wheelR2);
-		pitInfo.push(pitData.general.wheelL3);
-		pitInfo.push(pitData.general.wheelR3);
-		pitInfo.push(pitData.general.wheelNotes);
-		pitInfo.push(pitData.general.robotHeight);
-		pitInfo.push(pitData.general.shifting);
-		pitInfo.push(pitData.robot.minShoot);
-		pitInfo.push(pitData.robot.maxShoot);
-		pitInfo.push(pitData.robot.shooterType);
-		pitInfo.push(pitData.robot.collectorType);
-		pitInfo.push(pitData.robot.catchable);
-		pitInfo.push(pitData.robot.playstyle);
-		pitInfo.push(pitData.robot.disabledPlan);
-		pitInfo.push(pitData.auto.dfAuto);
-		pitInfo.push(pitData.auto.autoBalls);
-		pitInfo.push(pitData.auto.hotRecog);
-		pitInfo.push(pitData.auto.startPosition);
-		pitInfo.push(pitData.notes);
-
-		var pitLine = pitInfo.join(',');
-		console.log(pitLine);
-	});
-})
 .then(function scoutData(teamMatches) {
 	_.each(teamMatches, function(teamMatch) {
 		var scoutData = team_match.data;
-		var teamData = team_match.
+		var teamData = team_match;
 
 		//MORE CSV GENERATION STUFF
 		var scoutInfo = [];
@@ -145,7 +121,51 @@ db.getTeamsAtEvent("casb")
 
 		var scoutLine = scoutData.join(',');
 		console.log(scoutLine);
+
+		fs.writeFile('matches.txt', scoutLine, function (err) {
+		  if (err) throw err;
+		  console.log('It\'s saved!');
+		});
 	})
+})
+
+.then(function pitData(teams) {
+	_.each(teams, function(team) {
+		var pitData = team.pit;
+
+		// CSV GENERATION STUFF
+		var pitInfo = [];
+		pitInfo.push(pitData.general.teamNumber);
+		pitInfo.push(pitData.general.wheelL1);
+		pitInfo.push(pitData.general.wheelR1);
+		pitInfo.push(pitData.general.wheelL2);
+		pitInfo.push(pitData.general.wheelR2);
+		pitInfo.push(pitData.general.wheelL3);
+		pitInfo.push(pitData.general.wheelR3);
+		pitInfo.push(pitData.general.wheelNotes);
+		pitInfo.push(pitData.general.robotHeight);
+		pitInfo.push(pitData.general.shifting);
+		pitInfo.push(pitData.robot.minShoot);
+		pitInfo.push(pitData.robot.maxShoot);
+		pitInfo.push(pitData.robot.shooterType);
+		pitInfo.push(pitData.robot.collectorType);
+		pitInfo.push(pitData.robot.catchable);
+		pitInfo.push(pitData.robot.playstyle);
+		pitInfo.push(pitData.robot.disabledPlan);
+		pitInfo.push(pitData.auto.dfAuto);
+		pitInfo.push(pitData.auto.autoBalls);
+		pitInfo.push(pitData.auto.hotRecog);
+		pitInfo.push(pitData.auto.startPosition);
+		pitInfo.push(pitData.notes);
+
+		var pitLine = pitInfo.join(',');
+		console.log(pitLine);
+
+		fs.writeFile('pit.txt', pitLine, function (err) {
+		  if (err) throw err;
+		  console.log('It\'s saved!');
+		});
+	});
 })
 .catch(function errHandler(err) {
 	console.error(err);

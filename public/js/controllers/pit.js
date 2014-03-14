@@ -227,7 +227,7 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket) 
     .then( function readFilesFromDirectory(dir) {
       console.log('DIR', dir);
 
-      return q.all( dir.map( function(fileEntry) {
+      return $q.all( dir.map( function(fileEntry) {
         if(fileEntry.isFile)
           return fs.readFile( fileEntry.name )
       }))
