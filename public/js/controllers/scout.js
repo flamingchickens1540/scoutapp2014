@@ -52,7 +52,10 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
       playStyles: [],
       goals: {
         high: 0,
-        low: 0
+        highMisses: 0,
+
+        low: 0,
+        lowMisses: 0
       }
     };
 

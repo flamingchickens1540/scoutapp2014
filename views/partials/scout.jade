@@ -111,11 +111,19 @@ header.navbar.navbar-inverse.navbar-fixed-top
 
 		.row
 			.col-offset-2.col-sm-10
-				p.lead.pull-left Goals
+				p.lead.pull-left Goals and Misses
 			.col-sm-6
 				comp-spinner(title="High" type="success btn-lg" ng-model="scoring.goals.high")
 			.col-sm-6
 				comp-spinner(title="Low" type="warning btn-lg" ng-model="scoring.goals.low")
+
+		br
+
+		.row
+			.col-sm-6
+				comp-spinner(title="High Miss" type="danger btn-lg" ng-model="scoring.goals.highMisses")
+			.col-sm-6
+				comp-spinner(title="Low Miss" type="warning btn-lg" ng-model="scoring.goals.lowMisses")
 
 // Teamwork - passing/receiving
 .panel.panel-default(collapse="collapsed.teamwork")
