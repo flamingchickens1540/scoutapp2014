@@ -19,7 +19,7 @@ var mongoose = require('mongoose');
 var q = require('q');
 
 // connect to database
-db.connect();
+db.connect('mockdata2014');
 
 /**
  * Configuration
@@ -49,6 +49,7 @@ if (app.get('env') === 'development') {
 
 // serve index and view partials
 app.get('/', function(req, res) {
+  io.sockets.emit('test', 'test');
   res.render('index', { title:'1540 Scouting 2014' });
 });
 
@@ -57,29 +58,55 @@ app.post('/submit/:dest', function(req, res) {
   var submitTo = req.params.dest;
   var data = req.body;
 
-  dataRouter.collect(submitTo, data, function(err, saved) {
+  dataRouter.collect(submitTo, data, function(err, savedTo, otherData) {
+    var isSaved = false;
+
+    console.log('OTHER DATA', otherData);
+
     if(!err) {
-      var info = data.info;
-      db.getTeam(info.team)
+      if( savedTo == 'match' ) {
+        var teamMatch = otherData;
+        isSaved = true;
+        // emit event
+        io.sockets.emit('moderator:new-team-match', teamMatch);
+      }
+      else if( savedTo == 'pit' ) {
+        isSaved = true;
+      }
 
-      .then( function broadcastUpdatedTeam(team) {
-        socket.broadcast.emit('moderator:update-team', team);
-      })
-
-      .then( function sendResponse() {
-        res.send(saved);
-      })
-      
-      .fail( function sendErrResponse(err) {
-        console.log(err);
-        res.send(err);
-      });
-      
+      res.send(isSaved);
     }
     else {
       res.send(err);
     }
   });
+});
+
+app.get('/stuff/:data', function(req, res) {
+  var data = req.params.data;
+  var Match = mongoose.model('Match');
+  var Team = mongoose.model('Team');
+  var TeamMatch = mongoose.model('TeamMatch');
+
+  switch(data) {
+    case 'match':
+      Match.find(function(err, matches) {
+        res.json(matches);
+      });
+      break;
+
+    case 'team':
+      Team.find(function(err, matches) {
+        res.json(matches);
+      });
+      break;
+
+    case 'teammatch':
+      TeamMatch.find(function(err, matches) {
+        res.json(matches);
+      });
+      break;
+  }
 });
 
 
@@ -134,16 +161,23 @@ io.sockets.on('connection', function(socket) {
 
   socket.on('save-moderated-notes', function(info, returnDataToClient) {
     var Team = mongoose.model('Team');
+    var TeamMatch = mongoose.model('TeamMatch');
 
     var teamId = info.teamId;
     var masterNotes = info.masterNotes;
 
     Team.findOneAndUpdate( { id:teamId }, { masterNotes:masterNotes }, function(err, team) {
       if(!err) {
-        console.log('Added note '+ masterNotes +' to team '+ team.id);
-        returnDataToClient(true);
+
+        TeamMatch.findOneAndUpdate( { _id:info.teamMatch._id }, { moderated:true } , function(err, tm) {
+
+          socket.broadcast.emit('save-moderated-notes', info);
+
+          console.log('Added note '+ masterNotes +' to team '+ team.id);
+          returnDataToClient(true);
+        });
       }
-      else{
+      else {
         returnDataToClient(false);
       }
 
@@ -174,14 +208,6 @@ app.get('/templates/:name', function (req, res) {
 app.get('*', function(req, res){
   res.render('index');
 });
-
-
-/* SOCKET.IO EVENTS */
-io.sockets.on('connection', function(socket) {
-  console.log('connected to socket '+ socket.id);
-
-});
-
 
 /**
  * Start Server

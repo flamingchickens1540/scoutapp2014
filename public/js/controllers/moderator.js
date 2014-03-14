@@ -4,27 +4,38 @@ var app = angular.module('ctrl.moderator', [
   'btford.socket-io'
 ]);
 
-app.controller('ModeratorCtrl', function($scope, $modal, socket, $http, $log) {
-
-  // returns true/false depending on whether data exists for the match
-  $scope.containsData = function(matchData) {
-    return !angular.isDefined(matchData);
-  };
-
-  $scope.events = [
-    { name:'PNW District Champs', value:'orpo' },
-    { name:'Inland Empire Regional', value:'casb' }
-  ];
+app.controller('ModeratorCtrl', function($scope, $modal, socket, $http, $log, $timeout) {
 
   $scope.eventId = null;
   $scope.matches = [];
   $scope.teams = {};
 
+  $scope.alerts = [];
+
+// ===== HELPER FUNCTIONS =============================================  
+  var alertUser = function(type, message) {
+    $scope.alerts.push({ type:type || 'info', msg:message });
+    $timeout( function() {
+      // doesn't take into account multiple coming in every few seconds
+      $scope.alerts.shift(); // removes first item in alerts
+    }, 5000);
+  };
+
+// ===== DATA =============================================
+  $scope.events = [
+    { name:'PNW District Champs', value:'orpo' },
+    { name:'Inland Empire Regional', value:'casb' }
+  ];
+
+// ===== WATCHER FUNCTIONS ====================================
   var getEvent = function(eventId) {
     socket.emit('moderator:get-data', eventId, function(data) {
 
-      if(!angular.isDefined(data.matches))
+      if(!angular.isDefined(data.matches)) {
         data.matches = [];
+
+        alertUser( 'danger', 'No matches found for '+ eventId );
+      };
 
       $scope.matches = (data.matches || []).sort(function numericSort(match1,match2) { console.log('SORT',match1.number,match2.number); return match1.number - match2.number; });;
 
@@ -34,6 +45,8 @@ app.controller('ModeratorCtrl', function($scope, $modal, socket, $http, $log) {
       });
       console.log($scope.teams);
 
+      alertUser( 'info', 'Successfully pulled matches and teams for '+ eventId );
+
     });
   };
 
@@ -41,6 +54,34 @@ app.controller('ModeratorCtrl', function($scope, $modal, socket, $http, $log) {
   $scope.$watch('eventId', function(newEvent, oldEvent) {
     getEvent( newEvent );
   });
+
+  // DOES NOT ACCOUNT FOR ANOTHER PERSON EDITING THE NOTE DURING UPDATE
+  socket.on('save-moderated-notes', function updateLocalNotes(info) {
+    console.log('New notes!', info);
+
+    if($scope.teams[info.teamId]) {
+      $scope.teams[info.teamId].masterNotes = info.masterNotes;
+    }
+
+    alertUser('info','Pulled notes updates for team '+ info.teamId);
+  });
+
+  socket.on('moderator:new-team-match', function(teamMatch) {
+    console.log('NEW TEAM MATCH',teamMatch);
+
+    var matchNum = teamMatch.match;
+    var pos = teamMatch.color + teamMatch.posNum;
+
+    $scope.matches[matchNum-1][pos+'Data'] = teamMatch;
+    $scope.$apply();
+
+    alertUser('info','Match Data for '+ teamMatch.team +' in match '+ matchNum +' is now avaliable.');
+  });
+
+// ===== $SCOPE FUNCTIONS ====================================
+  $scope.closeAlert = function(index) {
+    $scope.alerts.splice(index, 1);
+  };
 
   $scope.editNotes = function (matchData) {
     console.log(matchData);
@@ -80,23 +121,26 @@ app.controller('ModeratorCtrl', function($scope, $modal, socket, $http, $log) {
         console.log(noteInfo);
 
         // updates the master note locally so that I don't need to pull from the db for notes
-        $scope.teams[teamId].masterNotes = noteInfo.masterNotes;
+        $scope.teams[noteInfo.teamId].masterNotes = noteInfo.masterNotes;
+
+        noteInfo['teamMatch'] = matchData; //mongodb object - INSECURE
 
         socket.emit('save-moderated-notes', noteInfo, function(isSaved) {
           console.log('Note was saved: '+ isSaved);
-          if(isSaved) alert('saved!');
-          else alert('not saved!');
-        })
+          if(isSaved) {
+            alertUser('success','Updated master notes for team '+ noteInfo.teamId);
+          }
+          else { 
+            alertUser('danger','Failed to updated master notes for team '+ noteInfo.teamId);
+          }
+        });
       },
 
       function closeModal() {
         $log.info('Modal dismissed at: ' + new Date());
       }
     );
-
   };
-
-
   
 });
 

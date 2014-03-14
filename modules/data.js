@@ -101,13 +101,15 @@ dataPathways['pitData'] = function(data, callback) {
 	console.log('PITDATA', data);
 
 	_.each(data, function(pitData) {
-		var teamId = pitData.general.teamNumber;
+		var teamId = pitData.teamId;
 
 		// save pit data to team
-		Team.findOneAndUpdate( { id:teamId }, { pit:pitData }, function(err, c) {console.log(err,c)} );
-	});
+		Team.findOneAndUpdate( { id:teamId }, { pit:pitData }, function(err, c) {
+			console.log(err,c)
 
-	// return something
+			callback(err, 'pit');
+		});
+	});
 };
 
 exports.collect = function(submitTo, data, callback) {

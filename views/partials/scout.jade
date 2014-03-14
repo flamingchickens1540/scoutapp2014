@@ -17,6 +17,12 @@ header.navbar.navbar-inverse.navbar-fixed-top
 				li
 					a(ng-click="displayView( 'submit' )") Match Submit
 
+// for alerts
+.well
+	.row
+		.col-sm-12(ng-repeat="alert in alerts")
+			alert(type="alert.type" close="closeAlert($index)" ng-click="closeAlert($index)") {{ alert.msg }}
+
 // match info
 .panel.panel-default(collapse="collapsed.info")
 	.panel-heading Match Info
@@ -223,4 +229,5 @@ header.navbar.navbar-inverse.navbar-fixed-top
 		br
 		.row
 			.col-sm-10.col-sm-offset-1
-				.btn.btn-lg.btn-block.btn-info(ng-click="submitMatch()") Submit Match for Team ####
+				.btn.btn-lg.btn-block.btn-info(ng-click="submitMatch()") Submit Match for Team {{ info.team }}
+

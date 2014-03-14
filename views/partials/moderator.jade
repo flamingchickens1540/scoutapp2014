@@ -1,5 +1,10 @@
 link(rel='stylesheet' type='text/css' href='/css/index.css')
 
+#alerts
+	.row
+		.col-sm-12(ng-repeat="alert in alerts")
+			alert(type="alert.type" close="closeAlert($index)" ng-click="closeAlert($index)") {{ alert.msg }}
+
 select.form-control(ng-options="event.value as event.name for event in events" ng-model="eventId")
 
 hr
@@ -14,21 +19,21 @@ div(ng-repeat="match in matches | orderBy:['moderated','number']")
 					.col-md-5
 						.row
 							.col-md-4
-								.btn.btn-danger.btn-block(ng-disabled="containsData( {{ match.red1Data }} )" ng-click="editNotes( {{ match.red1Data }} )") {{ match.redAlliance.teams[0] }}
+								.btn.btn-danger.btn-block(ng-disabled="!match.red1Data" ng-click="editNotes( match.red1Data )") {{ match.redAlliance.teams[0] }}
 							.col-md-4
-								.btn.btn-danger.btn-block(ng-disabled="containsData( {{ match.red2Data }} )" ng-click="editNotes( {{ match.red2Data }} )") {{ match.redAlliance.teams[1] }}
+								.btn.btn-danger.btn-block(ng-disabled="!match.red2Data" ng-click="editNotes( match.red2Data )") {{ match.redAlliance.teams[1] }}
 							.col-md-4
-								.btn.btn-danger.btn-block(ng-disabled="containsData( {{ match.red3Data }} )" ng-click="editNotes( {{ match.red3Data }} )") {{ match.redAlliance.teams[2] }}
+								.btn.btn-danger.btn-block(ng-disabled="!match.red3Data" ng-click="editNotes( match.red3Data )") {{ match.redAlliance.teams[2] }}
 					.col-md-2
 							h4.text-center {{match.number}}
 					.col-md-5
 						.row
 							.col-md-4
-								.btn.btn-primary.btn-block(ng-disabled="containsData( {{ match.blue1Data }} )" ng-click="editNotes( {{ match.blue1Data }} )") {{ match.blueAlliance.teams[0] }}
+								.btn.btn-primary.btn-block(ng-disabled="!match.blue1Data" ng-click="editNotes( match.blue1Data )") {{ match.blueAlliance.teams[0] }}
 							.col-md-4
-								.btn.btn-primary.btn-block(ng-disabled="containsData( {{ match.blue2Data }} )" ng-click="editNotes( {{ match.blue2Data }} )") {{ match.blueAlliance.teams[1] }}
+								.btn.btn-primary.btn-block(ng-disabled="!match.blue2Data" ng-click="editNotes( match.blue2Data )") {{ match.blueAlliance.teams[1] }}
 							.col-md-4
-								.btn.btn-primary.btn-block(ng-disabled="containsData( {{ match.blue3Data }} )" ng-click="editNotes( {{ match.blue3Data }} )") {{ match.blueAlliance.teams[2] }}
+								.btn.btn-primary.btn-block(ng-disabled="!match.blue3Data" ng-click="editNotes( match.blue3Data )") {{ match.blueAlliance.teams[2] }}
 
 		.col-md-2
 			.btn.btn-block.btn-info(ng-click="match.moderated=!match.moderated") Finish Moderation

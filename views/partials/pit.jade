@@ -1,3 +1,10 @@
+
+// success alerts
+#alerts
+	.row
+		.col-sm-12(ng-repeat="alert in alerts")
+			alert(type="alert.type" close="closeAlert($index)" ng-click="closeAlert($index)") {{ alert.msg }}
+
 // general info
 .panel.panel-default
 	.panel-heading General Information
@@ -54,10 +61,11 @@
 				br
 				.row
 					.col-sm-12
-						.btn-group
+						.btn-group.btn-group-justified
 							.btn.btn-lg.btn-primary(btn-checkbox ng-model='generalInfo.shootingRange.far') Far
 							.btn.btn-lg.btn-primary(btn-checkbox ng-model='generalInfo.shootingRange.medium') Medium
 							.btn.btn-lg.btn-primary(btn-checkbox ng-model='generalInfo.shootingRange.near') Near
+							.btn.btn-lg.btn-primary(btn-checkbox ng-model='generalInfo.shootingRange.low') Low Goal
 
 // robot information
 .panel.panel-default
@@ -146,9 +154,6 @@
 		.row
 			.col-sm-12
 				textarea.form-control(rows=col-sm-8 ng-model='notes')
-
-
-	alert(ng-if= type="'danger'" close="closeAlert($index)") {{alert.msg}}
 
 	.panel-footer
 		.btn-sm.btn.btn-lg.btn-success(ng-click="saveData()") Save All
