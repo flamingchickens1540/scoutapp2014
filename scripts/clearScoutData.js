@@ -16,7 +16,7 @@ var Event = mongoose.model('Event');
 var dbName = dbName || 'mockdata2014';
 
 console.log('DBNAME:', dbName);
-//mongoose.connect('localhost', dbName);
+mongoose.connect('localhost', dbName);
 
 TeamMatch.remove().exec(function(err) {
 	if(!err) {
@@ -27,9 +27,11 @@ TeamMatch.remove().exec(function(err) {
 Team.find(function(err,teams) {
 	teams.forEach(function(team) {
 		team.matches = []; 
+		team.pit = {};
+		team.masterNotes = '';
 		team.save(function(err) {
 			if(!err) {
-				'Scout data for team '+ team.id +' removed!'
+				console.log('Scout data for team '+ team.id +' removed!');
 			}
 		});
 	});
@@ -45,7 +47,7 @@ Match.find(function(err, matches) {
 		match.blue3Data = null; 
 		match.save(function(err) {
 			if(!err) {
-				'Scout data for match '+ match.number +' at event '+ match.event +' removed!'
+				console.log('Scout data for match '+ match.number +' at event '+ match.event +' removed!');
 			}
 		});
 	});
