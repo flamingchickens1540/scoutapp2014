@@ -141,6 +141,17 @@ app.controller('ModeratorCtrl', function($scope, $modal, socket, $http, $log, $t
       }
     );
   };
+
+  $scope.openMatchPdf = function(eventId, matchNum) {
+
+    socket.emit('moderator:generate-PDF', { eventId:eventId, matchNum:matchNum }, function(wasSuccess) {
+      if(wasSuccess)
+        window.open('/pdf/'+ eventId +'_'+ matchNum +'.pdf');
+      else
+        alertUser('danger', 'failed to generate PDF');
+    });
+
+  };
   
 });
 

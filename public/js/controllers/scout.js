@@ -52,7 +52,10 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
       playStyles: [],
       goals: {
         high: 0,
-        low: 0
+        highMisses: 0,
+
+        low: 0,
+        lowMisses: 0
       }
     };
 
@@ -66,25 +69,16 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
 
     /***************** TEAMWORK *****************/
     $scope.teamwork = {
-      zones: [],
       receiving: {
         roll: 0,
-        truss: 0,
-        aerial: 0
+        truss: 0
       },
       passing: {
         roll: 0,
-        truss: 0,
-        aerial: 0
-      }
+        truss: 0
+      },
+      humanPass: false
     };
-
-    $scope.teamwork['zones'] = [
-      { name: 'one', action: false },
-      { name: 'two', action: false },
-      { name: 'three', action: false },
-      { name: 'goal', action: false }
-    ];
 
     /***************** ISSUES *****************/
     $scope.issues = {
@@ -104,7 +98,8 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
       ratings: [],
       numStars: 5,
 
-      notes: ''
+      notes: '',
+      currentNotes: ($scope.team || {}).masterNotes || ''
     }; 
 
     $scope.submit['ratings'] = [
@@ -112,7 +107,8 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
       { title: 'shooting', stars: 0 },
       { title: 'passing', stars: 0 },
       { title: 'defense', stars: 0 },
-      { title: 'catching', stars: 0 }
+      { title: 'catching', stars: 0 },
+      { title: 'collecting', stars: 0 }
     ];
   };
 
@@ -208,9 +204,24 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
       $scope.team = team;
       console.log('SET TEAM', team);
 
+      $scope.submit['currentNotes'] = team.masterNotes || '';
+
       $scope.info['team'] = teamId;
     });
   };
+
+  // updates goal with hotgoal
+  $scope.$watch( 'auto.fieldValues.hotgoal', function(newVal, oldVal) {
+    $scope.auto.fieldValues['goal'] += (newVal - oldVal);
+  });
+
+  $scope.$watch( 'issues.ejectionNotes', function(newVal, oldVal) {
+    if ($scope.issues.ejectable == null) $scope.issues.ejectionNotes = '';
+  });
+
+  $scope.$watch( 'issues.deadBrokenNotes', function(newVal, oldVal) {
+    if ($scope.issues.deadBroken == null) $scope.issues.deadBrokenNotes = '';
+  });
 
 // ===== SET INFO ====================================
   var pos = $routeParams.pos;

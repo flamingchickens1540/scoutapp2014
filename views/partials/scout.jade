@@ -111,45 +111,32 @@ header.navbar.navbar-inverse.navbar-fixed-top
 
 		.row
 			.col-offset-2.col-sm-10
-				p.lead.pull-left Goals
+				p.lead.pull-left Goals and Misses
 			.col-sm-6
 				comp-spinner(title="High" type="success btn-lg" ng-model="scoring.goals.high")
 			.col-sm-6
 				comp-spinner(title="Low" type="warning btn-lg" ng-model="scoring.goals.low")
 
+		br
+
+		.row
+			.col-sm-6
+				comp-spinner(title="HiMiss" type="danger btn-lg" ng-model="scoring.goals.highMisses")
+			.col-sm-6
+				comp-spinner(title="LoMiss" type="warning btn-lg" ng-model="scoring.goals.lowMisses")
+
 // Teamwork - passing/receiving
 .panel.panel-default(collapse="collapsed.teamwork")
 	.panel-heading Teamwork
 	.panel-body
-
-		.row
-			.col-offset-2.col-sm-4
-				p.lead Active Zones
-
-			.col-sm-12
-				.btn-group.btn-group-justified
-					.btn.btn-primary.btn-lg(ng-repeat="zone in teamwork.zones track by $index" btn-checkbox ng-model="teamwork.zones[$index].action") Zone - {{zone.name}}
-					
-		//	^ (above) compiles to v (below)
-		//
-			.row
-				.col-sm-12
-					.btn-group.btn-group-justified
-						.btn.btn-primary(btn-checkbox, ng-model="zones[0].action", ng-click="print()") Zone 1
-						.btn.btn-primary(btn-checkbox, ng-model="zones[1].action", ng-click="print()") Zone 2
-						.btn.btn-primary(btn-checkbox, ng-model="zones[2].action", ng-click="print()") Zone 3 
-						.btn.btn-primary(btn-checkbox, ng-model="zones[3].action", ng-click="print()") Goalie Zone 
 		br
 		p.lead.text-center Receiving
 		.row 
 			.col-sm-6
 				comp-spinner(title="Rolling" ng-model="teamwork.receiving.roll" type="warning btn-lg")
 			.col-sm-6
-				comp-spinner(title="Truss" ng-model="teamwork.receiving.truss" type="success btn-lg")
-		br
-		.row
-			.col-sm-6
-				comp-spinner(title="Aerial" ng-model="teamwork.receiving.aerial" type="danger btn-lg")
+				comp-spinner(title="Truss Catch" ng-model="teamwork.receiving.truss" type="success btn-lg")
+
 
 		br
 
@@ -158,11 +145,12 @@ header.navbar.navbar-inverse.navbar-fixed-top
 			.col-sm-6
 				comp-spinner(title="Rolling", ng-model="teamwork.passing.roll" type="warning btn-lg")
 			.col-sm-6
-				comp-spinner(title="Truss" ng-model="teamwork.passing.truss" type="success btn-lg")
+				comp-spinner(title="Truss Throw" ng-model="teamwork.passing.truss" type="success btn-lg")
 		br
 		.row
 			.col-sm-6
-				comp-spinner(title="Aerial" ng-model="teamwork.passing.aerial" type="danger btn-lg")
+				.btn.btn-lg.btn-primary.btn-block(ng-model="teamwork.humanPass" btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false") Successful Human Player Pass ({{ teamwork.humanPass }})
+
 		br
 		br
 		.row
@@ -181,7 +169,7 @@ header.navbar.navbar-inverse.navbar-fixed-top
 				.btn.btn-warning.btn-lg(ng-model="issues.deadBroken" btn-radio="'broken'") Broken
 			input.form-control.input-lg(type="text" ng-model="issues.deadBrokenNotes" placeholder="Dead / No-show / Broken")
 			.input-group-btn
-				.btn.btn-default.btn-lg(ng-model="issues.deadBroken" btn-radio="null")
+				.btn.btn-default.btn-lg(ng-model="issues.deadBroken" btn-radio="null" ng-click="issues.deadBrokenNotes=''")
 					span.glyphicon.glyphicon-remove
 
 		br
@@ -192,7 +180,7 @@ header.navbar.navbar-inverse.navbar-fixed-top
 				.btn.btn-danger.btn-lg(ng-model="issues.ejectable" btn-radio="'stuck'") Stuck
 			input.form-control.input-lg(type="text" ng-model="issues.ejectionNotes" placeholder="If robot is holding ball, what's happening?")
 			.input-group-btn
-				.btn.btn-default.btn-lg(ng-model="issues.ejectable" btn-radio="null")
+				.btn.btn-default.btn-lg(ng-model="issues.ejectable" btn-radio="null" ng-click="issues.ejectionNotes=''")
 					span.glyphicon.glyphicon-remove
 
 // submit match
@@ -205,16 +193,16 @@ header.navbar.navbar-inverse.navbar-fixed-top
 			// repeats this when not even
 			.col-sm-6(ng-repeat-start="rating in submit.ratings track by $index")
 				.row(ng-if="$even")
-					.col-sm-5
+					.col-sm-4
 						h4.pull-left {{rating.title | capitalize}}
-					.col-sm-offset-2.col-sm-5
+					.col-sm-offset-1.col-sm-7
 						rating.stars.pull-right(value="submit.ratings[$index].stars" max="submit.numStars")
 
 			.col-sm-6(ng-repeat-end )
 				.row(ng-if="$odd")
-					.col-sm-5
+					.col-sm-4
 						h4.pull-left {{rating.title | capitalize}}
-					.col-sm-offset-2.col-sm-5
+					.col-sm-offset-1.col-sm-7
 						rating.stars.pull-right(value="submit.ratings[$index].stars" max="submit.numStars")
 		br
 		.row
@@ -222,7 +210,7 @@ header.navbar.navbar-inverse.navbar-fixed-top
 				.col-sm-4
 					p.lead.text-center Current Notes:
 				.col-sm-12
-					textarea.form-control(rows=15 disabled) {{currentNotes}}
+					textarea.form-control(rows=15 disabled) {{ submit.currentNotes }}
 				.col-sm-12
 					// if a robot is dead, there is no need for match notes
 					textarea.form-control(placeholder="Notes..." ng-model="submit.notes" rows=15 ng-disabled="issues.deadBroken === 'dead'" placeholder = "Anything to add?")
