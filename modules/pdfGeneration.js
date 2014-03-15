@@ -77,11 +77,12 @@ module.exports = exports = function genPDF(eventToFind, matchToFind) {
 		drawTitle("Overview: Event "+ eventToFind +", Match " + match.number);
 		drawSectionTitles(redTeams, blueTeams);
 		drawBaseStats(redTeams, blueTeams);
-		//setGraphValues(redTeams, blueTeams);
+		setGraphValues(redTeams, blueTeams);
 		drawGraphs();
 		drawMainLines();
 
-		console.log("PDF generated!");
+		exportPDF("testPDF");
+
 	})
 
 	//.then( function() {process.exit(0);}) 
@@ -173,21 +174,21 @@ var gb1 = {
 	
 		{
 			max: 100,
-			value: 42,
+			value: 0,
 			left: tempLeft1 + ((tempWidth1/4)*1),
 			top: tempTop1,
 			height: 100
 		},
 		{
 			max: 100,
-			value: 25,
+			value: 0,
 			left: tempLeft1 + ((tempWidth1/4)*2),
 			top: tempTop1,
 			height: 100
 		},
 		{
 			max: 100,
-			value: 75,
+			value: 0,
 			left: tempLeft1 + ((tempWidth1/4)*3),
 			top: tempTop1,
 			height: 100
@@ -198,34 +199,27 @@ var gb1 = {
 	
 		{
 			max: 100,
-			value: 99,
+			value: 0,
 			left: tempLeft1 + ((tempWidth1/4)*1),
 			top: tempTop1,
 			height: 100
 		},
 		{
 			max: 100,
-			value: 14,
+			value: 0,
 			left: tempLeft1 + ((tempWidth1/4)*2),
 			top: tempTop1,
 			height: 100
 		},
 		{
 			max: 100,
-			value: 62,
+			value: 0,
 			left: tempLeft1 + ((tempWidth1/4)*3),
 			top: tempTop1,
 			height: 100
 		}
 	]
 };
-
-
-//set the height and y-value.
-for (var h=0; h<=2; h++) {
-	setHeightAndTop(gb1, h);
-}
-
 
 //Graph Box 2 - container for the second graph. Format is identical to gb1.
 
@@ -245,19 +239,19 @@ var gb2 = {
 	autoBars : [
 		{
 			max: 100,
-			value: 13,
+			value: 0,
 			left: tempLeft2 + ((tempWidth2/4)*1),
 			top: tempTop2,
 			height: 100
 		}, {
 			max: 100,
-			value: 84,
+			value: 0,
 			left: tempLeft2 + ((tempWidth2/4)*2),
 			top: tempTop2,
 			height: 100
 		}, {
 			max: 100,
-			value: 52,
+			value: 0,
 			left: tempLeft2 + ((tempWidth2/4)*3),
 			top: tempTop2,
 			height: 100
@@ -267,19 +261,19 @@ var gb2 = {
 	teleBars : [
 		{
 			max: 100,
-			value: 26,
+			value: 0,
 			left: tempLeft2 + ((tempWidth2/4)*1),
 			top: tempTop2,
 			height: 100
 		}, {
 			max: 100,
-			value: 90,
+			value: 0,
 			left: tempLeft2 + ((tempWidth2/4)*2),
 			top: tempTop2,
 			height: 100
 		}, {
 			max: 100,
-			value: 3,
+			value: 0,
 			left: tempLeft2 + ((tempWidth2/4)*3),
 			top: tempTop2,
 			height: 100
@@ -287,10 +281,7 @@ var gb2 = {
 	]
 };
 
-//set the height and y-value.
-for (var h=0; h<=2; h++){
-	setHeightAndTop(gb2, h);
-}
+
 
 //Used for Calculating the height and top point of a bar based on the values that it holds.
 function setHeightAndTop(graphBox, b){
@@ -311,71 +302,57 @@ function setGraphValues(redTeams, blueTeams){
 		var scoutData = {
 			high: 0,
 			highTotal: 0,
-			highRatio: 0.0,
 
-			pass: 0,
-			passTotal: 0,
-			passRatio: 0.0,
+			auto: 0,
+			autoTotal: 0
 
-			trussPasses: 0,
-			totalTrussPasses: 0,
-			trussRatio: 0.0
+
+
 		};
 
 		_.each( matches, function(teamMatch) {
 			var data = teamMatch.data;
 
-			scoutData.highTotal += data.scoring.goals.high; //+ data.scoring.goals.highMiss;
+			scoutData.highTotal += (data.scoring.goals.high + data.scoring.goals.highMisses);
 			scoutData.high += data.scoring.goals.high;
 
-			scoutData.pass += data.teamwork.passing.roll + data.teamwork.passing.aerial //+ data.teamwork.passing.aerialMisses + data.teamwork.passing.rollMisses;
-			scoutData.passTotal += data.teamwork.passing.roll + data.teamwork.passing.aerial;
+			scoutData.autoTotal += (data.auto.fieldValues.goal + data.auto.fieldValues.miss);
+			scoutData.auto += data.auto.fieldValues.goal;
 
-			scoutData.trussPasses += data.teamwork.passing.truss;
-			scoutData.totalTrussPasses += data.teamwork.passing.truss; //+ data.teamwork.passing.trussMisses;
+			
 		});
 
-		gb1.teleBars[index] = scoutData.high/scoutData.highTotal;
-		console.log(scoutData.high/scoutData.highTotal);
+
+
+		if (scoutData.highTotal > 0){
+
+			gb1.teleBars[index].max = 1;
+			gb1.teleBars[index].value = scoutData.high/scoutData.highTotal;
+		}
+
+		if (scoutData.autoTotal > 0){
+
+			gb1.autoBars[index].max = 1;
+			gb1.autoBars[index].value = scoutData.auto/scoutData.autoTotal;
+		}
+
+
 
 	});
 
-		_.each( blueTeams, function(team, index) {
 
-		// SCOUTING DATA
-		var matches = team.matches || [];
 
-		var scoutData = {
-			high: 0,
-			highTotal: 0,
-			highRatio: 0.0,
 
-			pass: 0,
-			passTotal: 0,
-			passRatio: 0.0,
 
-			trussPasses: 0,
-			totalTrussPasses: 0,
-			trussRatio: 0.0
-		};
+		//set the height and y-value.
+	for (var h=0; h<=2; h++){
+		setHeightAndTop(gb2, h);
+	}
 
-		_.each( matches, function(teamMatch) {
-			var data = teamMatch.data;
-
-			scoutData.highTotal += data.scoring.goals.high; //+ data.scoring.goals.highMiss;
-			scoutData.high += data.scoring.goals.high;
-
-			scoutData.pass += data.teamwork.passing.roll + data.teamwork.passing.aerial //+ data.teamwork.passing.aerialMisses + data.teamwork.passing.rollMisses;
-			scoutData.passTotal += data.teamwork.passing.roll + data.teamwork.passing.aerial;
-
-			scoutData.trussPasses += data.teamwork.passing.truss;
-			scoutData.totalTrussPasses += data.teamwork.passing.truss; //+ data.teamwork.passing.trussMisses;
-		});
-
-		gb2.teleBars[index] = scoutData.high/scoutData.highTotal;
-		console.log(scoutData.high/scoutData.highTotal || 3);
-
-	});
+	//set the height and y-value.
+	for (var h=0; h<=2; h++) {
+		setHeightAndTop(gb1, h);
+	}
 
 }
 
@@ -706,7 +683,9 @@ _.each( blueTeams, function(team, index) {
 
 //Writes the PDF in the public/pdf folder
 function exportPDF(name) {
-	doc.write('public/pdf/'+name+'.pdf', function(err) {console.log(err)});
+	doc.write('public/pdf/'+name+'.pdf', function(err) {console.log("Error: " + err)});
+
+	console.log("PDF exported!");
 }
 
 // make a new pdf
