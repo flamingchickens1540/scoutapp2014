@@ -148,6 +148,25 @@ db.getTeamMatch = function(eventId, matchNum, teamId) {
 	});
 };
 
+db.teamMatchExists = function(eventId, matchNum, teamId) {
+	return convertToQPromise(
+		TeamMatch.findOne({ match:matchNum, team:teamId, event:eventId }) 
+		.exec()
+	)
+
+	.then( function testForNullValues(teamMatch) {
+		console.log(teamMatch);
+
+		// null values are errors
+		if( _.isNull(teamMatch) ) return false;
+		return true;
+	})
+
+	.catch(function(err) {
+		console.log(err);
+	});
+};
+
 db.newUnsavedTeamMatch = function(info ) {
 	return convertToQPromise(
 		Match.find({})
