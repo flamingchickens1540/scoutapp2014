@@ -3,15 +3,9 @@
 		.btn-group.btn-group-justified
 			.btn(class="btn-{{type}}" ng-click=" changeValue(-1) ")
 				span.glyphicon.glyphicon-arrow-down
-			.btn.btn-default {{title | capitalize}} - ({{value}})
+			.btn.btn-default
+				h3.pull-left {{title | capitalize}} 
+				span.badge.pull-right 
+					h4 {{value}}
 			.btn(class="btn-{{type}}" ng-click=" changeValue(1) ")
 				span.glyphicon.glyphicon-arrow-up
-
-//-
-	p.lead.text-center {{title}}
-
-	.row
-		.col-sm-12
-			.btn-group.btn-group-justified	
-				.btn.btn-lg(ng-repeat-start="(title, btn) in itemsToTrack track by $index", class="btn-{{btn.type}}",ng-click=" changeValue( '{{title}}' ) ") {{title | capitalize}} - ({{btn.value}})
-				.btn.btn-lg(ng-repeat-end, class="btn-{{btn.type}}",ng-click=" undoValue( '{{title}}' ) ") Undo {{title | capitalize}}
