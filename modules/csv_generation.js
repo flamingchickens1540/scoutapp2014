@@ -79,15 +79,62 @@ fs.writeFile('./matches.txt', scoutHeaderString, function (err) {
 });
 
 db.getTeamsAtEvent("casb")
+.then(function pitData(teams) {
+	console.log(teams);
+
+	_.each(teams, function(team) {
+		var pitData = team.pit;
+
+		console.log(team.id, pitData);
+
+		if (pitData.general == undefined)
+			return;
+		// CSV GENERATION STUFF
+		else {
+			var pitInfo = [];
+			pitInfo.push(pitData.teamId);
+			console.log(pitData.general);
+			pitInfo.push(pitData.general.wheel.wheelL1);
+			pitInfo.push(pitData.general.wheel.wheelR1);
+			pitInfo.push(pitData.general.wheel.wheelL2);
+			pitInfo.push(pitData.general.wheel.wheelR2);
+			pitInfo.push(pitData.general.wheel.wheelL3);
+			pitInfo.push(pitData.general.wheel.wheelR3);
+			pitInfo.push(pitData.general.wheelNotes);
+			pitInfo.push(pitData.general.robotHeight);
+			pitInfo.push(pitData.general.shifting);
+			pitInfo.push(pitData.robot.minShoot);
+			pitInfo.push(pitData.robot.maxShoot);
+			pitInfo.push(pitData.robot.shooterType);
+			pitInfo.push(pitData.robot.collectorType);
+			pitInfo.push(pitData.robot.catchable);
+			pitInfo.push(pitData.robot.playstyle);
+			pitInfo.push(pitData.robot.disabledPlan);
+			pitInfo.push(pitData.auto.dfAuto);
+			pitInfo.push(pitData.auto.autoBalls);
+			pitInfo.push(pitData.auto.hotRecog);
+			pitInfo.push(pitData.auto.startPosition);
+			pitInfo.push(pitData.notes);
+		}
+
+		var pitLine = pitInfo.join(',');
+		console.log(pitLine);
+
+		fs.writeFile('pit.txt', pitLine, function (err) {
+		  if (err) throw err;
+		  console.log('It\'s saved!');
+		});
+	});
+})
 .then(function scoutData(teamMatches) {
 	_.each(teamMatches, function(teamMatch) {
-		var scoutData = team_match.data;
-		var teamData = team_match;
+		var scoutData = teamMatch.data;
+		var teamData = teamMatch;
 
 		//MORE CSV GENERATION STUFF
 		var scoutInfo = [];
-		scoutInfo.push(team_match.match);
-		scoutInfo.push(team_match.team);
+		scoutInfo.push(teamMatch.match);
+		scoutInfo.push(teamMatch.team);
 		scoutInfo.push(scoutData.auto.startPosition);
 		scoutInfo.push(scoutData.auto.drivesForward);		
 		scoutInfo.push(scoutData.auto.fieldValues.goal);
@@ -127,45 +174,6 @@ db.getTeamsAtEvent("casb")
 		  console.log('It\'s saved!');
 		});
 	})
-})
-
-.then(function pitData(teams) {
-	_.each(teams, function(team) {
-		var pitData = team.pit;
-
-		// CSV GENERATION STUFF
-		var pitInfo = [];
-		pitInfo.push(pitData.general.teamNumber);
-		pitInfo.push(pitData.general.wheelL1);
-		pitInfo.push(pitData.general.wheelR1);
-		pitInfo.push(pitData.general.wheelL2);
-		pitInfo.push(pitData.general.wheelR2);
-		pitInfo.push(pitData.general.wheelL3);
-		pitInfo.push(pitData.general.wheelR3);
-		pitInfo.push(pitData.general.wheelNotes);
-		pitInfo.push(pitData.general.robotHeight);
-		pitInfo.push(pitData.general.shifting);
-		pitInfo.push(pitData.robot.minShoot);
-		pitInfo.push(pitData.robot.maxShoot);
-		pitInfo.push(pitData.robot.shooterType);
-		pitInfo.push(pitData.robot.collectorType);
-		pitInfo.push(pitData.robot.catchable);
-		pitInfo.push(pitData.robot.playstyle);
-		pitInfo.push(pitData.robot.disabledPlan);
-		pitInfo.push(pitData.auto.dfAuto);
-		pitInfo.push(pitData.auto.autoBalls);
-		pitInfo.push(pitData.auto.hotRecog);
-		pitInfo.push(pitData.auto.startPosition);
-		pitInfo.push(pitData.notes);
-
-		var pitLine = pitInfo.join(',');
-		console.log(pitLine);
-
-		fs.writeFile('pit.txt', pitLine, function (err) {
-		  if (err) throw err;
-		  console.log('It\'s saved!');
-		});
-	});
 })
 .catch(function errHandler(err) {
 	console.error(err);
