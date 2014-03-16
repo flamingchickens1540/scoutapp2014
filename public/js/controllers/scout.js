@@ -277,20 +277,20 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
 
       $log.log(submitData);
 
-      submitData.success( function(wasSaved) {
-        $log.log( 'WAS SAVED?', wasSaved );
+      submitData.success( function(data, status, headers, config) {
+        $log.log( 'WAS SAVED?', data, status, headers, config);
 
-        if(wasSaved) {
+        if(data.wasSaved) {
           alertUser('success', 'Successfully submitted data for team '+ $scope.info.team +' in match '+ $scope.info.matchNum);
           resetScout( $scope.info.matchNum ); // since matches start from 1, anf indexes start from 0, there is no matchNum+1
         }
         else {
-          alertUser('danger', 'did not save properly, some error happened on the server');
+          alertUser('danger', 'did not save properly. ERR: '+ data.err);
         }
       });
 
       submitData.error( function(data, status, headers, config) {
-        $log.log('Error!', data, status, headers);
+        alertUser('danger', 'Failed to save to the server, please try again. ERR: '+ data.err)
       });
 
     }
@@ -319,7 +319,6 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
 
       Submit:
         if deadBroken is not dead, ratings
-
     */
     var verified = true;
     var errLog = [];

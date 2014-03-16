@@ -23,11 +23,7 @@ var generatePDF = require('./modules/pdfGeneration.js');
 // connect to database
 db.connect('mockdata2014');
 
-/**
- * Configuration
- */
-
-// all environments
+// CONFIGURATION
 app.set('port', process.env.PORT || 8000);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -36,6 +32,7 @@ app.use(express.bodyParser());
 app.use(express.json());
 app.use(express.favicon());
 app.use(express.urlencoded());
+app.use(express.compress());
 app.use(express.methodOverride());
 app.use(require('stylus').middleware(__dirname + '/public'));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -51,7 +48,6 @@ if (app.get('env') === 'development') {
 
 // serve index and view partials
 app.get('/', function(req, res) {
-  io.sockets.emit('test', 'test');
   res.render('index', { title:'1540 Scouting 2014' });
 });
 
@@ -63,10 +59,9 @@ app.post('/submit/:dest', function(req, res) {
   dataRouter.collect(submitTo, data, function(err, savedTo, otherData) {
     var isSaved = false;
 
-    console.log('OTHER DATA', otherData);
-
     if(!err) {
       if( savedTo == 'match' ) {
+        // otherData is teamMatch
         var teamMatch = otherData;
         isSaved = true;
         // emit event
@@ -76,10 +71,12 @@ app.post('/submit/:dest', function(req, res) {
         isSaved = true;
       }
 
-      res.send(isSaved);
+      console.log('SAVED================',isSaved);
+      res.send(200, { wasSaved:isSaved });
     }
     else {
-      res.send(err);
+      console.error('ERROR in submission',err)
+      res.send(200, { err:err.message, wasSaved:isSaved });
     }
   });
 });

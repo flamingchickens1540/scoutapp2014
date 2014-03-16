@@ -34,33 +34,43 @@ dataPathways['matchData'] = function(data, callback) {
 
 	var getTeam = db.getTeam( info.team );
 
+	var teamMatchExists = db.teamMatchExists( info.event, info.matchNum, info.team );
 
-	q.all([ getMatch, getTeam ]) 
-	.spread( function createAndSaveTeamMatch( match, team ) {
+	q.all([ getMatch, getTeam, teamMatchExists ]) 
+	.spread( function createAndSaveTeamMatch( match, team, teamMatchExists ) {
 
-		var teamMatch = new TeamMatch();
+		console.log('EXISTS: '+match.number+' '+team.id, teamMatchExists);
 
-		teamMatch['team'] = team.id;
-		teamMatch['match'] = match.number;
-		teamMatch['event'] = info.event;
-		teamMatch['scout'] = info.scout;
-		teamMatch['posNum'] = info.posNum;
-		teamMatch['color'] = info.color;
-		teamMatch['data'] = {
-			'auto': auto,
-			'scoring': scoring,
-			'teamwork': teamwork,
-			'issues': issues,
-			'submit': submit
-		};
+		// check if it exists
+		if( !teamMatchExists ) {
+			var teamMatch = new TeamMatch();
 
-		// returns a new promise to keep the chain going
-		// passes all models to the function that saves teamMatch to match and team
-		return { 
-			teamMatch:teamMatch, 
-			match:match, 
-			team:team 
-		};
+			teamMatch['team'] = team.id;
+			teamMatch['match'] = match.number;
+			teamMatch['event'] = info.event;
+			teamMatch['scout'] = info.scout;
+			teamMatch['posNum'] = info.posNum;
+			teamMatch['color'] = info.color;
+			teamMatch['data'] = {
+				'auto': auto,
+				'scoring': scoring,
+				'teamwork': teamwork,
+				'issues': issues,
+				'submit': submit
+			};
+
+			// returns a new promise to keep the chain going
+			// passes all models to the function that saves teamMatch to match and team
+			return { 
+				teamMatch:teamMatch, 
+				match:match, 
+				team:team 
+			};
+		}
+
+		else {
+			throw new Error('Team Match for '+ team.id +', '+ match.number +' already exists')
+		}
 	})
 
 	.then( function saveTeamMatchToOtherDocuments(models) {
@@ -92,8 +102,7 @@ dataPathways['matchData'] = function(data, callback) {
 	})
 
 	.catch( function saveMatchDataErrHandler(err) {
-		callback(err, null);
-		// delete the teamMatch
+		callback(err, null , null);
 	});
 };
 
