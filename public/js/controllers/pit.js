@@ -7,6 +7,15 @@ var app = angular.module('ctrl.pit', [
 app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket, $timeout) {
   var fs = fileSystem;
 
+  // notifications
+  var alertUser = function(type, message) {
+    $scope.alerts.push({ type:type || 'info', msg:message });
+    $timeout( function() {
+      // doesn't take into account multiple coming in every few seconds
+      $scope.alerts.shift(); // removes first item in alerts
+    }, 5000);
+  };
+
   fs.createFolder('pit')
 
     .then(function(test) {
@@ -204,14 +213,9 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket, 
       .then( function(granted) {
         console.log('Saved '+ teamId +".json", JSON.stringify(pitData));
 
-        $scope.alerts.push({ type:'success', msg:'Successfully saved team '+ teamId +'\'s pit data.' });
+        alertUser('success', 'Successfully saved team '+ teamId +'\'s pit data.');
 
-        $timeout(function() {
-          // reset
-          reset();
-          // empty alerts
-          $scope.alerts = [];
-        }, 5000);
+        reset();
 
         fs.readFile('pit/'+ teamId +'.json').then(function(file) {console.log(JSON.parse(file))});
 
@@ -220,14 +224,14 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket, 
       
       .catch( function errHandler(err) {
         console.log(err);
-        $scope.alerts.push({ type:'danger', msg:err.message });
+        alertUser( 'danger', err.message );
       });
 
     }
 
     else {
-      angular.forEach( verified.errLog, function(err) {
-        $scope.alerts.push({ type:'danger', msg:err });
+      angular.forEach( verified.errLog, function(errMsg) {
+        alertUser( 'danger', errMsg );
       });
 
     }
@@ -348,13 +352,8 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket, 
       .success( function(data, status, headers, config) {
         console.log(data, status, headers, config);
         if(status == 200) {
-          $scope.alerts.push({ type:'success', msg:'Saved to server' });
+          alertUser( 'success', 'Saved to server' )
 
-          $timeout(function() {
-            console.log('TEST TIMEOUT')
-            // empty alerts
-            $scope.alerts = [];
-          }, 5000);
         }
         else {
           return new Error('bad request');

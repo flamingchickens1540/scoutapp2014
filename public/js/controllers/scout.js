@@ -336,7 +336,8 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
       errLog.push('Match information is not complete.');
     }
 
-    if(!$scope.auto.startPosition) {
+    // no-shows can't have a start position
+    if(!$scope.auto.startPosition && $scope.issues.deadBroken != 'dead') {
       verified = false;
       errLog.push('Please input a start position under autonomous.');
     }

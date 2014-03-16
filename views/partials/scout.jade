@@ -69,7 +69,9 @@ header.navbar.navbar-inverse.navbar-fixed-top
 					br
 					.row
 						.col-sm-8.col-sm-offset-2
-							.btn.btn-success.btn-block.btn-lg(ng-model="auto.drivesForward" btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false") Drives Forward? ({{auto.drivesForward}})
+							.btn.btn-success.btn-block.btn-lg(ng-model="auto.drivesForward" btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false") Drives Forward?
+								span.glyphicon.glyphicon-ok.pull-right(ng-if="auto.drivesForward")
+								span.glyphicon.glyphicon-remove.pull-right(ng-if="!auto.drivesForward")
 					br
 					.row
 						.col-sm-6
@@ -123,9 +125,9 @@ header.navbar.navbar-inverse.navbar-fixed-top
 
 		.row
 			.col-sm-6
-				comp-spinner(title="High Miss" type="danger btn-lg" ng-model="scoring.goals.highMisses")
+				comp-spinner(title="Hi-Miss" type="danger btn-lg" ng-model="scoring.goals.highMisses")
 			.col-sm-6
-				comp-spinner(title="Low Miss" type="warning btn-lg" ng-model="scoring.goals.lowMisses")
+				comp-spinner(title="Lo-Miss" type="warning btn-lg" ng-model="scoring.goals.lowMisses")
 
 // Teamwork - passing/receiving
 .panel.panel-default(collapse="collapsed.teamwork")
