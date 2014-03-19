@@ -234,4 +234,4 @@ doc.moveTo(box.left, (box.top+480)).lineTo(box.left+box.width, box.top+480).stro
 
 
 
-doc.write('teamPageTest.pdf');
+doc.write('public/pdf/teamPageTest.pdf', function() {});
