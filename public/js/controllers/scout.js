@@ -116,9 +116,45 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
 
     /* LISTS */
   $scope.scouts = [
-    'Ben Balden',
+    'Adolfo Apolloni',
+    'Alexandra Crew',
+    'Andie Becker',
     'Anna Dodson',
-    'Ian Hoyt'
+    'Ben Balden',
+    'Calissa Spooner',
+    'Conner Hansen',
+    'David Vollum',
+    'Elliot Lewis',
+    'Evan Chapman',
+    'Evë Maquelin',
+    'Gregor Peach',
+    'Hamzah Khan',
+    'Holly Sauer',
+    'Ian Hoyt',
+    'Iman Wahle',
+    'Iris Ellenberg',
+    'Jacob Bendicksen',
+    'Jacob Siegel',
+    'Jake Hansen',
+    'Jasper Gordon',
+    'Josephine Evans',
+    'Jules Renaud',
+    'Kellie Takahashi',
+    'Liam Wynne',
+    'Lukas Stracovsky',
+    'Maria Chang',
+    'Max Armstrong',
+    'Max Luu',
+    'Mind Tienpasertkij',
+    'Peter Smith',
+    'Robin Attey',
+    'Rushdi Abualhaija',
+    'Ryan Selden,'
+    'Tristan Furnary',
+    'Tyler Riddle',
+    'Vincent Miller'
+    'Y Yen Gallup',
+    'Zach Alan'
   ];
 
   $scope.events = [
