@@ -21,7 +21,7 @@ var Event = mongoose.model('Event');
 var tba = require('thebluealliance')('hamzah','1540scouting','0.0.1');
 
 // use command line args or defaults
-var eventId = eventId || 'casb';
+var eventId = eventId || 'orore';
 var year = year || (new Date()).getFullYear();
 var dbName = dbName || 'mockdata2014';
 
@@ -29,6 +29,7 @@ console.log('DBNAME:', dbName);
 mongoose.connect('localhost', dbName);
 
 // remove all current models => use promises
+// not done yet
 
 var models = {};
 // hold the created models
@@ -146,7 +147,7 @@ q.all( [ createEvent, createAllTeams, createAllMatches ] )
 	function catchGetEventError(err) {
 		console.log('ERR: '+ err);
 		console.log('\nShutting down...');
-		process.exit(1);
+		//process.exit(1);
 	}
 
 );

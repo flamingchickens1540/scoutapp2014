@@ -23,8 +23,10 @@ app.controller('ModeratorCtrl', function($scope, $modal, socket, $http, $log, $t
 
 // ===== DATA =============================================
   $scope.events = [
-    { name:'PNW District Champs', value:'orpo' },
-    { name:'Inland Empire Regional', value:'casb' }
+    { name: 'Autodesk Oregon Regional', value: 'orpo', region: 'Regionals' },
+    { name: 'Wilsonville District', value: 'orwil', region: 'PNW' },
+    { name: 'Oregon City District', value: 'orore', region: 'PNW' },
+    { name: 'Inland Empire Regional', value:'casb', region:'Regionals' }
   ];
 
 // ===== WATCHER FUNCTIONS ====================================
