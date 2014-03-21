@@ -54,9 +54,29 @@ db.getTeam = db.getTeamById = function(teamId) {
 
 	.then( function testForNullValues(team) {
 		// null values are errors
-		if( _.isNull(team) || _.isUndefined(team) ) return new Error('can not find team '+ teamId);
+		if( _.isUndefined(team) ) return new Error('can not find team '+ teamId);
 		return team;
 	});
+};
+
+db.newTeam = function(id, name, events) {
+	db.getTeam(id)
+	.then(function(team) {
+		if( !_.isNull(team) ) {
+			var team = new Team();
+
+			team.id = id;
+			team.name = name;
+			team.events = events;
+
+			return q.ninvoke(team, 'save');
+		}
+	})
+
+	.then(function(err) {
+		if(!err) console.log('new team '+ id + 'created');
+		else console.log('new team '+ id + ' not created');
+	}); 
 };
 
 db.getTeams = db.getTeamsById = function(teamIdArray) {
@@ -77,6 +97,20 @@ db.getTeams = db.getTeamsById = function(teamIdArray) {
 	}))
 
 	.then( function handleTeams(teams) {
+		return teams;
+	});
+};
+
+db.getTeamsAtEvent = function(eventId) {
+	return convertToQPromise(
+		Team.find({ events:eventId }) // events array contains eventId
+		.populate('matches')
+		.exec()
+	)
+
+	.then( function testForNullValues(teams) {
+		// null values are errors
+		if( _.isNull(teams) || _.isEmpty(teams) ) return new Error('can not find teams at event '+ eventId);
 		return teams;
 	});
 };
@@ -115,17 +149,17 @@ db.getMatchesAtEvent = function(eventId) {
 /********************************************
 ***************  TEAM_MATCH  ****************
 ********************************************/
-db.getTeamsAtEvent = function(eventId) {
+db.getTeamMatchesAtEvent = function(eventId) {
 	return convertToQPromise(
-		Team.find({ events:eventId }) // events array contains eventId
+		TeamMatch.find({ event:eventId }) // events array contains eventId
 		.populate('matches')
 		.exec()
 	)
 
-	.then( function testForNullValues(teams) {
+	.then( function testForNullValues(teamMatches) {
 		// null values are errors
-		if( _.isNull(teams) || _.isEmpty(teams) ) return new Error('can not find teams at event '+ eventId);
-		return teams;
+		if( _.isNull(teams) || _.isEmpty(teams) ) return new Error('can not find teamMatches at event '+ eventId);
+		return teamMatches;
 	});
 };
 
