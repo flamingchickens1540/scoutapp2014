@@ -9,8 +9,10 @@ require('./../db_modules/models/team_match.js');
 var q = require('q');
 db = require('./db_api.js');
 
+//db.connect();
+
 var PDFDocument = require('pdfkit');
-var doc = new PDFDocument();
+var doc;
 
 //Arrays of team numbers, default of 0 for all.
 	var redTeams = [0,0,0];
@@ -34,12 +36,15 @@ module.exports = exports = function genPDF(eventToFind, matchToFind) {
 	eventToFind = eventToFind || "casb";
 	matchToFind = matchToFind || 3;
 
+	doc = new PDFDocument();
 
 	// get match
 	return db.getMatch(eventToFind, matchToFind) //.then is called once db.getMatch returns the info.
-	
+
 	// set match info and pass it on
 	.then(function setMatchInfo(match){
+
+		console.log('test')
 
 		console.log('MATCH', match);
 
@@ -81,7 +86,7 @@ module.exports = exports = function genPDF(eventToFind, matchToFind) {
 		drawGraphs();
 		drawMainLines();
 
-		exportPDF("testPDF");
+		exportPDF(eventToFind+"_"+matchToFind);
 
 	})
 
@@ -292,9 +297,9 @@ function setHeightAndTop(graphBox, b){
 	graphBox.autoBars[b].top = ((graphBox.top+gb1.height-10)-graphBox.autoBars[b].height);
 }
 
-function setGraphValues(redTeams, blueTeams){
+function setGraphValues(redTeams, blueTeams) {
 
-		_.each(redTeams, function(team, index) {
+	_.each(redTeams, function(team, index) {
 
 		// SCOUTING DATA
 		var matches = team.matches || [];
@@ -335,15 +340,7 @@ function setGraphValues(redTeams, blueTeams){
 			gb1.autoBars[index].max = 1;
 			gb1.autoBars[index].value = scoutData.auto/scoutData.autoTotal;
 		}
-
-
-
 	});
-
-
-
-
-
 		//set the height and y-value.
 	for (var h=0; h<=2; h++){
 		setHeightAndTop(gb2, h);
@@ -353,7 +350,6 @@ function setGraphValues(redTeams, blueTeams){
 	for (var h=0; h<=2; h++) {
 		setHeightAndTop(gb1, h);
 	}
-
 }
 
 //Draws the graphs.
@@ -364,13 +360,13 @@ function drawGraphs() {
 		doc.fill('red');
 		doc.fontSize(10);
 
-//tele-op bars
+	//tele-op bars
 		doc.rect(gb1.teleBars[b].left-(gb1.barWidth/3)+16, gb1.teleBars[b].top+1, 15, gb1.teleBars[b].height)
 			.fill('black');
 		doc.rect(gb1.teleBars[b].left-(gb1.barWidth/3)+15, gb1.teleBars[b].top, 15, gb1.teleBars[b].height)
 			.fill('#1D1AB2');
 
-//auto bars
+	//auto bars
 		doc.rect(gb1.autoBars[b].left-(gb1.barWidth/3)+1, gb1.autoBars[b].top+1, 15, gb1.autoBars[b].height)
 			.fill('black');
 		doc.rect(gb1.autoBars[b].left-(gb1.barWidth/3), gb1.autoBars[b].top, 15, gb1.autoBars[b].height)
@@ -492,17 +488,6 @@ function drawSectionTitles(redT, blueT) {
 	}
 };
 
-
-//A basic format that makes is a lot easier to set the location of each team's attributes.
-var baseStats = [
-	{ n:0, string:"Play Style: "		, align:"left" 	}, 
-	{ n:1, string:"Active Zones: "	, align:"left" 	}, 
-	{ n:2, string:"High Goals: "		, align:"left" 	}, 
-	{ n:2, string:"Low Goals: "			, align:"right"	},
-	{ n:3, string:"Passes Made: "		, align:"left" 	},
-	{ n:3, string:"Recieves Made: "	, align:"right"	},
-	{ n:4, string:"Issues: "				, align:"left" 	}
-];
 
 
 // === FILL IN DATA =====================================================
@@ -654,38 +639,13 @@ _.each( blueTeams, function(team, index) {
 		doc.fontSize(12);
 
 
-
-	/*_.each( blueTeams, function(team) {
-			for(var o=0; o<baseStats.length; o++) {
-				for (var i=0; i<=2; i++){
-					//Blue Stats:
-					doc.text(baseStats[o].string, box.left+25+(box.width/2), box.top+top_margin+box.os + (i*box.tabHeight), {
-					 	width: 225,
-					 	align: baseStats[o].align
-					});
-				}
-			}
-	});*/
-
-	/*for (var o=0; o<baseStats.length; o++){
-
-		for (var i=0; i<=2; i++){
-			//Blue Stats:
-			doc.text(baseStats[o].string, box.left+25+(box.width/2), box.top+top_margin+((baseStats[o].n)*spacing)+box.os + (i*box.tabHeight), {
-			 width: 225,
-			 align: baseStats[o].align
-			});
-		}
-	}*/
 }
 
 // === SAVE NEW PDF =====================================================
 
 //Writes the PDF in the public/pdf folder
 function exportPDF(name) {
-	doc.write('public/pdf/'+name+'.pdf', function(err) {console.log("Error: " + err)});
-
-	console.log("PDF exported!");
+	doc.write('public/pdf/'+name+'.pdf', function(err) {console.log("PDF exported!");console.log("Error: " + err)});
 }
 
 // make a new pdf
