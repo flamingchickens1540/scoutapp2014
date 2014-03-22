@@ -17,7 +17,7 @@ h2.text-center Team Picklist
     .well.text-center.overflow
       ul
         li
-          .list(ng-repeat="(teamId, team) in firstPicks" ng-style="team.style" ng-click="viewTeamInfo({{teamId}})")
+          .list(ng-repeat="(teamId, team) in firstPicks" ng-style="team.style" ng-click="viewFirstTeamInfo({{teamId}})")
             h5.text-center {{teamId}} : {{team.name}}
                   
         // Team Info with second pick teams
@@ -28,13 +28,18 @@ h2.text-center Team Picklist
       .row
         .col-sm-6.text-center Team Info
           .well
-            h5.pull-left {{ currentNotes }}
+            .row
+              .col-sm-12
+                h4.pull-left {{ displayInfo }}
+              br
+              .col-sm-12
+                h5.pull-left {{ currentNotes }}
 
 
         .col-sm-6.text-center 2nd Pick Teams
           .well.text-center
             ul
               li
-                .list(ng-repeat="team in secondPicks" ng-style="team.style")
+                .list(ng-repeat="team in secondPicks" ng-click="viewSecondTeamInfo({{team.id}})" ng-style="team.style")
                   h5.text-center {{ team.id }} - {{ team.name }}
 

@@ -149,10 +149,10 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
     'Peter Smith',
     'Robin Attey',
     'Rushdi Abualhaija',
-    'Ryan Selden,'
+    'Ryan Selden',
     'Tristan Furnary',
     'Tyler Riddle',
-    'Vincent Miller'
+    'Vincent Miller',
     'Y Yen Gallup',
     'Zach Alan'
   ];

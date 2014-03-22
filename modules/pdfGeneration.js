@@ -9,7 +9,7 @@ require('./../db_modules/models/team_match.js');
 var q = require('q');
 db = require('./db_api.js');
 
-//db.connect();
+//db.connect('wilsonville2014');
 
 var PDFDocument = require('pdfkit');
 var doc;
@@ -33,7 +33,7 @@ var doc;
 
 module.exports = exports = function genPDF(eventToFind, matchToFind) {
 
-	eventToFind = eventToFind || "casb";
+	eventToFind = eventToFind || "orwil";
 	matchToFind = matchToFind || 3;
 
 	doc = new PDFDocument();
@@ -86,8 +86,48 @@ module.exports = exports = function genPDF(eventToFind, matchToFind) {
 		drawGraphs();
 		drawMainLines();
 
-		exportPDF(eventToFind+"_"+matchToFind);
+		data.doc = doc;
+		return data;
+	})
 
+	.then( function otherPages(data) {
+		var doc = data.doc;
+		var redTeams = data.redTeams;
+		var blueTeams = data.blueTeams;
+
+		_.each( redTeams, function(team) {
+			doc.addPage()
+				.fill('red')
+
+				.fontSize(20)
+				.text('Pit Notes for Team '+ team.id +', '+ team.name +':')
+				.fontSize(14)
+				.text(team.pit.notes || 'no notes yet')
+
+				.fontSize(20)
+				.text('Scout Notes for Team '+ team.id +', '+ team.name +':')
+				.fontSize(14)
+				.text(team.masterNotes || 'no notes yet');
+
+		});
+
+		_.each( blueTeams, function(team) {
+			doc.addPage()
+				.fill('blue')
+
+				.fontSize(20)
+				.text('Pit Notes for Team '+ team.id +', '+ team.name +':')
+				.fontSize(14)
+				.text(team.pit.notes || 'no notes yet')
+
+				.fontSize(20)
+				.text('Scout Notes for Team '+ team.id +', '+ team.name +':')
+				.fontSize(14)
+				.text(team.masterNotes || 'no notes yet');
+
+		});
+
+		exportPDF(eventToFind+"_"+matchToFind);
 	})
 
 	//.then( function() {process.exit(0);}) 
@@ -529,6 +569,10 @@ function drawBaseStats(redTeams, blueTeams) {
 			highTotal: 0,
 			highRatio: 0.0,
 
+			low: 0,
+			lowTotal: 0,
+			lowRatio: 0.0,
+
 			pass: 0,
 			passTotal: 0,
 			passRatio: 0.0,
@@ -541,8 +585,11 @@ function drawBaseStats(redTeams, blueTeams) {
 		_.each( matches, function(teamMatch) {
 			var data = teamMatch.data;
 
-			scoutData.highTotal += data.scoring.goals.high; //+ data.scoring.goals.highMiss;
+			scoutData.highTotal += (data.scoring.goals.high + data.scoring.goals.highMisses);
 			scoutData.high += data.scoring.goals.high;
+
+			scoutData.lowTotal += (data.scoring.goals.low + data.scoring.goals.lowMisses);
+			scoutData.low += data.scoring.goals.low;
 
 			scoutData.pass += data.teamwork.passing.roll + data.teamwork.passing.aerial //+ data.teamwork.passing.aerialMisses + data.teamwork.passing.rollMisses;
 			scoutData.passTotal += data.teamwork.passing.roll + data.teamwork.passing.aerial;
@@ -551,12 +598,13 @@ function drawBaseStats(redTeams, blueTeams) {
 			scoutData.totalTrussPasses += data.teamwork.passing.truss; //+ data.teamwork.passing.trussMisses;
 		});
 
+		scoutData.lowRatio = scoutData.low +'/'+ scoutData.lowTotal;
 		scoutData.highRatio = scoutData.high +'/'+ scoutData.highTotal;
 		scoutData.passRatio = scoutData.pass+'/'+scoutData.passTotal;
 		scoutData.trussRatio = scoutData.trussPasses+'/'+scoutData.totalTrussPasses;
 
 
-
+		console.log('stuff =======\n\n')
 
 		doc.fontSize(10);
 		doc.text("Play Style: "+ ((((team.pit || {}).robot || {}).playstyle) || 'No pit data for Play Style'), box.left+25, box.top+box.os + top_margin + (index*box.tabHeight), { width:225 })
@@ -564,15 +612,16 @@ function drawBaseStats(redTeams, blueTeams) {
 			.text("Wheels: "+ wheelsText.join(','), { width:225 })
 			.text('Shooting Range: '+ rangeText.join(','), { width:225 })
 			.text("High: " + scoutData.highRatio)
+			.text("Low: "+ scoutData.lowRatio)
 			.text("Passes: " + scoutData.passRatio)
 			.text("Truss Passes: " + scoutData.trussRatio)
 
 	});
-		doc.fontSize(12);
+	doc.fontSize(12);
 
 
 
-_.each( blueTeams, function(team, index) {
+	_.each( blueTeams, function(team, index) {
 		
 		// PIT DATA
 		var pitWheels = ((((team.pit || {}).general || {}).wheel) || {});
@@ -599,6 +648,10 @@ _.each( blueTeams, function(team, index) {
 			highTotal: 0,
 			highRatio: 0.0,
 
+			low: 0,
+			lowTotal: 0,
+			lowRatio: 0.0,
+
 			pass: 0,
 			passTotal: 0,
 			passRatio: 0.0,
@@ -611,8 +664,11 @@ _.each( blueTeams, function(team, index) {
 		_.each( matches, function(teamMatch) {
 			var data = teamMatch.data;
 
-			scoutData.highTotal += data.scoring.goals.high; //+ data.scoring.goals.highMiss;
+			scoutData.highTotal += (data.scoring.goals.high + data.scoring.goals.highMisses);
 			scoutData.high += data.scoring.goals.high;
+
+			scoutData.lowTotal += (data.scoring.goals.low + data.scoring.goals.lowMisses);
+			scoutData.low += data.scoring.goals.low;
 
 			scoutData.pass += data.teamwork.passing.roll + data.teamwork.passing.aerial //+ data.teamwork.passing.aerialMisses + data.teamwork.passing.rollMisses;
 			scoutData.passTotal += data.teamwork.passing.roll + data.teamwork.passing.aerial;
@@ -621,10 +677,13 @@ _.each( blueTeams, function(team, index) {
 			scoutData.totalTrussPasses += data.teamwork.passing.truss; //+ data.teamwork.passing.trussMisses;
 		});
 
+		scoutData.lowRatio = scoutData.low +'/'+ scoutData.lowTotal;
 		scoutData.highRatio = scoutData.high +'/'+ scoutData.highTotal;
 		scoutData.passRatio = scoutData.pass+'/'+scoutData.passTotal;
 		scoutData.trussRatio = scoutData.trussPasses+'/'+scoutData.totalTrussPasses;
 
+
+		console.log('stuff =======\n\n')
 
 		doc.fontSize(10);
 		doc.text("Play Style: "+ ((((team.pit || {}).robot || {}).playstyle) || 'No pit data for Play Style'), box.left+25+(box.width/2), box.top+box.os + top_margin + (index*box.tabHeight), { width:225 })
@@ -632,14 +691,14 @@ _.each( blueTeams, function(team, index) {
 			.text("Wheels: "+ wheelsText.join(','), { width:225 })
 			.text('Shooting Range: '+ rangeText.join(','), { width:225 })
 			.text("High: " + scoutData.highRatio)
+			.text("Low: "+ scoutData.lowRatio)
 			.text("Passes: " + scoutData.passRatio)
 			.text("Truss Passes: " + scoutData.trussRatio)
 
 	});
-		doc.fontSize(12);
-
-
+	doc.fontSize(12);
 }
+
 
 // === SAVE NEW PDF =====================================================
 

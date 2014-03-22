@@ -69,7 +69,7 @@ dataPathways['matchData'] = function(data, callback) {
 		}
 
 		else {
-			throw new Error('Team Match for '+ team.id +', '+ match.number +' already exists')
+			return new Error('Team Match for '+ team.id +', '+ match.number +' already exists')
 		}
 	})
 

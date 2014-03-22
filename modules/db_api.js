@@ -126,8 +126,6 @@ db.getMatch = function(eventId, matchNumber) {
 	)
 
 	.then( function testForNullValues(match) {
-		// null values are errors
-		if( _.isNull(match) ) return new Error('can not find match '+ matchNumber +' at event '+ eventId);
 		return match;
 	});
 };
@@ -144,6 +142,41 @@ db.getMatchesAtEvent = function(eventId) {
 		if( _.isNull(matches) || _.isEmpty(matches) ) return new Error('can not find matches at event '+ eventId);
 		return matches;
 	});
+};
+
+db.matchExists = function(eventId, matchNumber) {
+	return db.getMatch(eventId, matchNumber)
+
+	.then( function(match) {
+		if( _.isNull( match )) {
+			return false;
+		}
+		else {
+			return true;
+		}
+	})
+};
+
+db.newMatch = db.createMatch = function(eventId, matchNum, redAlliance, blueAlliance) {
+	db.matchExists(eventId, matchNum)
+
+	.then( function(exists) {
+		if(exists) {
+			console.log('match '+ matchNum +' exists!')
+		}
+		else {
+			var match = new Match();
+
+			match.event = eventId;
+			match.number = matchNum;
+			match.redAlliance =  {}
+			match.redAlliance['teams'] = redAlliance;
+			match.blueAlliance =  {}
+			match.blueAlliance['teams'] = blueAlliance;
+
+			return q.ninvoke(match, 'save');
+		}
+	})
 };
 
 /********************************************
@@ -255,7 +288,7 @@ db.newTeamMatch = function(data) {
 		}
 
 		else {
-			throw new Error('Team Match for '+ team.id +', '+ match.number +' already exists')
+			return new Error('Team Match for '+ team.id +', '+ match.number +' already exists')
 		}
 	})
 

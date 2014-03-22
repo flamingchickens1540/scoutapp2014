@@ -21,9 +21,9 @@ var Event = mongoose.model('Event');
 var tba = require('thebluealliance')('hamzah','1540scouting','0.0.1');
 
 // use command line args or defaults
-var eventId = eventId || 'orore';
+var eventId = eventId || 'orwil';
 var year = year || (new Date()).getFullYear();
-var dbName = dbName || 'mockdata2014';
+var dbName = dbName || 'wilsonville2014';
 
 console.log('DBNAME:', dbName);
 mongoose.connect('localhost', dbName);
@@ -107,36 +107,49 @@ var createAllMatches = q.nfcall(tba.getMatchesAtEvent, eventId, year)
 q.all( [ createEvent, createAllTeams, createAllMatches ] )
 .spread( function saveModelsToDb(event, teams, matches) {
 
+	var saveTeams, saveMatches;
+
 	// saves each team to database
-	_.each(teams, function saveEachTeam(team) { 
+	saveTeams = _.map(teams, function saveEachTeam(team) { 
 
 		team.save(function(err) {
 			if(!err) console.log('saved team '+ team.id +' to database');
-			else return new Error(' failed to save team '+ team.id +' o database');
+			else { console.log(err); return err;}
 		}); 
 	});
 
 	// saves each match to database
-	_.each(matches, function saveEachTeam(match) { 
+	saveMatches = _.map(matches, function saveEachTeam(match) { 
 		console.log(match._id);
-		match.save(function(err) {
+		return q.ninvoke( match, 'save')
+
+		.then(function(err) {
 			if(!err) console.log('saved match '+ match.number +' to database');
 			else return new Error(' failed to save match '+ match.number +' to database');
 		}); 
 	});
 
-	event['teams'] = teams;
-	event['matches'] = matches;
-	event.save(function(err) {
-		if(!err) console.log('saved event '+ event.id +' to database');
-		else console.log('failed to save event '+ event.id +' to database');
+	q.all([ saveTeams, saveMatches ])
+	.then( function(stuff) {
+
+		console.log(event);
+
+		event['id'] = eventId;
+		event['teams'] = teams;
+		event['matches'] = matches;
+
+		event.save(function(err) {
+			if(!err) console.log('saved event '+ event.id +' to database');
+			else console.log('failed to save event '+ event.id +' to database'+err.message);
+		});
 	});
+
 })
 
 .then(
 
 	function successfulScriptRun() {
-		console.log('\nSuccessfully shutting down...');
+		//console.log('\nSuccessfully shutting down...');
 		// breaks the program due to async in js - process.exit(0);
 	}
 

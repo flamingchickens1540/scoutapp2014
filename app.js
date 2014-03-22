@@ -21,7 +21,7 @@ var q = require('q');
 var generatePDF = require('./modules/pdfGeneration.js');
 
 // connect to database
-db.connect('mockdata2014');
+db.connect('wilsonville2014');
 
 // CONFIGURATION
 app.set('port', process.env.PORT || 8000);
