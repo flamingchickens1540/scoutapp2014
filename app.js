@@ -11,6 +11,23 @@ var app = express();
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
 
+// SOCKET.IO PRODUCTION CONFIGURATIONS
+io.configure(function() {
+  io.enable('browser client etag');
+  io.set('log level', 1);
+
+  io.set('transports', [
+    'websocket'
+  , 'flashsocket'
+  , 'htmlfile'
+  , 'xhr-polling'
+  , 'jsonp-polling'
+  ]);
+});
+
+// io.configure('development', function() {
+//   io.set('transports', ['websocket']);
+// }); 
 
 var db = require('./modules/db_api.js');
 var dataRouter = require('./modules/data.js');
@@ -21,7 +38,7 @@ var q = require('q');
 var generatePDF = require('./modules/pdfGeneration.js');
 
 // connect to database
-db.connect('wilsonville2014');
+db.connect('pre-osu2014');
 
 // CONFIGURATION
 app.set('port', process.env.PORT || 8000);
