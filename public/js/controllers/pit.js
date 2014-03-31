@@ -26,16 +26,6 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket, 
       console.log('already created or error', err.obj);
     });
 
-  // request 100MB
-  fs.requestQuota(100)
-
-    .then( function(granted) {
-      console.log('GRANTED '+ granted +' bytes of persistent data');
-    })
-    .catch( function(err) {
-      console.log(err);
-    }); 
-
   $scope.teams = [];
   $scope.event = {};
 

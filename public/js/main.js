@@ -35,9 +35,9 @@ app.config(function ($routeProvider, $locationProvider) {
       controller: 'ScoutCtrl'
     }).
 
-    when('/analyst', {
-      templateUrl: 'partials/analyst',
-      controller: 'AnalystCtrl'
+    when('/admin', {
+      templateUrl: 'partials/admin',
+      controller: 'AdminCtrl'
     }).
 
     when('/moderator', {
@@ -58,7 +58,39 @@ app.config(function ($routeProvider, $locationProvider) {
   $locationProvider.html5Mode(true);
 });
 
-app.controller('AppCtrl', function() {});
+app.controller('AppCtrl', function(fileSystem, socket, $scope) {
+  
+  window.fs = fs;
+
+  var fs = fileSystem;
+  
+  // request 100MB
+  fs.requestQuota(100)
+
+    .then( function(granted) {
+      console.log('GRANTED '+ granted +' bytes of persistent data');
+    })
+    .catch( function(err) {
+      console.log(err);
+    }); 
+
+  socket.on('connect', function(ev) { console.log('CONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - conn' });
+  socket.on('reconnect', function(ev) { console.log('RECONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - reconn' });
+  socket.on('disconnect', function(ev) { console.log('DISCONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - disconn' });
+
+
+});
+
+app.controller('AdminCtrl', function($scope, socket, fileSystem) {
+
+  var fs = fileSystem;
+
+  socket.on('connect', function(ev) { console.log('CONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - conn' });
+  socket.on('reconnect', function(ev) { console.log('RECONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - reconn' });
+  socket.on('disconnect', function(ev) { console.log('DISCONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - disconn' });
+
+
+});
 
 
 

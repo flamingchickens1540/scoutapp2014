@@ -23,7 +23,7 @@ var tba = require('thebluealliance')('hamzah','1540scouting','0.0.1');
 // use command line args or defaults
 var eventId = eventId || 'orwil';
 var year = year || (new Date()).getFullYear();
-var dbName = dbName || 'wilsonville2014';
+var dbName = dbName || 'pre-osu2014';
 
 console.log('DBNAME:', dbName);
 mongoose.connect('localhost', dbName);

@@ -1,6 +1,7 @@
 var app = angular.module('ctrl.scout', [  
   'ngTouch',
   'ui.bootstrap',
+  'fileSystem',
   'btford.socket-io'
 ]);
 
@@ -9,8 +10,13 @@ app.controller('ScoutHomeCtrl', function($scope) {
   // anything that goes on the team selection page? Nothing?
 });
 
-app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, $timeout) {
-  
+app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, $timeout, fileSystem) {
+  var fs = fileSystem;
+
+  socket.on('connect', function(ev) { console.log('CONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - conn' });
+  socket.on('reconnect', function(ev) { console.log('RECONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - reconn' });
+  socket.on('disconnect', function(ev) { console.log('DISCONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - disconn' });
+
   $scope.alerts = [];
   /* NON-DATA INFORMATION */
 
