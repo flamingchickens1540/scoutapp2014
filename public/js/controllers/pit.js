@@ -52,7 +52,7 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket, 
 
   // List of events and what event we are at
   $scope.events = [
-    { name: 'Autodesk Oregon Regional', value: 'orpo', region: 'Regionals' },
+    { name: 'Autodesk Oregon District Champs', value: 'pncmp', region: 'Regionals' },
     { name: 'Wilsonville District', value: 'orwil', region: 'PNW' },
     { name: 'Inland Empire Regional', value:'casb', region:'Regionals' }
   ];
