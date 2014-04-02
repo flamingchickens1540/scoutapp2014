@@ -18,5 +18,19 @@ header.navbar.navbar-inverse.navbar-fixed-top
         li
           a(href="picklist") Picklist
 
+    .pull-right
+      btn.btn-lg.btn-info(disabled) {{ connected }}
 
-{{ connected }}
+// for alerts
+.well
+  .row
+    .col-sm-12(ng-repeat="alert in alerts")
+      alert(type="alert.type" close="closeAlert($index)" ng-click="closeAlert($index)") {{ alert.msg }}
+
+
+.row
+  .col-sm-2
+    p.lead Choose Event
+  .col-sm-4
+    select.form-control(ng-options="event.value as event.name group by event.region for event in events" ng-model="eventId")
+
