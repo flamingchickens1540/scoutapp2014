@@ -13,9 +13,15 @@ app.controller('ScoutHomeCtrl', function($scope) {
 app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, $timeout, fileSystem) {
   var fs = fileSystem;
 
-  socket.on('connect', function(ev) { console.log('CONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - conn' });
-  socket.on('reconnect', function(ev) { console.log('RECONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - reconn' });
-  socket.on('disconnect', function(ev) { console.log('DISCONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - disconn' });
+  fs.createFolder('scout')
+
+    .then(function(test) {
+      console.log(test);
+    })
+
+    .catch(function(err) {
+      console.log('already created or error', err.obj);
+    });
 
   $scope.alerts = [];
   /* NON-DATA INFORMATION */
@@ -164,7 +170,7 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
   ];
 
   $scope.events = [
-    { name: 'Autodesk Oregon Regional', value: 'orpo', region: 'Regionals' },
+    { name: 'Autodesk Oregon District Champs', value: 'pncmp', region: 'Regionals' },
     { name: 'Wilsonville District', value: 'orwil', region: 'PNW' },
     { name: 'Oregon City District', value: 'orore', region: 'PNW' },
     { name: 'Inland Empire Regional', value:'casb', region:'Regionals' }
@@ -232,25 +238,31 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
   });
 
   var getEvent = function(eventId) {
-    socket.emit('get-event', eventId, function(event) {
+    // socket.emit('get-event', eventId, function(event) {
+    fs.readFile('event/'+eventId+'.json')  
+    .then( function(event) {
+      event = JSON.parse(event);
       $scope.event = event || {};
 
       $scope.matches = $scope.event.matches || [];
       $scope.matches = $scope.matches.sort(function numericSort(match1,match2) { console.log('SORT',match1.number,match2.number); return match1.number - match2.number; });
 
       console.log(event);
+    })
+
+    .catch( function(err) {
+      console.log(err);
     });
   };
 
   var setTeam = function(teamId) {
-    socket.emit('get-team-info', teamId, function(team) {
-      $scope.team = team;
-      console.log('SET TEAM', team);
+    var team = $scope.event.teams[teamId];
+    $scope.team = team;
+    console.log('SET TEAM', team);
 
-      $scope.submit['currentNotes'] = team.masterNotes || '';
+    // $scope.submit['currentNotes'] = team.masterNotes || '';
 
-      $scope.info['team'] = teamId;
-    });
+    $scope.info['team'] = teamId;
   };
 
   // updates goal with hotgoal
@@ -309,32 +321,59 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
       $log.log('ISSUES', $scope.issues);
       $log.log('SUBMIT', $scope.submit);
 
-      var submitData = $http.post('/submit/matchData', {
+      var info = $scope.info;
+      var scoutData = {
         info: $scope.info,
         auto: $scope.auto,
         scoring: $scope.scoring,
         teamwork: $scope.teamwork,
         issues: $scope.issues,
         submit: $scope.submit
-      });
+      };
 
-      $log.log(submitData);
+      // => casb_3_1678.json
+      var filename = [info.event, info.matchNum, info.team].join('_');
 
-      submitData.success( function(data, status, headers, config) {
-        $log.log( 'WAS SAVED?', data, status, headers, config);
+      fs.writeText( 'scout/'+ filename +".json", JSON.stringify(scoutData))
 
-        if(data.wasSaved) {
-          alertUser('success', 'Successfully submitted data for team '+ $scope.info.team +' in match '+ $scope.info.matchNum);
-          resetScout( $scope.info.matchNum ); // since matches start from 1, anf indexes start from 0, there is no matchNum+1
-        }
-        else {
-          alertUser('danger', 'did not save properly. ERR: '+ data.err);
-        }
-      });
+        .then( function(granted) {
+          console.log('Saved '+ filename +".json", JSON.stringify(scoutData));
 
-      submitData.error( function(data, status, headers, config) {
-        alertUser('danger', 'Failed to save to the server, please try again. ERR: '+ data.err)
-      });
+          alertUser('success', 'Successfully saved team '+ info.team +'\'s scout data for match'+ info.matchNum +' at event '+ info.event +'.');
+
+          resetScout(scoutData.info.matchNum);
+
+          fs.readFile('scout/'+ filename +'.json').then(function(file) {console.log(JSON.parse(file))});
+
+          fs.getFolderContents('/scout/').then(function(dir) {console.log(dir)});
+        })
+        
+        .catch( function errHandler(err) {
+          console.log(err);
+          alertUser( 'danger', err.message );
+        });
+
+
+      // // HTTP POST data to server
+      // var submitData = $http.post('/submit/matchData', scoutData);
+
+      // $log.log(submitData);
+
+      // submitData.success( function(data, status, headers, config) {
+      //   $log.log( 'WAS SAVED?', data, status, headers, config);
+
+      //   if(data.wasSaved) {
+      //     alertUser('success', 'Successfully submitted data for team '+ $scope.info.team +' in match '+ $scope.info.matchNum);
+      //     resetScout( $scope.info.matchNum ); // since matches start from 1, anf indexes start from 0, there is no matchNum+1
+      //   }
+      //   else {
+      //     alertUser('danger', 'did not save properly. ERR: '+ data.err);
+      //   }
+      // });
+
+      // submitData.error( function(data, status, headers, config) {
+      //   alertUser('danger', 'Failed to save to the server, please try again. ERR: '+ data.err)
+      // });
 
     }
     else {
