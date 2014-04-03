@@ -10,7 +10,7 @@ require('./../db_modules/models/team_match.js');
 var q = require('q');
 db = require('./db_api.js');
 
-db.connect('mockdata2014');
+//db.connect('mockdata2014');
 
 var PDFDocument = require('pdfkit');
 var doc;
@@ -775,4 +775,4 @@ function exportPDF(name) {
 }
 
 // make a new pdf
-exports('casb', 3);
+//exports('casb', 3);
