@@ -614,12 +614,26 @@ function drawBaseStats(redTeams, blueTeams) {
 		
 		// PIT DATA
 		var pitWheels = ((((team.pit || {}).general || {}).wheel) || {});
-		var wheelsText = [];
-		_.each( pitWheels, function(wheel) {
-			if( !_.isNull(wheel) ) {
-				wheelsText.push(wheel);
+		//var wheelsText = [];
+
+		var leftWheelsText = [];
+		var rightWheelsText = [];
+
+		_.each( pitWheels, function(wheel, key) {
+			if( !_.isNull(wheel)) {
+
+				if ((key=='wheelL1')||(key=='wheelL2')||(key=='wheelL3')){
+					leftWheelsText.push(wheel);
+				}
+
+				else if ((key=='wheelR1')||(key=='wheelR2')||(key=='wheelR3')){
+					rightWheelsText.push(wheel);
+				}
+					
 			}
-		});		
+		});
+
+
 
 		var shootingRange = ((((team.pit || {}).general || {}).shootingRange) || {});
 		var rangeText = [];
@@ -674,7 +688,8 @@ function drawBaseStats(redTeams, blueTeams) {
 		doc.fontSize(9);
 		doc.text("Play Style: "+ ((((team.pit || {}).robot || {}).playstyle) || 'No pit data for Play Style'), box.left+25, box.top+box.os + top_margin + (index*box.tabHeight), { width:225 })
 			.text("Shifting: "+ ((((team.pit || {}).general || {}).shifting) || 'No shifting data found'))
-			.text("Wheels: "+ wheelsText.join(','), { width:225 })
+			.text("Right Wheels (F-B): "+ rightWheelsText.join(','), { width:225 })
+			.text("Left Wheels (F-B): "+ leftWheelsText.join(','), { width:225 })
 			.text('Shooting Range: '+ rangeText.join(','), { width:225 })
 			.text("High: " + scoutData.highRatio)
 			.text("Low: "+ scoutData.lowRatio)
@@ -692,12 +707,24 @@ function drawBaseStats(redTeams, blueTeams) {
 		
 		// PIT DATA
 		var pitWheels = ((((team.pit || {}).general || {}).wheel) || {});
-		var wheelsText = [];
-		_.each( pitWheels, function(wheel) {
-			if( !_.isNull(wheel) ) {
-				wheelsText.push(wheel);
+		//var wheelsText = [];
+
+		var leftWheelsText = [];
+		var rightWheelsText = [];
+
+		_.each( pitWheels, function(wheel, key) {
+			if( !_.isNull(wheel)) {
+
+				if ((key=='wheelL1')||(key=='wheelL2')||(key=='wheelL3')){
+					leftWheelsText.push(wheel);
+				}
+
+				else if ((key=='wheelR1')||(key=='wheelR2')||(key=='wheelR3')){
+					rightWheelsText.push(wheel);
+				}
+					
 			}
-		});		
+		});	
 
 		var shootingRange = ((((team.pit || {}).general || {}).shootingRange) || {});
 		var rangeText = [];
@@ -754,7 +781,8 @@ function drawBaseStats(redTeams, blueTeams) {
 		doc.fontSize(9);
 		doc.text("Play Style: "+ ((((team.pit || {}).robot || {}).playstyle) || 'No pit data for Play Style'), box.left+25+(box.width/2), box.top+box.os + top_margin + (index*box.tabHeight), { width:225 })
 			.text("Shifting: "+ ((((team.pit || {}).general || {}).shifting) || 'No shifting data found'))
-			.text("Wheels: "+ wheelsText.join(','), { width:225 })
+			.text("Right Wheels (F-B): "+ rightWheelsText.join(','), { width:225 })
+			.text("Left Wheels (F-B): "+ leftWheelsText.join(','), { width:225 })
 			.text('Shooting Range: '+ rangeText.join(','), { width:225 })
 			.text("High: " + scoutData.highRatio)
 			.text("Low: "+ scoutData.lowRatio)
