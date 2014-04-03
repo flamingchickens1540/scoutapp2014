@@ -1,3 +1,4 @@
+
 var mongoose = require('mongoose');
 var _ = require('underscore');
 
@@ -9,7 +10,7 @@ require('./../db_modules/models/team_match.js');
 var q = require('q');
 db = require('./db_api.js');
 
-//db.connect('wilsonville2014');
+db.connect('mockdata2014');
 
 var PDFDocument = require('pdfkit');
 var doc;
@@ -30,8 +31,8 @@ var doc;
 	var eventToFind = 'casb';
 	var matchToFind = 3;
 
-
 module.exports = exports = function genPDF(eventToFind, matchToFind) {
+
 
 	eventToFind = eventToFind || "orwil";
 	matchToFind = matchToFind || 3;
@@ -70,6 +71,7 @@ module.exports = exports = function genPDF(eventToFind, matchToFind) {
 
 	// generate PDF
 	.then(function pdfshiz(data) {
+
 		var match = data.match;
 		var redTeams = data.redTeams;
 		var blueTeams = data.blueTeams;
@@ -337,6 +339,17 @@ function setHeightAndTop(graphBox, b){
 	graphBox.autoBars[b].top = ((graphBox.top+gb1.height-10)-graphBox.autoBars[b].height);
 }
 
+function dataProtect(number){
+
+	if (_.isNumber(number)){
+		return number;
+	}
+
+	else{
+		return "Value was not a number.";
+	}
+}
+
 function setGraphValues(redTeams, blueTeams) {
 
 	_.each(redTeams, function(team, index) {
@@ -350,9 +363,6 @@ function setGraphValues(redTeams, blueTeams) {
 
 			auto: 0,
 			autoTotal: 0
-
-
-
 		};
 
 		_.each( matches, function(teamMatch) {
@@ -363,23 +373,73 @@ function setGraphValues(redTeams, blueTeams) {
 
 			scoutData.autoTotal += (data.auto.fieldValues.goal + data.auto.fieldValues.miss);
 			scoutData.auto += data.auto.fieldValues.goal;
-
-			
 		});
 
+
+		//Data protection should be taken care of by the elses
+		if (scoutData.highTotal > 0){
+
+			gb2.teleBars[index].max = scoutData.highTotal;
+			gb2.teleBars[index].value = scoutData.high;
+		}
+		else{
+			gb2.teleBars[index].max = 1;
+			gb2.teleBars[index].value = 0;
+		}
+		if (scoutData.autoTotal > 0){
+			gb2.autoBars[index].max = scoutData.autoTotal;
+			gb2.autoBars[index].value = scoutData.auto;
+		}
+		else{
+			gb2.autoBars[index].max = 1;
+			gb2.autoBars[index].value = 0;
+		}
+
+	});
+
+	//Should really be a function.
+	_.each(blueTeams, function(team, index) {
+
+		// SCOUTING DATA
+		var matches = team.matches || [];
+
+		var scoutData = {
+			high: 0,
+			highTotal: 0,
+
+			auto: 0,
+			autoTotal: 0
+		};
+
+		_.each( matches, function(teamMatch) {
+			var data = teamMatch.data;
+
+			scoutData.highTotal += (data.scoring.goals.high + data.scoring.goals.highMisses);
+			scoutData.high += data.scoring.goals.high;
+
+			scoutData.autoTotal += (data.auto.fieldValues.goal + data.auto.fieldValues.miss);
+			scoutData.auto += data.auto.fieldValues.goal;
+		});
 
 
 		if (scoutData.highTotal > 0){
 
+			gb1.teleBars[index].max = scoutData.highTotal;
+			gb1.teleBars[index].value = scoutData.high;
+		}
+		else{
 			gb1.teleBars[index].max = 1;
-			gb1.teleBars[index].value = scoutData.high/scoutData.highTotal;
+			gb1.teleBars[index].value = 0;
 		}
-
 		if (scoutData.autoTotal > 0){
-
-			gb1.autoBars[index].max = 1;
-			gb1.autoBars[index].value = scoutData.auto/scoutData.autoTotal;
+			gb1.autoBars[index].max = scoutData.autoTotal;
+			gb1.autoBars[index].value = scoutData.auto;
 		}
+		else{
+			gb1.autoBars[index].max = 1;
+			gb1.autoBars[index].value = 0;
+		}
+
 	});
 		//set the height and y-value.
 	for (var h=0; h<=2; h++){
@@ -390,9 +450,15 @@ function setGraphValues(redTeams, blueTeams) {
 	for (var h=0; h<=2; h++) {
 		setHeightAndTop(gb1, h);
 	}
+
+
 }
 
+
+
 //Draws the graphs.
+
+//DARK = AUTO
 function drawGraphs() {
 
 	for (var b=0; b<=2; b++){
@@ -450,6 +516,8 @@ function drawGraphs() {
 	doc.moveTo(gb2.left+10, gb2.top+gb1.height-10)
 		.lineTo(gb2.left+10, gb2.top)
 		.stroke('black');
+
+
 }
 
 // === PRINT TEXT =====================================================
@@ -535,7 +603,7 @@ function drawSectionTitles(redT, blueT) {
 //Draws all the data for each team. Should draw every piece of info shown in baseStats.
 function drawBaseStats(redTeams, blueTeams) {
 
-	doc.fontSize(12);
+	doc.fontSize(11);
 	doc.fill("black");
 	doc.fillOpacity(1.0);
 
@@ -578,12 +646,8 @@ function drawBaseStats(redTeams, blueTeams) {
 			autoMisses: 0,
 
 			pass: 0,
-			passTotal: 0,
-			passRatio: 0.0,
 
 			trussPasses: 0,
-			totalTrussPasses: 0,
-			trussRatio: 0.0
 		};
 
 		_.each( matches, function(teamMatch) {
@@ -600,29 +664,30 @@ function drawBaseStats(redTeams, blueTeams) {
 			scoutData.low += data.scoring.goals.low;
 
 			scoutData.pass += ((data.teamwork.passing.roll || 0) + (data.teamwork.passing.aerial || 0)) //+ data.teamwork.passing.aerialMisses + data.teamwork.passing.rollMisses;
-			scoutData.passTotal += data.teamwork.passing.roll + data.teamwork.passing.aerial;
-
 			scoutData.trussPasses += data.teamwork.passing.truss;
-			scoutData.totalTrussPasses += data.teamwork.passing.truss; //+ data.teamwork.passing.trussMisses;
+			
 		});
+
+		_.each(scoutData, function(data){
+			data = dataProtect(data);
+		})
 
 		scoutData.lowRatio = scoutData.low +'/'+ scoutData.lowTotal;
 		scoutData.highRatio = scoutData.high +'/'+ scoutData.highTotal;
-		scoutData.passRatio = scoutData.pass+'/'+scoutData.passTotal;
-		scoutData.trussRatio = scoutData.trussPasses+'/'+scoutData.totalTrussPasses;
+
 
 
 		console.log('stuff =======\n\n')
 
-		doc.fontSize(10);
+		doc.fontSize(9);
 		doc.text("Play Style: "+ ((((team.pit || {}).robot || {}).playstyle) || 'No pit data for Play Style'), box.left+25, box.top+box.os + top_margin + (index*box.tabHeight), { width:225 })
 			.text("Shifting: "+ ((((team.pit || {}).general || {}).shifting) || 'No shifting data found'))
 			.text("Wheels: "+ wheelsText.join(','), { width:225 })
 			.text('Shooting Range: '+ rangeText.join(','), { width:225 })
 			.text("High: " + scoutData.highRatio)
 			.text("Low: "+ scoutData.lowRatio)
-			.text("Passes: " + scoutData.passRatio)
-			.text("Truss Passes: " + scoutData.trussRatio)
+			.text("Passes: " + scoutData.pass)
+			.text("Truss Passes: " + scoutData.trussPasses)
 			.text("Auto Goals (including hot): " + scoutData.autoBalls+'/'+(scoutData.autoBalls + scoutData.autoMisses))
 			.text("Hot goals out of all goals made: " + scoutData.autoHotgoals+'/'+scoutData.autoBalls) 
 
@@ -667,12 +732,9 @@ function drawBaseStats(redTeams, blueTeams) {
 			autoMisses: 0,
 
 			pass: 0,
-			passTotal: 0,
-			passRatio: 0.0,
 
 			trussPasses: 0,
-			totalTrussPasses: 0,
-			trussRatio: 0.0
+
 		};
 
 		_.each( matches, function(teamMatch) {
@@ -686,32 +748,34 @@ function drawBaseStats(redTeams, blueTeams) {
 			scoutData.high += data.scoring.goals.high;
 
 			scoutData.lowTotal += (data.scoring.goals.low + data.scoring.goals.lowMisses);
+
 			scoutData.low += data.scoring.goals.low;
 
-			scoutData.pass += data.teamwork.passing.roll + data.teamwork.passing.aerial //+ data.teamwork.passing.aerialMisses + data.teamwork.passing.rollMisses;
-			scoutData.passTotal += data.teamwork.passing.roll + data.teamwork.passing.aerial;
+			scoutData.pass += ((data.teamwork.passing.roll || 0) + (data.teamwork.passing.aerial || 0)) //+ data.teamwork.passing.aerialMisses + data.teamwork.passing.rollMisses;
+
 
 			scoutData.trussPasses += data.teamwork.passing.truss;
-			scoutData.totalTrussPasses += data.teamwork.passing.truss; //+ data.teamwork.passing.trussMisses;
+			
 		});
+
+		_.each(scoutData, function(data){
+			data = dataProtect(data);
+		})
 
 		scoutData.lowRatio = scoutData.low +'/'+ scoutData.lowTotal;
 		scoutData.highRatio = scoutData.high +'/'+ scoutData.highTotal;
-		scoutData.passRatio = scoutData.pass+'/'+scoutData.passTotal;
-		scoutData.trussRatio = scoutData.trussPasses+'/'+scoutData.totalTrussPasses;
-
 
 		console.log('stuff =======\n\n')
 
-		doc.fontSize(10);
+		doc.fontSize(9);
 		doc.text("Play Style: "+ ((((team.pit || {}).robot || {}).playstyle) || 'No pit data for Play Style'), box.left+25+(box.width/2), box.top+box.os + top_margin + (index*box.tabHeight), { width:225 })
 			.text("Shifting: "+ ((((team.pit || {}).general || {}).shifting) || 'No shifting data found'))
 			.text("Wheels: "+ wheelsText.join(','), { width:225 })
 			.text('Shooting Range: '+ rangeText.join(','), { width:225 })
 			.text("High: " + scoutData.highRatio)
 			.text("Low: "+ scoutData.lowRatio)
-			.text("Passes: " + scoutData.passRatio)
-			.text("Truss Passes: " + scoutData.trussRatio)
+			.text("Passes: " + scoutData.pass)
+			.text("Truss Passes: " + scoutData.trussPasses)
 			.text("Auto Goals (including hot): " + scoutData.autoBalls+'/'+(scoutData.autoBalls + scoutData.autoMisses))
 			.text("Hot goals out of all goals made: " + scoutData.autoHotgoals+'/'+scoutData.autoBalls) 
 	});
@@ -727,4 +791,4 @@ function exportPDF(name) {
 }
 
 // make a new pdf
-// exports('casb', 3);
+exports('casb', 3);
