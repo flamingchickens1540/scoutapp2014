@@ -13,7 +13,7 @@ var Match = mongoose.model('Match');
 var TeamMatch = mongoose.model('TeamMatch');
 var Event = mongoose.model('Event');
 
-var dbName = dbName || 'mockdata2014';
+var dbName = dbName || 'pre-osu2014';
 
 console.log('DBNAME:', dbName);
 mongoose.connect('localhost', dbName);

@@ -72,10 +72,15 @@ app.controller('AppCtrl', function(fileSystem, socket, $scope) {
       console.log(err);
     }); 
 
-  socket.on('connect', function(ev) { console.log('CONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - conn' });
-  socket.on('reconnect', function(ev) { console.log('RECONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - reconn' });
-  socket.on('disconnect', function(ev) { console.log('DISCONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - disconn' });
+  socket.on('connect', function(ev) { console.log('CONNECTED', ev, navigator.onLine); $scope.connected = 'connected' });
+  socket.on('connecting', function(ev) { console.log('CONNECTING', ev, navigator.onLine); $scope.connected = 'connecting' });
+  socket.on('reconnect', function(ev) { console.log('RECONNECTED', ev, navigator.onLine); $scope.connected = 'reconnected' });
+  socket.on('disconnect', function(ev) { console.log('DISCONNECTED', ev, navigator.onLine); $scope.connected = 'disconnected' });
 
+  
+  $scope.reconnect = function() {
+    socket.socket.reconnect();
+  };
 
 });
 

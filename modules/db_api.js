@@ -215,6 +215,26 @@ db.getTeamMatch = function(eventId, matchNum, teamId) {
 	});
 };
 
+db.getTeamMatchByPosition = function(eventId, pos, currentMatchNum) {
+	var posNum = parseInt(pos.slice( pos.length-1 )); // 'red1' => 1
+  var color = pos.slice(0, pos.length-1).toLowerCase(); // 'red1' => 'red'
+
+	return convertToQPromise(
+		TeamMatch.find({ event:eventId, color:color, posNum:posNum, match: { $lt:currentMatchNum } })
+		.exec()
+	)
+
+	.then( function testForNullValues(teamMatches) {
+		console.log(teamMatches);
+
+		return teamMatches;
+	})
+
+	.catch(function(err) {
+		console.log(err);
+	});
+};
+
 db.teamMatchExists = function(eventId, matchNum, teamId) {
 	return convertToQPromise(
 		TeamMatch.findOne({ match:matchNum, team:teamId, event:eventId }) 

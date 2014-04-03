@@ -10,7 +10,7 @@ app.controller('ScoutHomeCtrl', function($scope) {
   // anything that goes on the team selection page? Nothing?
 });
 
-app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, $timeout, fileSystem) {
+app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, $timeout, fileSystem, $q) {
   var fs = fileSystem;
 
   fs.createFolder('scout')
@@ -128,45 +128,8 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
 
     /* LISTS */
   $scope.scouts = [
-    'Adolfo Apolloni',
-    'Alexandra Crew',
-    'Andie Becker',
-    'Anna Dodson',
-    'Ben Balden',
-    'Calissa Spooner',
-    'Conner Hansen',
-    'David Vollum',
-    'Elliot Lewis',
-    'Evan Chapman',
-    'Evë Maquelin',
-    'Gregor Peach',
-    'Hamzah Khan',
-    'Holly Sauer',
-    'Ian Hoyt',
-    'Iman Wahle',
-    'Iris Ellenberg',
-    'Jacob Bendicksen',
-    'Jacob Siegel',
-    'Jake Hansen',
-    'Jasper Gordon',
-    'Josephine Evans',
-    'Jules Renaud',
-    'Kellie Takahashi',
-    'Liam Wynne',
-    'Lukas Stracovsky',
-    'Maria Chang',
-    'Max Armstrong',
-    'Max Luu',
-    'Mind Tienpasertkij',
-    'Peter Smith',
-    'Robin Attey',
-    'Rushdi Abualhaija',
-    'Ryan Selden',
-    'Tristan Furnary',
-    'Tyler Riddle',
-    'Vincent Miller',
-    'Y Yen Gallup',
-    'Zach Alan'
+    
+    'Adolfo Apolloni','Alexandra Crew','Andie Becker','Anna Dodson','Ben Balden','Calissa Spooner','Conner Hansen','David Vollum','Elliot Lewis','Evan Chapman','Evë Maquelin','Gregor Peach','Hamzah Khan','Holly Sauer','Ian Hoyt','Iman Wahle','Iris Ellenberg','Jacob Bendicksen','Jacob Siegel','Jake Hansen','Jasper Gordon','Josephine Evans','Jules Renaud','Kellie Takahashi','Liam Wynne','Lukas Stracovsky','Maria Chang','Max Armstrong','Max Luu','Mind Tienpasertkij','Peter Smith','Robin Attey','Rushdi Abualhaija','Ryan Selden','Tristan Furnary','Tyler Riddle','Vincent Miller','Y Yen Gallup','Zach Alan'
   ];
 
   $scope.events = [
@@ -239,20 +202,20 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
 
   var getEvent = function(eventId) {
     // socket.emit('get-event', eventId, function(event) {
-    fs.readFile('event/'+eventId+'.json')  
-    .then( function(event) {
-      event = JSON.parse(event);
-      $scope.event = event || {};
+    fs.readFile('event/'+eventId+'.json')
+      .then( function(event) {
+        event = JSON.parse(event);
+        $scope.event = event || {};
 
-      $scope.matches = $scope.event.matches || [];
-      $scope.matches = $scope.matches.sort(function numericSort(match1,match2) { console.log('SORT',match1.number,match2.number); return match1.number - match2.number; });
+        $scope.matches = $scope.event.matches || [];
+        $scope.matches = $scope.matches.sort(function numericSort(match1,match2) { console.log('SORT',match1.number,match2.number); return match1.number - match2.number; });
 
-      console.log(event);
-    })
+        console.log(event);
+      })
 
-    .catch( function(err) {
-      console.log(err);
-    });
+      .catch( function(err) {
+        console.log(err);
+      });
   };
 
   var setTeam = function(teamId) {
@@ -339,7 +302,7 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
         .then( function(granted) {
           console.log('Saved '+ filename +".json", JSON.stringify(scoutData));
 
-          alertUser('success', 'Successfully saved team '+ info.team +'\'s scout data for match'+ info.matchNum +' at event '+ info.event +'.');
+          alertUser('success', 'Locally saved team '+ info.team +'\'s scout data for match '+ info.matchNum +'.');
 
           resetScout(scoutData.info.matchNum);
 
@@ -349,31 +312,105 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
         })
         
         .catch( function errHandler(err) {
-          console.log(err);
+          console.log('FS ERROR:',err);
           alertUser( 'danger', err.message );
+
+          return err;
+        })
+
+      .then( function sendOneMatchToServer() {
+        // HTTP POST data to server
+        return $http.post('/submit/matchData', scoutData)
+
+          .success( function(data, status, headers, config) {
+            $log.log( 'WAS SAVED?', data, status, headers, config);
+
+            if(data.wasSaved) {
+              alertUser('success', 'Sent data for team '+ info.team +' in match '+ info.matchNum +'to the server');
+              return { wasSaved:true, unsavedMatches:data.unsavedMatches };
+            }
+            else {
+              alertUser('danger', 'did not save properly. ERR: '+ data.err);
+              return { wasSaved:false, unsavedMatches:null };
+            }
+          })
+
+          .error( function(data, status, headers, config) {
+            alertUser('danger', 'Failed to save to the server, please try again. ERR: '+ data.err);
+            return { wasSaved:false, unsavedMatches:null };
+          });
+      })
+
+      .then( function checkOtherMatches(data) {
+        socket.emit('get-unsubmitted-matches', { event:info.event, pos:pos, currentMatch:info.matchNum }, function(listOfUnsubmittedMatches) {
+          listOfUnsubmittedMatches = listOfUnsubmittedMatches.filter(function(match) { return angular.isDefined(match) });
+          console.log('list', listOfUnsubmittedMatches);
+
+          return $q.all( listOfUnsubmittedMatches.map( function(match) {
+            var filename = [match.event, match.number, match[color+'Alliance'].teams[posNum]].join('_');
+            console.log(filename);
+
+            return fs.readFile('scout/'+filename+'.json')
+              .then( function(file) {
+                return JSON.parse(file);
+                console.log(file);
+              })
+              .catch( function(err) {
+                console.log('ERR: '+err.message);
+              });
+          }))
+
+          .then( function sendOtherMatchesToServer(matchInfo) {
+            matchInfo = matchInfo || [];
+            console.log('UNSUBMITTED MATCHES', matchInfo);
+
+            return $q.all( matchInfo.map( function(match) {
+              console.log(match);
+              var filename = [match.event, match.number, match[color+'Alliance'].teams[posNum]].join('_');
+
+              console.log('scout/'+filename+'.json');
+
+              return fs.readFile('scout/'+filename+'.json')
+
+                .then( function(fileText) {
+                  return JSON.parse(fileText);
+                })
+
+                .catch( function(err) {
+                  console.error(err);
+                });
+            }))
+          })
+
+          .then( function(unsubmittedScoutData) {
+            console.log('sending scout data');
+
+            unsubmittedScoutData.map( function(scoutPoint) {
+              var info = scoutPoint.info;
+              return $http.post('/submit/matchData', scoutPoint)
+
+              .success( function(data, status, headers, config) {
+                $log.log( 'WAS SAVED?', data, status, headers, config);
+
+                if(data.wasSaved) {
+                  alertUser('success', 'Sent data for team '+ info.team +' in match '+ info.matchNum +'to the server');
+                  return { wasSaved:true, unsavedMatches:data.unsavedMatches };
+                }
+                else {
+                  alertUser('danger', 'did not save properly. ERR: '+ data.err);
+                  return { wasSaved:false, unsavedMatches:null };
+                }
+              })
+
+              .error( function(data, status, headers, config) {
+                alertUser('danger', 'Failed to save to the server, please try again. ERR: '+ data.err);
+                return { wasSaved:false, unsavedMatches:null };
+              });
+            });
+          });
         });
+      });
 
-
-      // // HTTP POST data to server
-      // var submitData = $http.post('/submit/matchData', scoutData);
-
-      // $log.log(submitData);
-
-      // submitData.success( function(data, status, headers, config) {
-      //   $log.log( 'WAS SAVED?', data, status, headers, config);
-
-      //   if(data.wasSaved) {
-      //     alertUser('success', 'Successfully submitted data for team '+ $scope.info.team +' in match '+ $scope.info.matchNum);
-      //     resetScout( $scope.info.matchNum ); // since matches start from 1, anf indexes start from 0, there is no matchNum+1
-      //   }
-      //   else {
-      //     alertUser('danger', 'did not save properly. ERR: '+ data.err);
-      //   }
-      // });
-
-      // submitData.error( function(data, status, headers, config) {
-      //   alertUser('danger', 'Failed to save to the server, please try again. ERR: '+ data.err)
-      // });
 
     }
     else {
