@@ -140,16 +140,9 @@ module.exports = exports = function genPDF(eventToFind, matchToFind) {
 };
 
 
-
-
-
-
 //Put all the pdf stuff in a function to be called when the promise is fufilled.
-
-
 var text;
 var match = matchToFind;
-
 
 
 // === OVERVIEW BOXES DATA =====================================================
@@ -194,7 +187,6 @@ function drawMainLines(){
 
 	doc.moveTo(box.left+(box.width/2), box.top+box.os).lineTo(box.left+(box.width/2), box.top+box.height).stroke('black');
 }
-
 
 
 // === GENERATE AND PRINT GRAPHS =====================================================
@@ -450,14 +442,10 @@ function setGraphValues(redTeams, blueTeams) {
 	for (var h=0; h<=2; h++) {
 		setHeightAndTop(gb1, h);
 	}
-
-
 }
 
 
-
 //Draws the graphs.
-
 //DARK = AUTO
 function drawGraphs() {
 
@@ -516,8 +504,6 @@ function drawGraphs() {
 	doc.moveTo(gb2.left+10, gb2.top+gb1.height-10)
 		.lineTo(gb2.left+10, gb2.top)
 		.stroke('black');
-
-
 }
 
 // === PRINT TEXT =====================================================
@@ -597,9 +583,7 @@ function drawSectionTitles(redT, blueT) {
 };
 
 
-
 // === FILL IN DATA =====================================================
-
 //Draws all the data for each team. Should draw every piece of info shown in baseStats.
 function drawBaseStats(redTeams, blueTeams) {
 
