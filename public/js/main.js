@@ -61,6 +61,11 @@ app.config(function ($routeProvider, $locationProvider) {
 app.controller('AppCtrl', function(fileSystem, socket, $scope) {
   
   window.fs = fs;
+  window.socket = socket;
+
+  $scope.reconnect = function() {
+    socket.socket.reconnect();
+  };
 
   var fs = fileSystem;
   
@@ -74,9 +79,10 @@ app.controller('AppCtrl', function(fileSystem, socket, $scope) {
       console.log(err);
     }); 
 
-  socket.on('connect', function(ev) { console.log('CONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - conn' });
-  socket.on('reconnect', function(ev) { console.log('RECONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - reconn' });
-  socket.on('disconnect', function(ev) { console.log('DISCONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - disconn' });
+  socket.on('connect', function(ev) { console.log('CONNECTED', ev, navigator.onLine); $scope.connected = 'connected' });
+  socket.on('reconnect', function(ev) { console.log('RECONNECTED', ev, navigator.onLine); $scope.connected = 'reconnected' });
+  //socket.on('reconnecting', function(ev) { console.log('RECONNECTING', ev, navigator.onLine); $scope.connected = 'reconnecting' });
+  socket.on('disconnect', function(ev) { console.log('DISCONNECTED', ev, navigator.onLine); $scope.connected = 'disconnected' });
 
 
 });
@@ -84,10 +90,6 @@ app.controller('AppCtrl', function(fileSystem, socket, $scope) {
 app.controller('AdminCtrl', function($scope, socket, fileSystem) {
 
   var fs = fileSystem;
-
-  socket.on('connect', function(ev) { console.log('CONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - conn' });
-  socket.on('reconnect', function(ev) { console.log('RECONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - reconn' });
-  socket.on('disconnect', function(ev) { console.log('DISCONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - disconn' });
 
 
 });
