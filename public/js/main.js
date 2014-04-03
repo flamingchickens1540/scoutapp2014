@@ -59,15 +59,13 @@ app.config(function ($routeProvider, $locationProvider) {
 });
 
 app.controller('AppCtrl', function(fileSystem, socket, $scope) {
-  
+  var fs = fileSystem;
   window.fs = fs;
   window.socket = socket;
 
   $scope.reconnect = function() {
     socket.socket.reconnect();
   };
-
-  var fs = fileSystem;
   
   // request 100MB
   fs.requestQuota(100)
@@ -87,9 +85,28 @@ app.controller('AppCtrl', function(fileSystem, socket, $scope) {
 
 });
 
-app.controller('AdminCtrl', function($scope, socket, fileSystem) {
+app.controller('AdminCtrl', function($scope, socket, fileSystem, $timeout) {
 
   var fs = fileSystem;
+
+  fs.createFolder('event')
+
+    .then(function(test) {
+      console.log(test);
+    })
+
+    .catch(function(err) {
+      console.log('already created or error', err.obj);
+    });
+
+  var alertUser = function(type, message) {
+    $scope.alerts.push({ type:type || 'info', msg:message });
+    $timeout( function() {
+      // doesn't take into account multiple coming in every few seconds
+      $scope.alerts.shift(); // removes first item in alerts
+    }, 5000);
+  };
+  $scope.alerts = [];
 
   $scope.events = [
     { name: 'Autodesk PNW District Championships', value: 'pncmp', region: 'Regionals' },
@@ -99,6 +116,50 @@ app.controller('AdminCtrl', function($scope, socket, fileSystem) {
     { name: 'Inland Empire Regional', value:'casb', region:'Regionals' }
   ];
 
+  // ===== WATCHER FUNCTIONS ====================================
+  // make sure event is always good
+  $scope.$watch('eventId', function(newEvent, oldEvent) {
+    var eventId = newEvent;
+
+    socket.emit('get-event', eventId, function(event) {
+      saveEvent(event);
+    });
+  });
+
+  var saveEvent = function(event) {
+    event = event || {};
+    var matches = event.matches || [];
+    var eventTeams = event.teams || [];
+    var matches = matches.sort(function numericSort(match1,match2) { console.log('SORT',match1.number,match2.number); return match1.number - match2.number; });
+
+    var teams = {};
+
+    eventTeams.map( function(team) {
+      teams[team.id] = team;
+    });
+
+    console.log('TEAMS',teams);
+
+    // turn teams into object, not array
+    event.teams = teams;
+
+    fs.writeText( 'event/'+ event.id +".json", JSON.stringify(event))
+
+      .then( function() {
+        console.log('Saved '+ event.id +".json", JSON.stringify(event));
+
+        alertUser('success', 'Successfully saved event '+ event.id +'.');
+
+        fs.readFile('event/'+ event.id +'.json').then(function(file) {console.log(JSON.parse(file))});
+
+        fs.getFolderContents('/event/').then(function(dir) {console.log(dir)});
+      })
+      
+      .catch( function errHandler(err) {
+        console.log(err);
+        alertUser( 'danger', err.message );
+      });
+  };
 });
 
 
