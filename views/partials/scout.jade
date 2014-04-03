@@ -3,8 +3,6 @@ link(rel='stylesheet' type='text/css' href='/css/index.css')
 // extra navigation
 header.navbar.navbar-inverse.navbar-fixed-top
 	.container
-		.navbar-header
-			a.navbar-brand(href="/") Home
 		nav
 			//on the left side of the nav
 			ul.nav.navbar-nav
@@ -18,7 +16,7 @@ header.navbar.navbar-inverse.navbar-fixed-top
 					a(ng-click="displayView( 'submit' )") Match Submit
 
 		.pull-right
-			btn.btn-lg.btn-info(ng-click="reconnect()") {{ connected }}
+			btn.btn-lg.btn-info(ng-click="reconnect(); connected='reconnecting'") {{ connected }}
 
 // for alerts
 .well
