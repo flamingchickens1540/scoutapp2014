@@ -685,7 +685,7 @@ function drawBaseStats(redTeams, blueTeams) {
 
 		console.log('stuff =======\n\n')
 
-		doc.fontSize(9);
+		doc.fontSize(7);
 		doc.text("Play Style: "+ ((((team.pit || {}).robot || {}).playstyle) || 'No pit data for Play Style'), box.left+25, box.top+box.os + top_margin + (index*box.tabHeight), { width:225 })
 			.text("Shifting: "+ ((((team.pit || {}).general || {}).shifting) || 'No shifting data found'))
 			.text("Right Wheels (F-B): "+ rightWheelsText.join(','), { width:225 })
@@ -778,7 +778,7 @@ function drawBaseStats(redTeams, blueTeams) {
 
 		console.log('stuff =======\n\n')
 
-		doc.fontSize(9);
+		doc.fontSize(7);
 		doc.text("Play Style: "+ ((((team.pit || {}).robot || {}).playstyle) || 'No pit data for Play Style'), box.left+25+(box.width/2), box.top+box.os + top_margin + (index*box.tabHeight), { width:225 })
 			.text("Shifting: "+ ((((team.pit || {}).general || {}).shifting) || 'No shifting data found'))
 			.text("Right Wheels (F-B): "+ rightWheelsText.join(','), { width:225 })
