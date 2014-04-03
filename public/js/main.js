@@ -78,7 +78,7 @@ app.controller('AppCtrl', function(fileSystem, socket, $scope) {
     }); 
 
   socket.on('connect', function(ev) { console.log('CONNECTED', ev, navigator.onLine); $scope.connected = 'connected' });
-  socket.on('reconnect', function(ev) { console.log('RECONNECTED', ev, navigator.onLine); $scope.connected = 'reconnected' });
+  socket.on('reconnect', function(ev) { console.log('RECONNECTED', ev, navigator.onLine); $scope.connected = 'connected' });
   //socket.on('reconnecting', function(ev) { console.log('RECONNECTING', ev, navigator.onLine); $scope.connected = 'reconnecting' });
   socket.on('disconnect', function(ev) { console.log('DISCONNECTED', ev, navigator.onLine); $scope.connected = 'disconnected' });
 
@@ -160,6 +160,28 @@ app.controller('AdminCtrl', function($scope, socket, fileSystem, $timeout) {
         alertUser( 'danger', err.message );
       });
   };
+
+  $scope.deleteData = function(folderName) {
+    fs.deleteFolder(folderName, true)
+      .then(function(anything) {
+        console.log('deleted '+ folderName +' folder.', anything);
+
+        fs.createFolder(folderName)
+
+          .then(function(test) {
+            console.log(test);
+          })
+
+          .catch(function(err) {
+            console.log('already created or error', err.obj);
+          });
+      })
+
+      .catch( function(err) {
+        console.log('ERR: ',err)
+      });
+  };
+
 });
 
 

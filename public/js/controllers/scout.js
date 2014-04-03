@@ -12,12 +12,7 @@ app.controller('ScoutHomeCtrl', function($scope) {
 
 app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, $timeout, fileSystem) {
   var fs = fileSystem;
-
-  socket.on('connect', function(ev) { console.log('CONNECTED', ev, navigator.onLine); $scope.connected = 'connected' });
-  socket.on('reconnect', function(ev) { console.log('RECONNECTED', ev, navigator.onLine); $scope.connected = 'connected' });
-  //socket.on('reconnecting', function(ev) { console.log('RECONNECTING', ev, navigator.onLine); $scope.connected = 'reconnecting' });
-  socket.on('disconnect', function(ev) { console.log('DISCONNECTED', ev, navigator.onLine); $scope.connected = 'disconnected' });
-
+  
   $scope.alerts = [];
   /* NON-DATA INFORMATION */
 
@@ -346,7 +341,7 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
     }
   };
 
-  // Verifying function
+// Verifying function
   var verify = function() {
     /*
       Info:

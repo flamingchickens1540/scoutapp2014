@@ -14,7 +14,7 @@ header.navbar.navbar-inverse.navbar-fixed-top
         li
           a(href="moderator") Moderator
         li
-          a(href="analyst") Analyst
+          a(href="admin") Admin
         li
           a(href="picklist") Picklist
 
@@ -33,3 +33,17 @@ header.navbar.navbar-inverse.navbar-fixed-top
     p.lead Choose Event
   .col-sm-4
     select.form-control(ng-options="event.value as event.name group by event.region for event in events" ng-model="eventId")
+
+hr
+
+p.lead Data Management
+
+.row
+  .col-sm-6
+    .btn.btn-block.btn-lg.btn-danger(ng-click="deleteData('scout');") Delete Scout Data
+  .col-sm-6
+    .btn.btn-block.btn-lg.btn-danger(ng-click="deleteData('pit');") Delete Pit Data
+br
+.row
+  .col-sm-6
+    .btn.btn-block.btn-lg.btn-danger(ng-click="deleteData('event');") Delete Event Data

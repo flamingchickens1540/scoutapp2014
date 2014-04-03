@@ -12,11 +12,11 @@ header.navbar.navbar-inverse.navbar-fixed-top
 				li
 					a(href="moderator") Moderator
 				li
-					a(href="analyst") Analyst
+					a(href="admin") Admin
 				li
 					a(href="picklist") Picklist
 		.pull-right
-			btn.btn-lg.btn-info("reconnect(); connected='reconnecting'") {{ connected }}
+			.btn.btn-lg.btn-info(ng-click="reconnect()") {{ connected }}
 
 p.lead Select your team.
 
