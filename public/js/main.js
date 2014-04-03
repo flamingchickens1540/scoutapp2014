@@ -91,6 +91,13 @@ app.controller('AdminCtrl', function($scope, socket, fileSystem) {
 
   var fs = fileSystem;
 
+  $scope.events = [
+    { name: 'Autodesk PNW District Championships', value: 'pncmp', region: 'Regionals' },
+    { name: 'Wilsonville District', value: 'orwil', region: 'PNW' },
+    { name: 'OSU District', value: 'orosu', region: 'PNW' },
+    { name: 'Oregon City District', value: 'orore', region: 'PNW' },
+    { name: 'Inland Empire Regional', value:'casb', region:'Regionals' }
+  ];
 
 });
 

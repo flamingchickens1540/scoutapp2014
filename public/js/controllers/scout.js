@@ -164,8 +164,9 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
   ];
 
   $scope.events = [
-    { name: 'Autodesk Oregon Regional', value: 'orpo', region: 'Regionals' },
+    { name: 'Autodesk PNW District Championships', value: 'pncmp', region: 'Regionals' },
     { name: 'Wilsonville District', value: 'orwil', region: 'PNW' },
+    { name: 'OSU District', value: 'orosu', region: 'PNW' },
     { name: 'Oregon City District', value: 'orore', region: 'PNW' },
     { name: 'Inland Empire Regional', value:'casb', region:'Regionals' }
   ];
