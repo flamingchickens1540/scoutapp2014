@@ -7,8 +7,6 @@ var express = require('express'),
   http = require('http'),
   path = require('path');
 
-var _ = require('underscore');
-
 var app = express();
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
@@ -176,6 +174,9 @@ io.sockets.on('connection', function(socket) {
       console.log(err);
       returnDataToClient(false);
     });
+    
+    
+
   });
 
   socket.on('get-team-info', function(teamId, returnDataToClient) {
@@ -217,51 +218,7 @@ io.sockets.on('connection', function(socket) {
     });
   });
 
-  socket.on('get-unsubmitted-matches', function(info, returnDataToClient) {
-    db.getMatchesAtEvent(info.event)
-
-    .then( function(matches) {
-      var unsubmittedMatches = _.filter(matches, function(match) {
-        // only want the unsubmitted (null) matches below the currentMatch numberp
-        console.log(( _.isNull(match[info.pos+'Data']) && match.number <= info.currentMatch ));
-        return ( _.isNull(match[info.pos+'Data']) && match.number < info.currentMatch )? true: false;
-      });
-
-      console.log('Unsubmitted ====',unsubmittedMatches);
-
-      returnDataToClient(unsubmittedMatches);
-    })
-
-    .catch( function(err) {
-      console.log('Unsubmitted ====',err);
-    });
-
-    // db.getTeamMatchByPosition(info.event, info.pos, info.currentMatch)
-    // .then( function(teamMatches) {
-
-    //   var dataPoints = [];
-
-    //   for( var i = 0; i < teamMatches.length; i++) {
-    //     dataPoints[i] = 
-    //   }
-
-    //   teamMatches = _.map(teamMatches, function(teamMatch) {
-        
-    //     return {
-    //       event: teamMatch.event,
-    //       number: teamMatch.match,
-    //       team: teamMatch.team
-    //     };
-
-    //   });
-
-    //   console.log(teamMatches);
-
-
-    // });
-  });
 });
-
 
 
 

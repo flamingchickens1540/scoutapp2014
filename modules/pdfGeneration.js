@@ -573,10 +573,6 @@ function drawBaseStats(redTeams, blueTeams) {
 			lowTotal: 0,
 			lowRatio: 0.0,
 
-			autoBalls: 0,
-			autoHotgoals: 0,
-			autoMisses: 0,
-
 			pass: 0,
 			passTotal: 0,
 			passRatio: 0.0,
@@ -589,17 +585,13 @@ function drawBaseStats(redTeams, blueTeams) {
 		_.each( matches, function(teamMatch) {
 			var data = teamMatch.data;
 
-			scoutData.autoBalls += data.auto.fieldValues.goal;
-			scoutData.autoHotgoals += data.auto.fieldValues.hotgoal;
-			scoutData.autoMisses += data.auto.fieldValues.miss;
-
 			scoutData.highTotal += (data.scoring.goals.high + data.scoring.goals.highMisses);
 			scoutData.high += data.scoring.goals.high;
 
 			scoutData.lowTotal += (data.scoring.goals.low + data.scoring.goals.lowMisses);
 			scoutData.low += data.scoring.goals.low;
 
-			scoutData.pass += ((data.teamwork.passing.roll || 0) + (data.teamwork.passing.aerial || 0)) //+ data.teamwork.passing.aerialMisses + data.teamwork.passing.rollMisses;
+			scoutData.pass += data.teamwork.passing.roll + data.teamwork.passing.aerial //+ data.teamwork.passing.aerialMisses + data.teamwork.passing.rollMisses;
 			scoutData.passTotal += data.teamwork.passing.roll + data.teamwork.passing.aerial;
 
 			scoutData.trussPasses += data.teamwork.passing.truss;
@@ -623,8 +615,6 @@ function drawBaseStats(redTeams, blueTeams) {
 			.text("Low: "+ scoutData.lowRatio)
 			.text("Passes: " + scoutData.passRatio)
 			.text("Truss Passes: " + scoutData.trussRatio)
-			.text("Auto Goals (including hot): " + scoutData.autoBalls+'/'+(scoutData.autoBalls + scoutData.autoMisses))
-			.text("Hot goals out of all goals made: " + scoutData.autoHotgoals+'/'+scoutData.autoBalls) 
 
 	});
 	doc.fontSize(12);
@@ -662,10 +652,6 @@ function drawBaseStats(redTeams, blueTeams) {
 			lowTotal: 0,
 			lowRatio: 0.0,
 
-			autoBalls: 0,
-			autoHotgoals: 0,
-			autoMisses: 0,
-
 			pass: 0,
 			passTotal: 0,
 			passRatio: 0.0,
@@ -677,10 +663,6 @@ function drawBaseStats(redTeams, blueTeams) {
 
 		_.each( matches, function(teamMatch) {
 			var data = teamMatch.data;
-
-			scoutData.autoBalls += data.auto.fieldValues.goal;
-			scoutData.autoHotgoals += data.auto.fieldValues.hotgoal;
-			scoutData.autoMisses += data.auto.fieldValues.miss;
 
 			scoutData.highTotal += (data.scoring.goals.high + data.scoring.goals.highMisses);
 			scoutData.high += data.scoring.goals.high;
@@ -712,8 +694,7 @@ function drawBaseStats(redTeams, blueTeams) {
 			.text("Low: "+ scoutData.lowRatio)
 			.text("Passes: " + scoutData.passRatio)
 			.text("Truss Passes: " + scoutData.trussRatio)
-			.text("Auto Goals (including hot): " + scoutData.autoBalls+'/'+(scoutData.autoBalls + scoutData.autoMisses))
-			.text("Hot goals out of all goals made: " + scoutData.autoHotgoals+'/'+scoutData.autoBalls) 
+
 	});
 	doc.fontSize(12);
 }

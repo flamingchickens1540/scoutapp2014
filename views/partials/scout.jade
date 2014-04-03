@@ -3,6 +3,8 @@ link(rel='stylesheet' type='text/css' href='/css/index.css')
 // extra navigation
 header.navbar.navbar-inverse.navbar-fixed-top
 	.container
+		.navbar-header
+			a.navbar-brand(href="/") Home
 		nav
 			//on the left side of the nav
 			ul.nav.navbar-nav
@@ -215,10 +217,10 @@ header.navbar.navbar-inverse.navbar-fixed-top
 		br
 		.row
 			.form-group
-				//- .col-sm-4
-				//- 	p.lead.text-center Notes:
-				//- .col-sm-12
-				//- 	textarea.form-control(rows=15 disabled) {{ submit.currentNotes }}
+				.col-sm-4
+					p.lead.text-center Current Notes:
+				.col-sm-12
+					textarea.form-control(rows=15 disabled) {{ submit.currentNotes }}
 				.col-sm-12
 					// if a robot is dead, there is no need for match notes
 					textarea.form-control(placeholder="Notes..." ng-model="submit.notes" rows=15 ng-disabled="issues.deadBroken === 'dead'" placeholder = "Anything to add?")

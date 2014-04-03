@@ -12,7 +12,7 @@ var app = angular.module('scout2014', [
  ]);
 
 
-app.config(function ($routeProvider, $locationProvider, socketProvider) {
+app.config(function ($routeProvider, $locationProvider) {
   $routeProvider.
 
     when('/', {
@@ -59,11 +59,13 @@ app.config(function ($routeProvider, $locationProvider, socketProvider) {
 });
 
 app.controller('AppCtrl', function(fileSystem, socket, $scope) {
-  var fs = fileSystem;
+  
   window.fs = fs;
+
+  var fs = fileSystem;
   
   // request 100MB
-  fs.requestQuota(1000)
+  fs.requestQuota(100)
 
     .then( function(granted) {
       console.log('GRANTED '+ granted +' bytes of persistent data');
@@ -72,92 +74,22 @@ app.controller('AppCtrl', function(fileSystem, socket, $scope) {
       console.log(err);
     }); 
 
-  socket.on('connect', function(ev) { console.log('CONNECTED', ev, navigator.onLine); $scope.connected = 'connected' });
-  socket.on('connecting', function(ev) { console.log('CONNECTING', ev, navigator.onLine); $scope.connected = 'connecting' });
-  socket.on('reconnect', function(ev) { console.log('RECONNECTED', ev, navigator.onLine); $scope.connected = 'reconnected' });
-  socket.on('disconnect', function(ev) { console.log('DISCONNECTED', ev, navigator.onLine); $scope.connected = 'disconnected' });
+  socket.on('connect', function(ev) { console.log('CONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - conn' });
+  socket.on('reconnect', function(ev) { console.log('RECONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - reconn' });
+  socket.on('disconnect', function(ev) { console.log('DISCONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - disconn' });
 
-  
-  $scope.reconnect = function() {
-    socket.socket.reconnect();
-  };
 
 });
 
-app.controller('AdminCtrl', function($scope, socket, fileSystem, $q, $timeout) {
+app.controller('AdminCtrl', function($scope, socket, fileSystem) {
 
   var fs = fileSystem;
 
-  fs.createFolder('event')
+  socket.on('connect', function(ev) { console.log('CONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - conn' });
+  socket.on('reconnect', function(ev) { console.log('RECONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - reconn' });
+  socket.on('disconnect', function(ev) { console.log('DISCONNECTED', ev, navigator.onLine); $scope.connected = 'TESTING - disconn' });
 
-    .then(function(test) {
-      console.log(test);
-    })
 
-    .catch(function(err) {
-      console.log('already created or error', err.obj);
-    });
-
-  var alertUser = function(type, message) {
-    $scope.alerts.push({ type:type || 'info', msg:message });
-    $timeout( function() {
-      // doesn't take into account multiple coming in every few seconds
-      $scope.alerts.shift(); // removes first item in alerts
-    }, 5000);
-  };
-  $scope.alerts = [];
-  $scope.events = [
-    { name: 'Autodesk Oregon District Champs', value: 'pncmp', region: 'Regionals' },
-    { name: 'Wilsonville District', value: 'orwil', region: 'PNW' },
-    { name: 'Oregon City District', value: 'orore', region: 'PNW' },
-    { name: 'Inland Empire Regional', value:'casb', region:'Regionals' }
-  ];
-
-// ===== WATCHER FUNCTIONS ====================================
-  // make sure event is always good
-  $scope.$watch('eventId', function(newEvent, oldEvent) {
-    var eventId = newEvent;
-
-    socket.emit('get-event', eventId, function(event) {
-      saveEvent(event);
-    });
-  });
-
-  var saveEvent = function(event) {
-    event = event || {};
-    var matches = event.matches || [];
-    var eventTeams = event.teams || [];
-    var matches = matches.sort(function numericSort(match1,match2) { console.log('SORT',match1.number,match2.number); return match1.number - match2.number; });
-
-    var teams = {};
-
-    eventTeams.map( function(team) {
-      teams[team.id] = team;
-    });
-
-    console.log('TEAMS',teams);
-
-    // turn teams into object, not array
-    event.teams = teams;
-
-    fs.writeText( 'event/'+ event.id +".json", JSON.stringify(event))
-
-      .then( function() {
-        console.log('Saved '+ event.id +".json", JSON.stringify(event));
-
-        alertUser('success', 'Successfully saved event '+ event.id +'.');
-
-        fs.readFile('event/'+ event.id +'.json').then(function(file) {console.log(JSON.parse(file))});
-
-        fs.getFolderContents('/event/').then(function(dir) {console.log(dir)});
-      })
-      
-      .catch( function errHandler(err) {
-        console.log(err);
-        alertUser( 'danger', err.message );
-      });
-
-  };
 });
 
 
