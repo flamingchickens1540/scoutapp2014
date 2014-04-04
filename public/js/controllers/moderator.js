@@ -4,31 +4,14 @@ var app = angular.module('ctrl.moderator', [
   'btford.socket-io'
 ]);
 
-app.controller('ModeratorCtrl', function($scope, $modal, socket, $http, $log, $timeout) {
+app.controller('ModeratorCtrl', function($scope, $modal, socket, $http, $log) {
 
   $scope.eventId = null;
   $scope.matches = [];
   $scope.teams = {};
 
-  $scope.alerts = [];
-
 // ===== HELPER FUNCTIONS =============================================  
-  var alertUser = function(type, message) {
-    $scope.alerts.push({ type:type || 'info', msg:message });
-    $timeout( function() {
-      // doesn't take into account multiple coming in every few seconds
-      $scope.alerts.shift(); // removes first item in alerts
-    }, 5000);
-  };
-
-// ===== DATA =============================================
-  $scope.events = [
-    { name: 'Autodesk PNW District Championships', value: 'pncmp', region: 'Regionals' },
-    { name: 'Wilsonville District', value: 'orwil', region: 'PNW' },
-    { name: 'OSU District', value: 'orosu', region: 'PNW' },
-    { name: 'Oregon City District', value: 'orore', region: 'PNW' },
-    { name: 'Inland Empire Regional', value:'casb', region:'Regionals' }
-  ];
+  var alertUser = $scope.alertUser;
 
 // ===== WATCHER FUNCTIONS ====================================
   var getEvent = function(eventId) {

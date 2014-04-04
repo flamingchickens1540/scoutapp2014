@@ -18,12 +18,15 @@ header.navbar.navbar-inverse.navbar-fixed-top
 				li
 					a(href="picklist") Picklist
 
-#alerts
+select.form-control(ng-options="event.value as event.name for event in events" ng-model="eventId")
+
+hr
+
+// success alerts
+.well.well-lg
 	.row
 		.col-sm-12(ng-repeat="alert in alerts")
 			alert(type="alert.type" close="closeAlert($index)" ng-click="closeAlert($index)") {{ alert.msg }}
-
-select.form-control(ng-options="event.value as event.name for event in events" ng-model="eventId")
 
 hr
 

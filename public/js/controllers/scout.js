@@ -10,10 +10,21 @@ app.controller('ScoutHomeCtrl', function($scope) {
   // anything that goes on the team selection page? Nothing?
 });
 
-app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, $timeout, fileSystem) {
+app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, fileSystem) {
   var fs = fileSystem;
-  
-  $scope.alerts = [];
+  var alertUser = $scope.alertUser;
+  fs.createFolder('scout')
+
+    .then(function(test) {
+      console.log(test);
+    })
+
+    .catch(function(err) {
+      console.log('already created or error', err.obj);
+    });
+
+  $scope.unsubmittedMatches = [];
+
   /* NON-DATA INFORMATION */
 
 // ===== DATA AND RESET ====================================
@@ -116,56 +127,6 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
 
   resetScout();
 
-    /* LISTS */
-  $scope.scouts = [
-    'Adolfo Apolloni',
-    'Alexandra Crew',
-    'Andie Becker',
-    'Anna Dodson',
-    'Ben Balden',
-    'Calissa Spooner',
-    'Conner Hansen',
-    'David Vollum',
-    'Elliot Lewis',
-    'Evan Chapman',
-    'Evë Maquelin',
-    'Gregor Peach',
-    'Hamzah Khan',
-    'Holly Sauer',
-    'Ian Hoyt',
-    'Iman Wahle',
-    'Iris Ellenberg',
-    'Jacob Bendicksen',
-    'Jacob Siegel',
-    'Jake Hansen',
-    'Jasper Gordon',
-    'Josephine Evans',
-    'Jules Renaud',
-    'Kellie Takahashi',
-    'Liam Wynne',
-    'Lukas Stracovsky',
-    'Maria Chang',
-    'Max Armstrong',
-    'Max Luu',
-    'Mind Tienpasertkij',
-    'Peter Smith',
-    'Robin Attey',
-    'Rushdi Abualhaija',
-    'Ryan Selden',
-    'Tristan Furnary',
-    'Tyler Riddle',
-    'Vincent Miller',
-    'Y Yen Gallup',
-    'Zach Alan'
-  ];
-
-  $scope.events = [
-    { name: 'Autodesk PNW District Championships', value: 'pncmp', region: 'Regionals' },
-    { name: 'Wilsonville District', value: 'orwil', region: 'PNW' },
-    { name: 'OSU District', value: 'orosu', region: 'PNW' },
-    { name: 'Oregon City District', value: 'orore', region: 'PNW' },
-    { name: 'Inland Empire Regional', value:'casb', region:'Regionals' }
-  ];
 
 // ===== VIEW FUNCTIONS ====================================
   $scope.displayView = function displayView(panel) {
@@ -202,14 +163,6 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
         // nothing happens
         break;
     }
-  };
-
-  var alertUser = function(type, message) {
-    $scope.alerts.push({ type:type || 'info', msg:message });
-    $timeout( function() {
-      // doesn't take into account multiple coming in every few seconds
-      $scope.alerts.shift(); // removes first item in alerts
-    }, 5000);
   };
 
 // ===== WATCHER FUNCTIONS ====================================
@@ -332,6 +285,49 @@ app.controller('ScoutCtrl', function($scope, socket, $http, $routeParams, $log, 
       submitData.error( function(data, status, headers, config) {
         alertUser('danger', 'Failed to save to the server, please try again. ERR: '+ data.err)
       });
+
+    }
+    else {
+      angular.forEach( test.errors, function(errMessage) {
+        alertUser('danger', errMessage);
+      });
+    }
+  };
+
+  $scope.saveMatchLocally = function() {
+    var test = verify();
+
+    if(test.verified) {
+      //send to server
+      $log.log('INFO', $scope.info);
+      $log.log('AUTONOMOUS', $scope.auto);
+      $log.log('SCORING', $scope.scoring);
+      $log.log('TEAMWORK', $scope.teamwork);
+      $log.log('ISSUES', $scope.issues);
+      $log.log('SUBMIT', $scope.submit);
+
+      var scoutData = {
+        info: $scope.info,
+        auto: $scope.auto,
+        scoring: $scope.scoring,
+        teamwork: $scope.teamwork,
+        issues: $scope.issues,
+        submit: $scope.submit
+      };
+
+      var info = scoutData.info;
+
+      $log.log('SCOUT DATA', scoutData);
+      var filename = [info.event, info.matchNum, info.team].join('_');
+
+      fs.writeText( 'scout/'+filename+'.json', scoutData)
+        .then( function() {
+          alertUser('success', 'Locally saved data for team '+ info.team +' in match '+ info.matchNum);
+          resetScout( info.matchNum ); // since matches start from 1, anf indexes start from 0, there is no matchNum+1
+        })
+        .catch( function(err) {
+          alertUser('danger', 'FS SAVE ERROR', err);
+        });
 
     }
     else {

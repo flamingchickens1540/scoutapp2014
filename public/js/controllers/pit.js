@@ -4,17 +4,11 @@ var app = angular.module('ctrl.pit', [
   'ui.bootstrap'
 ]);
 
-app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket, $timeout) {
+app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket) {
   var fs = fileSystem;
 
   // notifications
-  var alertUser = function(type, message) {
-    $scope.alerts.push({ type:type || 'info', msg:message });
-    $timeout( function() {
-      // doesn't take into account multiple coming in every few seconds
-      $scope.alerts.shift(); // removes first item in alerts
-    }, 5000);
-  };
+  var alertUser = $scope.alertUser;
 
   fs.createFolder('pit')
 
@@ -32,8 +26,6 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket, 
   $scope.eventId = null;
   $scope.team = null;
 
-  $scope.alerts = [];
-
 
 // ===== WATCHERS =========================================
   // make sure event is always good
@@ -49,15 +41,6 @@ app.controller('PitCtrl', function($scope, $http, fileSystem, $q, $log, socket, 
   });
 
 // ===== DATA =============================================
-
-  // List of events and what event we are at
-  $scope.events = [
-    { name: 'Autodesk PNW District Championships', value: 'pncmp', region: 'Regionals' },
-    { name: 'Wilsonville District', value: 'orwil', region: 'PNW' },
-    { name: 'OSU District', value: 'orosu', region: 'PNW' },
-    { name: 'Oregon City District', value: 'orore', region: 'PNW' },
-    { name: 'Inland Empire Regional', value:'casb', region:'Regionals' }
-  ];
 
   // List of wheels and what kind of wheels are present. Also notes on wheels
   $scope['wheels'] = [

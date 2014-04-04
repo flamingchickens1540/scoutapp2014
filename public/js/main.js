@@ -58,7 +58,7 @@ app.config(function ($routeProvider, $locationProvider) {
   $locationProvider.html5Mode(true);
 });
 
-app.controller('AppCtrl', function(fileSystem, socket, $scope) {
+app.controller('AppCtrl', function(fileSystem, socket, $scope, $timeout) {
   var fs = fileSystem;
   window.fs = fs;
   window.socket = socket;
@@ -82,11 +82,72 @@ app.controller('AppCtrl', function(fileSystem, socket, $scope) {
   //socket.on('reconnecting', function(ev) { console.log('RECONNECTING', ev, navigator.onLine); $scope.connected = 'reconnecting' });
   socket.on('disconnect', function(ev) { console.log('DISCONNECTED', ev, navigator.onLine); $scope.connected = 'disconnected' });
 
+// lists
+  $scope.scouts = [
+    'Adolfo Apolloni',
+    'Alexandra Crew',
+    'Andie Becker',
+    'Anna Dodson',
+    'Ben Balden',
+    'Calissa Spooner',
+    'Conner Hansen',
+    'David Vollum',
+    'Elliot Lewis',
+    'Evan Chapman',
+    'Evë Maquelin',
+    'Gregor Peach',
+    'Hamzah Khan',
+    'Holly Sauer',
+    'Ian Hoyt',
+    'Iman Wahle',
+    'Iris Ellenberg',
+    'Jacob Bendicksen',
+    'Jacob Siegel',
+    'Jake Hansen',
+    'Jasper Gordon',
+    'Josephine Evans',
+    'Jules Renaud',
+    'Kellie Takahashi',
+    'Liam Wynne',
+    'Lukas Stracovsky',
+    'Maria Chang',
+    'Max Armstrong',
+    'Max Luu',
+    'Mind Tienpasertkij',
+    'Peter Smith',
+    'Robin Attey',
+    'Rushdi Abualhaija',
+    'Ryan Selden',
+    'Tristan Furnary',
+    'Tyler Riddle',
+    'Vincent Miller',
+    'Y Yen Gallup',
+    'Zach Alan'
+  ];
+
+  $scope.events = [
+    { name: 'Autodesk PNW District Championships', value: 'pncmp', region: 'Regionals' },
+    { name: 'Wilsonville District', value: 'orwil', region: 'PNW' },
+    { name: 'OSU District', value: 'orosu', region: 'PNW' },
+    { name: 'Oregon City District', value: 'orore', region: 'PNW' },
+    { name: 'Inland Empire Regional', value:'casb', region:'Regionals' }
+  ];
+
+  // methods
+  $scope.alerts = [];
+
+  $scope.alertUser = function(type, message) {
+    $scope.alerts.push({ type:type || 'info', msg:message });
+    $timeout( function() {
+      // doesn't take into account multiple coming in every few seconds
+      $scope.alerts.shift(); // removes first item in alerts
+    }, 5000);
+  };
 
 });
 
-app.controller('AdminCtrl', function($scope, socket, fileSystem, $timeout) {
-
+app.controller('AdminCtrl', function($scope, socket, fileSystem) {
+  var alertUser = $scope.alertUser;
   var fs = fileSystem;
 
   fs.createFolder('event')
@@ -98,23 +159,6 @@ app.controller('AdminCtrl', function($scope, socket, fileSystem, $timeout) {
     .catch(function(err) {
       console.log('already created or error', err.obj);
     });
-
-  var alertUser = function(type, message) {
-    $scope.alerts.push({ type:type || 'info', msg:message });
-    $timeout( function() {
-      // doesn't take into account multiple coming in every few seconds
-      $scope.alerts.shift(); // removes first item in alerts
-    }, 5000);
-  };
-  $scope.alerts = [];
-
-  $scope.events = [
-    { name: 'Autodesk PNW District Championships', value: 'pncmp', region: 'Regionals' },
-    { name: 'Wilsonville District', value: 'orwil', region: 'PNW' },
-    { name: 'OSU District', value: 'orosu', region: 'PNW' },
-    { name: 'Oregon City District', value: 'orore', region: 'PNW' },
-    { name: 'Inland Empire Regional', value:'casb', region:'Regionals' }
-  ];
 
   // ===== WATCHER FUNCTIONS ====================================
   // make sure event is always good
@@ -165,6 +209,7 @@ app.controller('AdminCtrl', function($scope, socket, fileSystem, $timeout) {
     fs.deleteFolder(folderName, true)
       .then(function(anything) {
         console.log('deleted '+ folderName +' folder.', anything);
+        alertUser('success', 'Deleted all files in folder '+ folderName)
 
         fs.createFolder(folderName)
 
@@ -178,7 +223,8 @@ app.controller('AdminCtrl', function($scope, socket, fileSystem, $timeout) {
       })
 
       .catch( function(err) {
-        console.log('ERR: ',err)
+        console.log('ERR: ',err);
+        alertUser('danger', 'failed to delete '+ err);
       });
   };
 

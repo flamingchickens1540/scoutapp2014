@@ -13,13 +13,13 @@ header.navbar.navbar-inverse.navbar-fixed-top
 				li
 					a(href="moderator") Moderator
 				li
-					a(href="analyst") Analyst
+					a(href="admin") Admin
 				li
 					a(href="picklist") Picklist
 		.pull-right
-			btn.btn-lg.btn-info(ng-click="reconnect(); connected='reconnecting'") {{ connected }}
+			btn.btn-lg.btn-info(ng-click="reconnect()") {{ connected }}
 // success alerts
-#alerts
+.well.well-lg
 	.row
 		.col-sm-12(ng-repeat="alert in alerts")
 			alert(type="alert.type" close="closeAlert($index)" ng-click="closeAlert($index)") {{ alert.msg }}
@@ -76,7 +76,7 @@ header.navbar.navbar-inverse.navbar-fixed-top
 							.btn.btn-lg.btn-primary(ng-model='generalInfo.shifting' btn-radio="true") Yes
 							.btn.btn-lg.btn-primary(ng-model='generalInfo.shifting' btn-radio="false") No
 			.col-sm-8.text-center
-				h3.text-center Shooting Range:
+				h3.text-center Shooting Range (Select Multiple):
 				br
 				.row
 					.col-sm-12

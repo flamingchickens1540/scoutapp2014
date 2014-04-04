@@ -3,8 +3,6 @@ link(rel='stylesheet' type='text/css' href='/css/index.css')
 // extra navigation
 header.navbar.navbar-inverse.navbar-fixed-top
 	.container
-		.navbar-header
-			a.navbar-brand(href="/") Home
 		nav
 			//on the left side of the nav
 			ul.nav.navbar-nav
@@ -216,16 +214,13 @@ header.navbar.navbar-inverse.navbar-fixed-top
 						rating.stars.pull-right(value="submit.ratings[$index].stars" max="submit.numStars")
 		br
 		.row
-			.form-group
-				.col-sm-4
-					p.lead.text-center Current Notes:
-				.col-sm-12
-					textarea.form-control(rows=15 disabled) {{ submit.currentNotes }}
-				.col-sm-12
-					// if a robot is dead, there is no need for match notes
-					textarea.form-control(placeholder="Notes..." ng-model="submit.notes" rows=15 ng-disabled="issues.deadBroken === 'dead'" placeholder = "Anything to add?")
+			.col-sm-12
+				// if a robot is dead, there is no need for match notes
+				textarea.form-control(placeholder="Notes on the robot. VERY IMPORTANT" ng-model="submit.notes" rows=15 ng-disabled="issues.deadBroken === 'dead'")
 		br
 		.row
-			.col-sm-10.col-sm-offset-1
+			.col-sm-8
 				.btn.btn-lg.btn-block.btn-info(ng-click="submitMatch()") Submit Match for Team {{ info.team }}
+			.col-sm-3.col-sm-offset-1
+				.btn.btn-lg.btn-block.btn-warning(ng-click="saveMatchLocally()") Offline Save (if no connection)
 
